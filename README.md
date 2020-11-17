@@ -33,7 +33,7 @@ devtools::install_github("RangeShifter/RangeShiftR-package", ref="main")
 
 ## Usage
 
-Please refer to our website for more information about RangeShifter simulation 
+Please refer to our [website](https://rangeshifter.github.io/) for more information about RangeShifter simulation 
 platform. 
 
 A range of tutorials with theoretical and applied examples introduce you to 
