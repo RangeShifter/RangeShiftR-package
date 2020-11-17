@@ -43,6 +43,6 @@ https://rangeshifter.github.io/RangeshiftR-tutorials/
 
 ## References
 
- - Bocedi G, Palmer SCF, Pe’er G, Heikkinen RK, Matsinos YG, Watts K, Travis JMJ (2014a). 
+ - Bocedi G, Palmer SCF, Pe’er G, Heikkinen RK, Matsinos YG, Watts K, Travis JMJ (2014). 
  *RangeShifter: A Platform for Modelling Spatial Eco-Evolutionary Dynamics and 
  Species’ Responses to Environmental Changes.* Methods in Ecology and Evolution 5: 388–96. 
