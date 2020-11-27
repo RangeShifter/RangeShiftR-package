@@ -5,7 +5,7 @@ The RangeShiftR package implements the RangeShifter simulation platform for R.
 [RangeShifter](https://rangeshifter.github.io/)
 is a state-of-the-art eco-evolutionary modelling platform that is becoming 
 increasingly used worldwide for both theoretical and applied purposes
-[(Bocedi et al. 2014a)](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12162).
+[(Bocedi et al. 2014)](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12162).
 
 RangeShifter is a spatially-explicit, individual-based simulation platform that 
 allows modelling species’ range dynamics , such as expansion and shifting, and 
@@ -33,7 +33,7 @@ devtools::install_github("RangeShifter/RangeShiftR-package", ref="main")
 
 ## Usage
 
-Please refer to our website for more information about RangeShifter simulation 
+Please refer to our [website](https://rangeshifter.github.io/) for more information about RangeShifter simulation 
 platform. 
 
 A range of tutorials with theoretical and applied examples introduce you to 
@@ -43,6 +43,6 @@ https://rangeshifter.github.io/RangeshiftR-tutorials/
 
 ## References
 
- - Bocedi G, Palmer SCF, Pe’er G, Heikkinen RK, Matsinos YG, Watts K, Travis JMJ (2014a). 
+ - Bocedi G, Palmer SCF, Pe’er G, Heikkinen RK, Matsinos YG, Watts K, Travis JMJ (2014). 
  *RangeShifter: A Platform for Modelling Spatial Eco-Evolutionary Dynamics and 
  Species’ Responses to Environmental Changes.* Methods in Ecology and Evolution 5: 388–96. 
