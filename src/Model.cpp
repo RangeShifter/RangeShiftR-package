@@ -22,15 +22,11 @@
  
 //---------------------------------------------------------------------------
 
-#pragma hdrstop
-
 #include "Model.h"
 
 ofstream outPar;
 
 //---------------------------------------------------------------------------
-#pragma package(smart_init)
-
 //---------------------------------------------------------------------------
 Rcpp::List RunModel(Landscape *pLandscape,int seqsim)
 {
@@ -174,15 +170,7 @@ DEBUGLOG << "RunModel(): patch count is " << npatches << endl;
 //	<< " ppp.pPatch = " << ppp.pPatch << " ppp.patchNum = " << ppp.patchNum
 //	<< endl;
 #endif
-#if RSWIN64
-			SubCommunity *pSubComm = pComm->addSubComm(ppp.pPatch,ppp.patchNum); // SET UP ALL SUB-COMMUNITIES
-//			if (ppp.y >= 9995) {
-//				DEBUGLOG << "RunModel(): i=" << i << " pSubComm=" << pSubComm
-//					<< endl;
-//			}
-#else
 			pComm->addSubComm(ppp.pPatch,ppp.patchNum); // SET UP ALL SUB-COMMUNITIES
-#endif
 //	if (i == 0 || ppp.pPatch->getK() > 0.0) {
 //		// SET UP SUB-COMMUNITY FOR MATRIX PATCH AND ANY PATCH HAVING NON-ZERO CARRYING CAPACITY
 //		pComm->addSubComm(ppp.pPatch,ppp.patchNum);
@@ -414,7 +402,7 @@ DEBUGLOG << "RunModel(): yr=" << yr << " landChg.chgnum=" << landChg.chgnum
 	<< endl;
 #endif
 				if (yr == landChg.chgyear) { // apply landscape change
-					landIx = landChg.chgnum;
+					landIx = landChg.chgnum;       
 					updateland = updateCC = true;
 					if (ppLand.patchModel) { // apply any patch changes
 						Patch *pPatch;
@@ -858,8 +846,10 @@ bool CheckDirectory(void)
 bool errorfolder = false;
 
 string subfolder;
+
+
 subfolder = paramsSim->getDir(0) + "Inputs";
-const char *inputs = subfolder.c_str();
+const char* inputs = subfolder.c_str();
 if (!is_directory(inputs)) errorfolder = true;
 subfolder = paramsSim->getDir(0) + "Outputs";
 const char *outputs = subfolder.c_str();
@@ -867,6 +857,7 @@ if (!is_directory(outputs)) errorfolder = true;
 subfolder = paramsSim->getDir(0) + "Output_Maps";
 const char *outputmaps = subfolder.c_str();
 if (!is_directory(outputmaps)) errorfolder = true;
+
 
 return errorfolder;
 }
@@ -897,7 +888,7 @@ DEBUGLOG << "PreReproductionOutput(): 11112 outRange=" << sim.outRange
 
 //emigCanvas ecanv;
 //trfrCanvas tcanv;
-traitCanvas tcanv;
+traitCanvas tcanv{};
 //for (int i = 0; i < 6; i++) {
 //	ecanv.pcanvas[i] = 0; tcanv.pcanvas[i] = 0;
 //}
@@ -1066,7 +1057,7 @@ if (!ppLand.generated && ppLand.dynamic) {
 			outPar << "Patches  : " << chg.pchfile << endl;
 		}
 		if (chg.costfile != "none" && chg.costfile != "NULL") {
-			outPar << "Costs    : " << chg.costfile << endl;
+			outPar << "Costs    : " << chg.costfile << endl;			
 		}
 //		outPar << "Change no. " << chg.chgnum << " in year " << chg.chgyear
 //			<< " habitat map: " << chg.habfile << endl;

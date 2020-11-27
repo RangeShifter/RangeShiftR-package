@@ -22,11 +22,8 @@
  
 //---------------------------------------------------------------------------
 
-#pragma hdrstop
-
 #include "FractalGenerator.h"
 //---------------------------------------------------------------------------
-#pragma package(smart_init)
 
 vector<land> patches;
 
@@ -54,13 +51,13 @@ double i, j;
 int Nx = X;
 int Ny = Y;
 
-double ran[5]; // to store each time the 5 random numbers for the random displacement
+double ran[5]{0.0,0.0,0.0,0.0,0.0}; // to store each time the 5 random numbers for the random displacement
 
 int Nno; // number of cells NON suitable as habitat
 
 // exponents used to obtain the landscape dimensions
-double pow2x = log((double)(X-1))/log(2.0);
-double pow2y = log((double)(Y-1))/log(2.0);
+double pow2x = log(((double)X-1.0))/log(2.0);
+double pow2y = log(((double)Y-1.0))/log(2.0);
 
 double **arena = new double *[X];
 for(ii = 0; ii < X; ii++) {
@@ -112,11 +109,11 @@ j = pow2y-1;
 
 while (i > 0) {
 	nx = pow(2,i)+1;
-	kx = (nx-1) / 2;
+	kx = (int)((nx-1) / 2);
 	kx2 = 2 * kx;
 
 	ny = pow(2,j)+1;
-	ky = (ny-1) / 2;
+	ky = (int)((ny-1) / 2);
 	ky2 = 2 * ky;
 
 	ix = 0;
@@ -151,9 +148,9 @@ while (i > 0) {
 								arena[ix+kx2][iy+ky2]) / 3) + ran[4];
 			if (arena[ix+kx][iy+ky2] < 1) arena[ix+kx][iy+ky2] = 1;
 
-			iy += (ny-1);
+			iy += ((int)ny-1);
 		}
-		ix += (nx-1);
+		ix += ((int)nx-1);
 	}
 	if (i==j) j--;
 	i--;
@@ -173,7 +170,7 @@ for (x = 0; x < X; x++) // put all the cells with their values in a vector
 		patch = new land;
 		patch->x_coord = x;
 		patch->y_coord = y;
-		patch->value = arena[x][y];
+		patch->value = (float)arena[x][y];
 		patch->avail = 1;
 
 		patches.push_back(*patch);
@@ -185,15 +182,15 @@ for (x = 0; x < X; x++) // put all the cells with their values in a vector
 
 sort(patches.begin(),patches.end(),compare);  // sorts the vector
 
-Nno = (prop*X*Y);
+Nno = ((int)prop*X*Y);
 for (ii = 0; ii < Nno; ii++)
 {
 	patches[ii].value = 0.0;
 	patches[ii].avail = 0;
 }
 
-double min = patches[Nno].value;        // variables for the rescaling
-double max = patches[X*Y-1].value;
+double min = (double)patches[Nno].value;        // variables for the rescaling
+double max = (double)patches[X*Y-1].value;
 
 double diff = max - min;
 double diffK = maxValue-minValue;
@@ -204,9 +201,9 @@ while (iter != patches.end())
 {
 	if (iter->value > 0) // rescale to a range of K between Kmin and Kmax
 	{
-		new_value = maxValue - diffK * (max - iter->value) / diff;
+		new_value = maxValue - diffK * (max - (double)iter->value) / diff;
 
-		iter->value = new_value;
+		iter->value = (float)new_value;
 	}
 	else iter->value = 0;
 

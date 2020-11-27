@@ -38,7 +38,7 @@ Methods in Ecology and Evolution, 5, 388-396. doi: 10.1111/2041-210X.12162
 
 Authors: Greta Bocedi & Steve Palmer, University of Aberdeen
 
-Last updated: 24 July 2020 by Anne-Kathleen Malchow, Potsdam University
+Last updated: 26 November 2020 by Greta Bocedi
 
 ------------------------------------------------------------------------------*/
 
@@ -52,7 +52,7 @@ using namespace std;
 
 //---------------------------------------------------------------------------
 
-struct array3x3f { float cell[3][3]; }; 						// neighbourhood cell array (SMS)
+struct array3x3f { float cell[3][3]; }; 	// neighbourhood cell array (SMS)
 struct smscosts { int cost; array3x3f *effcosts; };	// cell costs for SMS
 
 // Landscape cell

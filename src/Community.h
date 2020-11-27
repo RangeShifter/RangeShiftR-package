@@ -42,7 +42,7 @@ Methods in Ecology and Evolution, 5, 388-396. doi: 10.1111/2041-210X.12162
 
 Authors: Greta Bocedi & Steve Palmer, University of Aberdeen
 
-Last updated: 24 July 2020 by Anne-Kathleen Malchow, Potsdam University
+Last updated: 26 November 2020 by Greta Bocedi
 
 ------------------------------------------------------------------------------*/
 
@@ -175,7 +175,7 @@ public:
 		int       // Landscape number (-999 to close the file)
 	);
 	void outTraits( // Write records to traits file
-		traitCanvas,// pointers to canvases for drawing variable traits
+		traitCanvas,// pointers to canvases for drawing variable traits 
 //		emigCanvas,	// pointers to canvases for drawing emigration traits
 //		trfrCanvas, // pointers to canvases for drawing emigration traits
 								// see SubCommunity.h

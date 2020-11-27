@@ -28,7 +28,7 @@ Implements the Genome class
 
 Author: Steve Palmer & Roslyn Henry, University of Aberdeen
 
-Last updated: 6 January 2020 by Steve Palmer
+Last updated: 26 November 2020 by Greta Bocedi
 
 ------------------------------------------------------------------------------*/
 
@@ -70,8 +70,8 @@ public:
 		const int			// position of locus on chromosome
 	);
 	void initialise( // Set up chromosome at simulation initialisation
-		const float,	// normalised phenotypic trait value
-		const float,	// s.d. of allelic variance (genetic scale)
+		const double,	// normalised phenotypic trait value			
+		const double,	// s.d. of allelic variance (genetic scale)
 		const bool		// diploid
 	);
 	void initialise( // Set up specified locus at simulation initialisation
@@ -116,14 +116,14 @@ public:
 	void setGene( // Set up new gene at initialisation for 1 chromosome per trait
 		const short,	// chromosome number
 		const short,	// expression type (NOT CURRENTLY USED)
-		const float,	// normalised trait value
-		const float		// s.d. of allelic variance
+		const double,	// normalised trait value		
+		const double		// s.d. of allelic variance
 	);
 	void setTrait( // Set up trait at initialisation for trait mapping
 		Species*,			// pointer to Species
-		const int,		// trait number
-		const float,	// normalised trait value
-		const float		// s.d. of allelic variance
+		const int,		// trait number			
+		const double,	// normalised trait value		
+		const double		// s.d. of allelic variance
 	);
 	void setNeutralLoci( // Set up neutral loci at initialisation
 		Species*,			// pointer to Species

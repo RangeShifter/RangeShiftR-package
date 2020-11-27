@@ -28,7 +28,7 @@ Implements the RSrandom class
 
 Author: Steve Palmer, University of Aberdeen
 
-Last updated: 14 October 2020 by Anne-Kathleen Malchow, Potsdam University
+Last updated: 24 November 2020 by Anne-Kathleen Malchow
 
 ------------------------------------------------------------------------------*/
 
@@ -47,16 +47,21 @@ using namespace std;
 extern ofstream DEBUGLOG;
 #endif
 
+
+//--------------- 1.) Former version of RSrandom.cpp
+
+
+
+//--------------- 2.) New version of RSrandom.cpp
+
+
 	#include <cmath>
 	#include <random>
-	#if RSWIN64
-	#include <ctime>
-	#endif
 
 	class RSrandom {
 
 	public:
-		RSrandom(std::int64_t);              // if int is negative, a random seed will be generated, else it is used as seed
+		RSrandom(std::int64_t);       // if int is negative, a random seed will be generated, else it is used as seed
 		~RSrandom(void);
 		mt19937 getRNG(void);
 		double Random(void);
@@ -76,5 +81,11 @@ extern ofstream DEBUGLOG;
 		std::normal_distribution<> *pNormal;
 	};
 
+
+
 //---------------------------------------------------------------------------
+
 #endif // RSrandomH
+
+
+

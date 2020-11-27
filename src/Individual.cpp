@@ -22,11 +22,8 @@
  
 //---------------------------------------------------------------------------
 
-#pragma hdrstop
-
 #include "Individual.h"
 //---------------------------------------------------------------------------
-#pragma package(smart_init)
 
 int Individual::indCounter = 0;
 
@@ -73,8 +70,8 @@ if (movt) {
 	if (moveType == 2) { // CRW
 		// set up continuous co-ordinates etc. for CRW movement
 		crw = new crwParams;
-		crw->xc = (float)(pRandom->Random()*0.999) + (float)loc.x;
-		crw->yc = (float)(pRandom->Random()*0.999) + (float)loc.y;
+		crw->xc = ((float)pRandom->Random()*0.999f) + (float)loc.x;
+		crw->yc = (float)(pRandom->Random()*0.999f) + (float)loc.y;
 		crw->prevdrn = (float)(pRandom->Random()*2.0 * PI);
 		crw->stepL = crw->rho = 0.0;
 	}
@@ -504,7 +501,7 @@ int Individual::getSex(void) { return sex; }
 int Individual::getStatus(void) { return status; }
 
 indStats Individual::getStats(void) {
-indStats s;
+indStats s{};
 s.stage = stage; s.sex = sex; s.age = age; s.status = status; s.fallow = fallow;
 s.isDeveloping = isDeveloping;
 return s;
@@ -534,7 +531,7 @@ if (path != 0 && t >= 0) {
 }
 
 pathSteps Individual::getSteps(void) {
-pathSteps s;
+pathSteps s{};
 if (path == 0) {
 	s.year = 0; s.total = 0; s.out = 0;
 }
@@ -545,7 +542,7 @@ return s;
 }
 
 settlePatch Individual::getSettPatch(void) {
-settlePatch s;
+settlePatch s{};
 if (path == 0) {
 	s.pSettPatch = 0; s.settleStatus = 0;
 }
@@ -573,43 +570,43 @@ void Individual::setEmigTraits(Species *pSpecies,short emiggenelocn,short nemigt
 //	<< " emiggenelocn=" << emiggenelocn << " nemigtraits=" << nemigtraits << " sexdep=" << sexdep
 //	<< endl;
 #endif
-emigTraits e; e.d0 = e.alpha = e.beta = 0.0;
+emigTraits e{}; e.d0 = e.alpha = e.beta = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
 			if (nemigtraits == 3) { // emigration is density-dependent
-				e.d0    = pGenome->express(emiggenelocn+3*sex,0,0);
-				e.alpha = pGenome->express(emiggenelocn+3*sex+1,0,0);
-				e.beta  = pGenome->express(emiggenelocn+3*sex+2,0,0);
+				e.d0    = (float)pGenome->express(emiggenelocn+3*sex,0,0);
+				e.alpha = (float)pGenome->express(emiggenelocn+3*sex+1,0,0);
+				e.beta  = (float)pGenome->express(emiggenelocn+3*sex+2,0,0);
 			}
 			else {
-				e.d0    = pGenome->express(emiggenelocn+sex,0,0);
+				e.d0    = (float)pGenome->express(emiggenelocn+sex,0,0);
 			}
 		}
 		else {
-			e.d0 = pGenome->express(emiggenelocn,0,0);
+			e.d0 = (float)pGenome->express(emiggenelocn,0,0);
 			if (nemigtraits == 3) { // emigration is density-dependent
-				e.alpha = pGenome->express(emiggenelocn+1,0,0);
-				e.beta  = pGenome->express(emiggenelocn+2,0,0);
+				e.alpha = (float)pGenome->express(emiggenelocn+1,0,0);
+				e.beta  = (float)pGenome->express(emiggenelocn+2,0,0);
 			}
 		}
 	}
 	else {
 		if (sexdep) {              
 			if (nemigtraits == 3) { // emigration is density-dependent
-				e.d0 = pGenome->express(pSpecies,emiggenelocn+3*sex);
-				e.alpha = pGenome->express(pSpecies,emiggenelocn+3*sex+1);
-				e.beta  = pGenome->express(pSpecies,emiggenelocn+3*sex+2);
+				e.d0 = (float)pGenome->express(pSpecies,emiggenelocn+3*sex);
+				e.alpha = (float)pGenome->express(pSpecies,emiggenelocn+3*sex+1);
+				e.beta  = (float)pGenome->express(pSpecies,emiggenelocn+3*sex+2);
 			}
 			else {
-				e.d0 = pGenome->express(pSpecies,emiggenelocn+sex);
+				e.d0 = (float)pGenome->express(pSpecies,emiggenelocn+sex);
 			}
 		}
 		else {
-			e.d0 = pGenome->express(pSpecies,emiggenelocn);
+			e.d0 = (float)pGenome->express(pSpecies,emiggenelocn);
 			if (nemigtraits == 3) { // emigration is density-dependent
-				e.alpha = pGenome->express(pSpecies,emiggenelocn+1);
-				e.beta  = pGenome->express(pSpecies,emiggenelocn+2);
+				e.alpha = (float)pGenome->express(pSpecies,emiggenelocn+1);
+				e.beta  = (float)pGenome->express(pSpecies,emiggenelocn+2);
 			}
 		}
 	}
@@ -660,7 +657,7 @@ emigTraits Individual::getEmigTraits(void) {
 //DEBUGLOG << "Individual::getEmigTraits(): indId=" << indId
 //	<< endl;
 #endif
-emigTraits e; e.d0 = e.alpha = e.beta = 0.0;
+emigTraits e{}; e.d0 = e.alpha = e.beta = 0.0;
 if (emigtraits != 0) {
 	e.d0 = emigtraits->d0;
 	e.alpha = emigtraits->alpha;
@@ -683,43 +680,43 @@ void Individual::setKernTraits(Species *pSpecies,short kerngenelocn,short nkernt
 //	<< " kerngenelocn=" << kerngenelocn << " nkerntraits=" << nkerntraits << " sexdep=" << sexdep
 //	<< endl;
 #endif
-trfrKernTraits k; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
+trfrKernTraits k{}; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
 			if (nkerntraits == 3) { // twin kernel
-				k.meanDist1 = pGenome->express(kerngenelocn+3*sex,0,sex);
-				k.meanDist2 = pGenome->express(kerngenelocn+3*sex+1,0,sex);
-				k.probKern1 = pGenome->express(kerngenelocn+3*sex+2,0,sex);
+				k.meanDist1 = (float)pGenome->express(kerngenelocn+3*sex,0,sex);
+				k.meanDist2 = (float)pGenome->express(kerngenelocn+3*sex+1,0,sex);
+				k.probKern1 = (float)pGenome->express(kerngenelocn+3*sex+2,0,sex);
 			}
 			else {
-				k.meanDist1 = pGenome->express(kerngenelocn+sex,0,sex);
+				k.meanDist1 = (float)pGenome->express(kerngenelocn+sex,0,sex);
 			}
 		}
 		else {
-			k.meanDist1 = pGenome->express(kerngenelocn,0,0);
+			k.meanDist1 = (float)pGenome->express(kerngenelocn,0,0);
 			if (nkerntraits == 3) { // twin kernel
-				k.meanDist2 = pGenome->express(kerngenelocn+1,0,0);
-				k.probKern1 = pGenome->express(kerngenelocn+2,0,0);
+				k.meanDist2 = (float)pGenome->express(kerngenelocn+1,0,0);
+				k.probKern1 = (float)pGenome->express(kerngenelocn+2,0,0);
 			}
 		}
 	}
 	else {
 		if (sexdep) {
 			if (nkerntraits == 3) { // twin kernel
-				k.meanDist1 = pGenome->express(pSpecies,kerngenelocn+3*sex);
-				k.meanDist2 = pGenome->express(pSpecies,kerngenelocn+3*sex+1);
-				k.probKern1 = pGenome->express(pSpecies,kerngenelocn+3*sex+2);
+				k.meanDist1 = (float)pGenome->express(pSpecies,kerngenelocn+3*sex);
+				k.meanDist2 = (float)pGenome->express(pSpecies,kerngenelocn+3*sex+1);
+				k.probKern1 = (float)pGenome->express(pSpecies,kerngenelocn+3*sex+2);
 			}
 			else {
-				k.meanDist1 = pGenome->express(pSpecies,kerngenelocn+sex);
+				k.meanDist1 = (float)pGenome->express(pSpecies,kerngenelocn+sex);
 			}
 		}
 		else {
-			k.meanDist1 = pGenome->express(pSpecies,kerngenelocn);
+			k.meanDist1 = (float)pGenome->express(pSpecies,kerngenelocn);
 			if (nkerntraits == 3) { // twin kernel
-				k.meanDist2 = pGenome->express(pSpecies,kerngenelocn+1);
-				k.probKern1 = pGenome->express(pSpecies,kerngenelocn+2);
+				k.meanDist2 = (float)pGenome->express(pSpecies,kerngenelocn+1);
+				k.probKern1 = (float)pGenome->express(pSpecies,kerngenelocn+2);
 			}
 		}
   }
@@ -751,8 +748,8 @@ kerntraits->probKern1 = k.probKern1*kparams.PKern1Scale + kparams.PKern1Mean;
 #endif
 if (!pSpecies->useFullKernel()) {
 	// kernel mean(s) may not be less than landscape resolution
-	if (kerntraits->meanDist1 < resol) kerntraits->meanDist1 = resol;
-	if (kerntraits->meanDist2 < resol) kerntraits->meanDist2 = resol;
+	if (kerntraits->meanDist1 < resol) kerntraits->meanDist1 = (float)resol;
+	if (kerntraits->meanDist2 < resol) kerntraits->meanDist2 = (float)resol;
 }
 if (kerntraits->probKern1 < 0.0) kerntraits->probKern1 = 0.0;
 if (kerntraits->probKern1 > 1.0) kerntraits->probKern1 = 1.0;
@@ -772,7 +769,7 @@ trfrKernTraits Individual::getKernTraits(void) {
 //DEBUGLOG << "Individual::getKernTraits(): indId=" << indId
 //	<< endl;
 #endif
-trfrKernTraits k; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
+trfrKernTraits k{}; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
 if (kerntraits != 0) {
 	k.meanDist1 = kerntraits->meanDist1;
 	k.meanDist2 = kerntraits->meanDist2;
@@ -797,42 +794,42 @@ void Individual::setSMSTraits(Species *pSpecies,short SMSgenelocn,short nSMStrai
 //	<< endl;
 #endif
 trfrSMSTraits s = pSpecies->getSMSTraits();
-double dp,gb,alphaDB,betaDB;
+float dp,gb,alphaDB,betaDB;
 dp = gb = alphaDB = betaDB = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
-			dp = pGenome->express(SMSgenelocn,0,0);
-			gb = pGenome->express(SMSgenelocn+1,0,0);
+			dp = (float)pGenome->express(SMSgenelocn,0,0);
+			gb = (float)pGenome->express(SMSgenelocn+1,0,0);
 			if (nSMStraits == 4) {
-				alphaDB = pGenome->express(SMSgenelocn+2,0,0);
-				betaDB  = pGenome->express(SMSgenelocn+3,0,0);
+				alphaDB = (float)pGenome->express(SMSgenelocn+2,0,0);
+				betaDB  = (float)pGenome->express(SMSgenelocn+3,0,0);
 			}
 		}
 		else {
-			dp = pGenome->express(SMSgenelocn,0,0);
-			gb = pGenome->express(SMSgenelocn+1,0,0);
+			dp = (float)pGenome->express(SMSgenelocn,0,0);
+			gb = (float)pGenome->express(SMSgenelocn+1,0,0);
 			if (nSMStraits == 4) {
-				alphaDB = pGenome->express(SMSgenelocn+2,0,0);
-				betaDB  = pGenome->express(SMSgenelocn+3,0,0);
+				alphaDB = (float)pGenome->express(SMSgenelocn+2,0,0);
+				betaDB  = (float)pGenome->express(SMSgenelocn+3,0,0);
 			}
 		}
 	}
 	else {
 		if (sexdep) {
-			dp = pGenome->express(pSpecies,SMSgenelocn);
-			gb = pGenome->express(pSpecies,SMSgenelocn+1);
+			dp = (float)pGenome->express(pSpecies,SMSgenelocn);
+			gb = (float)pGenome->express(pSpecies,SMSgenelocn+1);
 			if (nSMStraits == 4) {
-				alphaDB = pGenome->express(pSpecies,SMSgenelocn+2);
-				betaDB  = pGenome->express(pSpecies,SMSgenelocn+3);
+				alphaDB = (float)pGenome->express(pSpecies,SMSgenelocn+2);
+				betaDB  = (float)pGenome->express(pSpecies,SMSgenelocn+3);
 			}
 		}
 		else {
-			dp = pGenome->express(pSpecies,SMSgenelocn);
-			gb = pGenome->express(pSpecies,SMSgenelocn+1);
+			dp = (float)pGenome->express(pSpecies,SMSgenelocn);
+			gb = (float)pGenome->express(pSpecies,SMSgenelocn+1);
 			if (nSMStraits == 4) {
-				alphaDB = pGenome->express(pSpecies,SMSgenelocn+2);
-				betaDB  = pGenome->express(pSpecies,SMSgenelocn+3);
+				alphaDB = (float)pGenome->express(pSpecies,SMSgenelocn+2);
+				betaDB  = (float)pGenome->express(pSpecies,SMSgenelocn+3);
 			}
 		}
 	}
@@ -869,7 +866,7 @@ else {
 #endif
 if (smsData->dp < 1.0) smsData->dp = 1.0;
 if (smsData->gb < 1.0) smsData->gb = 1.0;
-if (smsData->alphaDB <= 0.0) smsData->alphaDB = 0.000001;
+if (smsData->alphaDB <= 0.0) smsData->alphaDB = 0.000001f;
 if (smsData->betaDB < 1) smsData->betaDB = 1;
 #if RSDEBUG
 //DEBUGLOG << "Individual::setSMSTraits() 2222: indId=" << indId
@@ -886,7 +883,7 @@ trfrSMSTraits Individual::getSMSTraits(void) {
 //DEBUGLOG << "Individual::getSMSTraits(): indId=" << indId
 //	<< endl;
 #endif
-trfrSMSTraits s; s.dp = s.gb = s.alphaDB = 1.0; s.betaDB = 1;
+trfrSMSTraits s{}; s.dp = s.gb = s.alphaDB = 1.0; s.betaDB = 1;
 if (smsData != 0) {
 	s.dp = smsData->dp; s.gb = smsData->gb;
 	s.alphaDB = smsData->alphaDB; s.betaDB = smsData->betaDB;
@@ -908,26 +905,26 @@ void Individual::setCRWTraits(Species *pSpecies,short CRWgenelocn,short nCRWtrai
 //	<< " CRWgenelocn=" << CRWgenelocn << " nCRWtraits=" << nCRWtraits << " sexdep=" << sexdep
 //	<< endl;
 #endif
-trfrCRWTraits c; c.stepLength = c.rho = 0.0;
+trfrCRWTraits c{}; c.stepLength = c.rho = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
-			c.stepLength = pGenome->express(CRWgenelocn+sex,0,sex);
-			c.rho = pGenome->express(CRWgenelocn+2+sex,0,sex);
+			c.stepLength = (float)pGenome->express(CRWgenelocn+sex,0,sex);
+			c.rho = (float)pGenome->express(CRWgenelocn+2+sex,0,sex);
 		}
 		else {
-			c.stepLength = pGenome->express(CRWgenelocn,0,0);
-			c.rho = pGenome->express(CRWgenelocn+1,0,0);
+			c.stepLength = (float)pGenome->express(CRWgenelocn,0,0);
+			c.rho = (float)pGenome->express(CRWgenelocn+1,0,0);
 		}
 	}
 	else {
 		if (sexdep) {
-			c.stepLength = pGenome->express(pSpecies,CRWgenelocn+sex);
-			c.rho = pGenome->express(pSpecies,CRWgenelocn+2+sex);
+			c.stepLength = (float)pGenome->express(pSpecies,CRWgenelocn+sex);
+			c.rho = (float)pGenome->express(pSpecies,CRWgenelocn+2+sex);
 		}
 		else {
-			c.stepLength = pGenome->express(pSpecies,CRWgenelocn);
-			c.rho = pGenome->express(pSpecies,CRWgenelocn+1);
+			c.stepLength = (float)pGenome->express(pSpecies,CRWgenelocn);
+			c.rho = (float)pGenome->express(pSpecies,CRWgenelocn+1);
 		}
 	}
 }
@@ -953,7 +950,7 @@ crw->rho   = c.rho*cparams.rhoScale + cparams.rhoMean;
 #endif
 if (crw->stepL < 1.0) crw->stepL = 1.0;
 if (crw->rho < 0.0) crw->rho = 0.0;
-if (crw->rho > 0.999) crw->rho = 0.999;
+if (crw->rho > 0.999) crw->rho = 0.999f;
 #if RSDEBUG
 //DEBUGLOG << "Individual::setCRWTraits(): indId=" << indId
 //	<< " crw->stepL=" << crw->stepL	<< " crw->rho=" << crw->rho
@@ -968,7 +965,7 @@ trfrCRWTraits Individual::getCRWTraits(void) {
 //DEBUGLOG << "Individual::getCRWTraits(): indId=" << indId
 //	<< endl;
 #endif
-trfrCRWTraits c; c.stepLength = c.rho = 0.0;
+trfrCRWTraits c{}; c.stepLength = c.rho = 0.0;
 if (crw != 0) {
 	c.stepLength = crw->stepL;
 	c.rho = crw->rho;
@@ -992,30 +989,30 @@ void Individual::setSettTraits(Species *pSpecies,short settgenelocn,short nsettt
 //	<< endl;
 #endif
 //simParams sim = paramsSim->getSim();
-settleTraits s; s.s0 = s.alpha = s.beta = 0.0;
+settleTraits s{}; s.s0 = s.alpha = s.beta = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
-			s.s0    = pGenome->express(settgenelocn+3*sex,0,0);
-			s.alpha = pGenome->express(settgenelocn+3*sex+1,0,0);
-			s.beta  = pGenome->express(settgenelocn+3*sex+2,0,0);
+			s.s0    = (float)pGenome->express(settgenelocn+3*sex,0,0);
+			s.alpha = (float)pGenome->express(settgenelocn+3*sex+1,0,0);
+			s.beta  = (float)pGenome->express(settgenelocn+3*sex+2,0,0);
 		}
 		else {
-			s.s0    = pGenome->express(settgenelocn,0,0);
-			s.alpha = pGenome->express(settgenelocn+1,0,0);
-			s.beta  = pGenome->express(settgenelocn+2,0,0);
+			s.s0    = (float)pGenome->express(settgenelocn,0,0);
+			s.alpha = (float)pGenome->express(settgenelocn+1,0,0);
+			s.beta  = (float)pGenome->express(settgenelocn+2,0,0);
 		}
 	}
 	else {
 		if (sexdep) {
-			s.s0    = pGenome->express(pSpecies,settgenelocn+3*sex);
-			s.alpha = pGenome->express(pSpecies,settgenelocn+3*sex+1);
-			s.beta  = pGenome->express(pSpecies,settgenelocn+3*sex+2);
+			s.s0    = (float)pGenome->express(pSpecies,settgenelocn+3*sex);
+			s.alpha = (float)pGenome->express(pSpecies,settgenelocn+3*sex+1);
+			s.beta  = (float)pGenome->express(pSpecies,settgenelocn+3*sex+2);
 		}
 		else {
-			s.s0    = pGenome->express(pSpecies,settgenelocn);
-			s.alpha = pGenome->express(pSpecies,settgenelocn+1);
-			s.beta  = pGenome->express(pSpecies,settgenelocn+2);
+			s.s0    = (float)pGenome->express(pSpecies,settgenelocn);
+			s.alpha = (float)pGenome->express(pSpecies,settgenelocn+1);
+			s.beta  = (float)pGenome->express(pSpecies,settgenelocn+2);
 		}
 
   }
@@ -1066,7 +1063,7 @@ settleTraits Individual::getSettTraits(void) {
 //DEBUGLOG << "Individual::getSettTraits(): indId=" << indId
 //	<< endl;
 #endif
-settleTraits s; s.s0 = s.alpha = s.beta = 0.0;
+settleTraits s{}; s.s0 = s.alpha = s.beta = 0.0;
 if (setttraits != 0) {
 	s.s0    = setttraits->s0;
 	s.alpha = setttraits->alpha;
@@ -1124,8 +1121,8 @@ void Individual::moveto(Cell *newCell) {
 // check that location is indeed a neighbour of the current cell
 locn currloc = pCurrCell->getLocn();
 locn newloc = newCell->getLocn();
-double d = sqrt((double)((currloc.x-newloc.x)*(currloc.x-newloc.x)
-	+ (currloc.y-newloc.y)*(currloc.y-newloc.y)));
+double d = sqrt((((double)currloc.x- (double)newloc.x)*((double)currloc.x- (double)newloc.x)
+	+ ((double)currloc.y- (double)newloc.y)*((double)currloc.y- (double)newloc.y)));
 if (d >= 1.0 && d < 1.5) { // ok
 	pCurrCell = newCell; status = 5;
 }
@@ -1140,12 +1137,12 @@ int Individual::moveKernel(Landscape *pLandscape,Species *pSpecies,
 {
 
 intptr patch;
-int patchNum;
-int newX,newY;
+int patchNum = 0;
+int newX = 0,newY = 0;
 int dispersing = 1;
 double xrand,yrand,meandist,dist,r1,rndangle,nx,ny;
 float localK;
-trfrKernTraits kern;
+trfrKernTraits kern{};
 //trfrKernParams kparams;
 Cell* pCell;
 Patch* pPatch;
@@ -1156,6 +1153,9 @@ landData land = pLandscape->getLandData();
 bool usefullkernel = pSpecies->useFullKernel();
 trfrRules trfr = pSpecies->getTrfr();
 settleRules sett = pSpecies->getSettRules(stage,sex);
+
+pCell = NULL; 
+pPatch = NULL;
 
 if (trfr.indVar) { // get individual's kernel parameters
 	kern.meanDist1 = kern.meanDist2 = kern.probKern1 = 0.0;
@@ -1253,7 +1253,7 @@ do {
 
 			r1 = 0.0000001 + pRandom->Random()*(1.0-0.0000001);
 //			dist = (-1.0*meandist)*std::log(r1);
-			dist = (-1.0*meandist)*log(r1);  // for CLUSTER
+			dist = (-1.0*meandist)*log(r1);  // for LINUX_CLUSTER
 			
 			rndangle = pRandom->Random() * 2.0 * PI;
 			nx = xrand + dist * sin(rndangle);
@@ -1359,11 +1359,11 @@ else {
 // apply dispersal-related mortality, which may be distance-dependent
 dist *= (float)land.resol; // re-scale distance moved to landscape scale
 if (status < 7) {
-	float dispmort;
+	double dispmort;
 	trfrMortParams mort = pSpecies->getMortParams();
 	if (trfr.distMort) {
 //		dispmort = 1.0 / (1.0 + std::exp(-(dist - mort.mortBeta)*mort.mortAlpha));
-		dispmort = 1.0 / (1.0 + exp(-(dist - mort.mortBeta)*mort.mortAlpha));  // for CLUSTER
+		dispmort = 1.0 / (1.0 + exp(-(dist - mort.mortBeta)*mort.mortAlpha));  // for LINUX_CLUSTER
 	}
 	else {
 		dispmort = mort.fixedMort;
@@ -1388,10 +1388,10 @@ if (status != 1) return 0; // not currently dispersing
 
 intptr patch;
 int patchNum;
-int oldX,oldY,newX,newY;
+int newX,newY;
 locn loc;
 int dispersing = 1;
-float xcnew,ycnew;
+double xcnew,ycnew;
 double angle;
 double mortprob,rho,steplen;
 movedata move;
@@ -1400,7 +1400,6 @@ bool absorbed = false;
 //int popsize;
 
 landData land = pLandscape->getLandData();
-simView v = paramsSim->getViews();
 simParams sim = paramsSim->getSim();
 
 trfrRules trfr = pSpecies->getTrfr();
@@ -1472,7 +1471,8 @@ else { // take a step
 		(path->out)++;
 	}
 	loc = pCurrCell->getLocn();
-	oldX = newX = loc.x; oldY = newY = loc.y;
+	newX = loc.x; newY = loc.y;
+
 
 	switch (trfr.moveType) {
 
@@ -1514,12 +1514,14 @@ else { // take a step
 		// WOULD IT BE MORE EFFICIENT FOR smsMove TO RETURN A POINTER TO THE NEW CELL? ...
 
 			patch = pCurrCell->getPatch();
-			int patchnum;
+			//int patchnum;
 			if (patch == 0) {
-				pPatch = 0; patchnum = 0;
+				pPatch = 0; 
+				//patchnum = 0;
 			}
 			else {
-				pPatch = (Patch*)patch; patchnum = pPatch->getPatchNum();
+				pPatch = (Patch*)patch; 
+				//patchnum = pPatch->getPatchNum();
 			}
 			if (sim.saveVisits && pPatch != pNatalPatch) {
 				pCurrCell->incrVisits();
@@ -1554,10 +1556,10 @@ else { // take a step
 				|| pCurrCell == 0) {
 					// individual has tried to go out-of-bounds or into no-data area
 					// allow random move to prevent repeated similar move
-					angle = rwrpcauchy(crw->prevdrn,0.0);
+					angle = wrpcauchy(crw->prevdrn,0.0);
 				}
 				else
-					angle = rwrpcauchy(crw->prevdrn,rho);
+					angle = wrpcauchy(crw->prevdrn,rho);
 				// new continuous cell coordinates
 				xcnew = crw->xc + sin(angle) * steplen/(float)land.resol;
 				ycnew = crw->yc + cos(angle) * steplen/(float)land.resol;
@@ -1590,8 +1592,8 @@ else { // take a step
 //	<< " pCurrCell=" << pCurrCell << " patch=" << patch << endl;
 #endif
 		} while (!absorbing && pCurrCell == 0 && loopsteps < 1000);
-		crw->prevdrn = angle;
-		crw->xc = xcnew; crw->yc = ycnew;
+		crw->prevdrn = (float)angle;
+		crw->xc = (float)xcnew; crw->yc = (float)ycnew;
 		if (absorbed) { // beyond absorbing boundary or in no-data square
 			status = 6;
 			dispersing = 0;
@@ -1678,11 +1680,11 @@ array3x3d nbr; 	// to hold weights/costs/probs of moving to neighbouring cells
 array3x3d goal;	// to hold weights for moving towards a goal location
 array3x3f hab;	// to hold weights for habitat (includes percep range)
 int x2,y2; 			// x index from 0=W to 2=E, y index from 0=N to 2=S
-int newX,newY;
+int newX = 0,newY = 0;
 Cell *pCell;
-Cell *pNewCell;
+Cell *pNewCell = NULL;
 double sum_nbrs = 0.0;
-movedata move;
+movedata move{};
 int cellcost,newcellcost;
 locn current;
 
@@ -1714,8 +1716,8 @@ if ((path->out > 0 && path->out <= (movt.pr+1))
 || 	natalPatch
 || (movt.straigtenPath && path->settleStatus > 0)) {
 	// inflate directional persistence to promote leaving the patch
-	if (indvar) nbr = getSimDir(current.x,current.y,10.0*smsData->dp);
-	else nbr = getSimDir(current.x,current.y,10.0*movt.dp);
+	if (indvar) nbr = getSimDir(current.x,current.y,10.0f*smsData->dp);
+	else nbr = getSimDir(current.x,current.y,10.0f*movt.dp);
 }
 else {
 	if (indvar) nbr = getSimDir(current.x,current.y,smsData->dp);
@@ -1741,7 +1743,7 @@ if (natalPatch || path->settleStatus > 0) path->out = 0;
 //	out2<<endl<<"ind = "<<get_id()<<" pr = "<<get_pr()<<" step = "<<step<<endl<<endl;
 
 //get weights for goal bias....
-float gb;
+double gb;
 if (movt.goalType == 2) { // dispersal bias
 	int nsteps = 0;
 	if (path->year == path->total) { // first year of dispersal - use no. of steps outside natal patch
@@ -1751,7 +1753,7 @@ if (movt.goalType == 2) { // dispersal bias
 		nsteps = path->total;
 	}
 	if (indvar) {
-		double exp_arg = -(double)(nsteps - smsData->betaDB)*(-smsData->alphaDB);
+		double exp_arg = -((double)nsteps - (double)smsData->betaDB)*(-smsData->alphaDB);
 #if RSDEBUG
 //DEBUGLOG << "Individual::smsMove(): exp_arg=" << exp_arg;
 #endif
@@ -1759,7 +1761,7 @@ if (movt.goalType == 2) { // dispersal bias
 		gb = 1.0 + (smsData->gb - 1.0)/(1.0 + exp(exp_arg));
 	}
 	else {
-		double exp_arg = -(double)(nsteps - movt.betaDB)*(-movt.alphaDB);
+		double exp_arg = -((double)nsteps - (double)movt.betaDB)*(-movt.alphaDB);
 #if RSDEBUG
 //DEBUGLOG << "Individual::smsMove(): exp_arg=" << exp_arg;
 #endif
@@ -1768,7 +1770,7 @@ if (movt.goalType == 2) { // dispersal bias
 	}
 }
 else gb = movt.gb;
-goal = getGoalBias(current.x,current.y,movt.goalType,gb);
+goal = getGoalBias(current.x,current.y,movt.goalType,(float)gb);
 //if (write_out) {
 //	out<<"goal bias weights:"<<endl;
 //	for (y2 = 2; y2 > -1; y2--) {
@@ -1836,7 +1838,7 @@ for (y2 = 2; y2 > -1; y2--) {
 			if(x2 == 1 || y2 == 1) //not diagonal
         nbr.cell[x2][y2] = nbr.cell[x2][y2]*goal.cell[x2][y2]*hab.cell[x2][y2];
       else // diagonal
-				nbr.cell[x2][y2] = SQRT2*nbr.cell[x2][y2]*goal.cell[x2][y2]*hab.cell[x2][y2];
+				nbr.cell[x2][y2] = (float)SQRT2*nbr.cell[x2][y2]*goal.cell[x2][y2]*hab.cell[x2][y2];
     }
 //		if (write_out) {
 //			out<<nbr.cell[x2][y2]<<" "; if (x2==1 && y2==1) out<<"         ";
@@ -1856,7 +1858,7 @@ for (y2 = 2; y2 > -1; y2--) {
 //if (write_out) out<<"reciprocal weighted effective costs:"<<endl;
 for (y2 = 2; y2 > -1; y2--) {
   for (x2 = 0; x2 < 3; x2++) {
-    if (nbr.cell[x2][y2] > 0.0) nbr.cell[x2][y2] = 1.0/nbr.cell[x2][y2];
+    if (nbr.cell[x2][y2] > 0.0) nbr.cell[x2][y2] = 1.0f/nbr.cell[x2][y2];
 //		if (write_out) {
 //			out<<nbr.cell[x2][y2]<<" "; if (x2==1 && y2==1) out<<"         ";
 //		}
@@ -1919,7 +1921,7 @@ for (y2 = 2; y2 > -1; y2--) {
 if (sum_nbrs > 0.0) { // should always be the case, but safest to check...
 	for (y2 = 2; y2 > -1; y2--) {
 		for (x2 = 0; x2 < 3; x2++) {
-			nbr.cell[x2][y2] = nbr.cell[x2][y2]/sum_nbrs;
+			nbr.cell[x2][y2] = nbr.cell[x2][y2]/(float)sum_nbrs;
 //		if (write_out) {
 //			out<<nbr.cell[x2][y2]<<" "; if (x2==1 && y2==1) out<<"      ";
 //		}
@@ -1937,7 +1939,7 @@ if (sum_nbrs > 0.0) { // should always be the case, but safest to check...
 
 // set up cell selection probabilities
 //if (write_out) out<<"rnd = "<<rnd<<endl;
-double cumulative[9];
+double cumulative[9]{};
 int j = 0;
 cumulative[0] = nbr.cell[0][0];
 for (y2 = 0; y2 < 3; y2++) {
@@ -1967,7 +1969,7 @@ do {
 					newX = current.x + x2 - 1;
 					newY = current.y + y2 - 1;
 					if (x2 == 1 || y2 == 1) move.dist = (float)(land.resol);
-					else move.dist = (float)(land.resol)*SQRT2;
+					else move.dist = (float)(land.resol)*(float)SQRT2;
 //			if (write_out) {
 //				out<<"relative x and y "<<x2-1<<" "<<y2-1<<endl;
 //				out<<"cost of move "<<move.cost<<endl;
@@ -2011,7 +2013,7 @@ if (loopsteps >= 1000 || pNewCell == 0) {
 }
 else {
 	newcellcost = pNewCell->getCost();
-	move.cost = move.dist*0.5*(double)(cellcost + newcellcost);
+	move.cost = move.dist*0.5f*((float)cellcost + (float)newcellcost);
 	// make the selected move
 	if ((short)memory.size() == movt.memSize) {
 		memory.pop(); // remove oldest memory element
@@ -2024,10 +2026,10 @@ return move;
 }
 
 // Weight neighbouring cells on basis of current movement direction
-array3x3d Individual::getSimDir(const int x,const int y,const float dp)
+array3x3d Individual::getSimDir(const int x, const int y, const float dp) 
 {
 
-array3x3d d;
+array3x3d d{};
 locn prev;
 double theta;
 int xx,yy;
@@ -2065,20 +2067,22 @@ else { // set up the matrix dependent on relationship of previous location to cu
 //    if (write_out) out<<"step 5"<<endl;
   }
 //  if (write_out) out<<"step 6"<<endl;
-  theta = atan2((double)(x-prev.x),(double)(y-prev.y));
+  theta = atan2(((double)x- (double)prev.x),((double)y- (double)prev.y));
 //  if (write_out) out<<"prev.x,prev.y: "<<prev.x<<","<<prev.y<<" theta: "<<theta<<endl;
-	d = calcWeightings(dp,theta);
+	d = calcWeightings(dp,(float)theta);
 
 }
 return d;
 }
 
 // Weight neighbouring cells on basis of goal bias
-array3x3d Individual::getGoalBias(const int x,const int y,
-	const int goaltype,const float gb)
+//array3x3d Individual::getGoalBias(const int x,const int y,
+//	const int goaltype,const float gb)
+array3x3d Individual::getGoalBias(const int x, const int y, 
+		const int goaltype, const float gb)
 {
 
-array3x3d d;
+array3x3d d{};
 double theta;
 int xx,yy;
 
@@ -2112,33 +2116,33 @@ else {
 		return d;
 	}
 	else // goaltype == 2
-		theta = atan2((double)(x - smsData->goal.x),(double)(y - smsData->goal.y));
+		theta = atan2(((double)x - (double)smsData->goal.x),((double)y - (double)smsData->goal.y));
 //  if (write_out) out<<"goalx,goaly: "<<goalx<<","<<goaly<<" theta: "<<theta<<endl;
-	d = calcWeightings(gb,theta);
+	d = calcWeightings(gb,(float)theta);
 }
 
 return d;
 }
 
 // Calculate weightings for neighbouring cells
-array3x3d Individual::calcWeightings(const double base,const double theta) {
+array3x3d Individual::calcWeightings(const float base,const float theta) {
 
-array3x3d d; // 3x3 array indexed from SW corner by xx and yy
+array3x3d d{}; // 3x3 array indexed from SW corner by xx and yy
 int dx,dy,xx,yy;
 
 double i0 = 1.0; 					// direction of theta - lowest cost bias
-double i1 = base;
-double i2 = base * base;
-double i3 = i2 * base;
-double i4 = i3 * base;		// opposite to theta - highest cost bias
+double i1 = (double)base;
+double i2 = (double)base * (double)base;
+double i3 = i2 * (double)base;
+double i4 = i3 * (double)base;		// opposite to theta - highest cost bias
 
-if (fabs(theta) > 7.0*M_PI/8.0) { dx = 0; dy = -1; }
+if (fabs(theta) > 7.0 * PI / 8.0) { dx = 0; dy = -1; }
 else {
-  if (fabs(theta) > 5.0*M_PI/8.0) { dy = -1; if (theta > 0) dx = 1; else dx = -1; }
+	if (fabs(theta) > 5.0 * PI / 8.0) { dy = -1; if (theta > 0) dx = 1; else dx = -1; }
   else {
-    if (fabs(theta) > 3.0*M_PI/8.0) { dy = 0; if (theta > 0) dx = 1; else dx = -1; }
+	if (fabs(theta) > 3.0 * PI / 8.0) { dy = 0; if (theta > 0) dx = 1; else dx = -1; }
     else {
-      if (fabs(theta) > M_PI/8.0) { dy = 1; if (theta > 0) dx = 1; else dx = -1; }
+	  if (fabs(theta) > PI / 8.0) { dy = 1; if (theta > 0) dx = 1; else dx = -1; }
       else { dy = 1; dx = 0; }
     }
   }
@@ -2146,26 +2150,26 @@ else {
 //  if (write_out) out<<"goalx,goaly: "<<goalx<<","<<goaly<<" dx,dy: "<<dx<<","<<dy
 //    <<" theta: "<<theta<<endl;
 d.cell[1][1] = 0; // central cell has zero weighting
-d.cell[dx+1][dy+1] = i0;
-d.cell[-dx+1][-dy+1] = i4;
+d.cell[dx+1][dy+1] = (float)i0;
+d.cell[-dx+1][-dy+1] = (float)i4;
 if (dx == 0 || dy ==0) { // theta points to a cardinal direction
-  d.cell[dy+1][dx+1] = i2; d.cell[-dy+1][-dx+1] = i2;
+  d.cell[dy+1][dx+1] = (float)i2; d.cell[-dy+1][-dx+1] = (float)i2;
   if (dx == 0) { // theta points N or S
     xx = dx+1; if (xx > 1) dx -= 2; yy = dy;
-    d.cell[xx+1][yy+1] = i1; d.cell[-xx+1][yy+1] = i1;
-    d.cell[xx+1][-yy+1] = i3; d.cell[-xx+1][-yy+1] = i3;
+    d.cell[xx+1][yy+1] = (float)i1; d.cell[-xx+1][yy+1] = (float)i1;
+    d.cell[xx+1][-yy+1] = (float)i3; d.cell[-xx+1][-yy+1] = (float)i3;
   }
   else { // theta points W or E
 		yy = dy+1; if (yy > 1) dy -= 2; xx = dx;
-    d.cell[xx+1][yy+1] = i1; d.cell[xx+1][-yy+1] = i1;
-    d.cell[-xx+1][yy+1] = i3; d.cell[-xx+1][-yy+1] = i3;
+    d.cell[xx+1][yy+1] = (float)i1; d.cell[xx+1][-yy+1] = (float)i1;
+    d.cell[-xx+1][yy+1] = (float)i3; d.cell[-xx+1][-yy+1] = (float)i3;
   }
 }
 else { // theta points to an ordinal direction
-  d.cell[dx+1][-dy+1] = i2; d.cell[-dx+1][dy+1] = i2;
-  xx = dx+1; if (xx > 1) xx -= 2; d.cell[xx+1][dy+1] = i1;
-  yy = dy+1; if (yy > 1) yy -= 2; d.cell[dx+1][yy+1] = i1;
-  d.cell[-xx+1][-dy+1] = i3; d.cell[-dx+1][-yy+1] = i3;
+  d.cell[dx+1][-dy+1] = (float)i2; d.cell[-dx+1][dy+1] = (float)i2;
+  xx = dx+1; if (xx > 1) xx -= 2; d.cell[xx+1][dy+1] = (float)i1;
+  yy = dy+1; if (yy > 1) yy -= 2; d.cell[dx+1][yy+1] = (float)i1;
+  d.cell[-xx+1][-dy+1] = (float)i3; d.cell[-dx+1][-yy+1] = (float)i3;
   }
 
 return d;
@@ -2177,11 +2181,11 @@ array3x3f Individual::getHabMatrix(Landscape *pLand,Species *pSpecies,
 	const bool absorbing)
 {
 
-array3x3f w; // array of effective costs to be returned
+array3x3f w{}; // array of effective costs to be returned
 int ncells,x4,y4;
-double weight,sumweights;
+float weight,sumweights;
 // NW and SE corners of effective cost array relative to the current cell (x,y):
-int xmin,ymin,xmax,ymax;
+int xmin = 0,ymin = 0,xmax = 0,ymax = 0;
 int cost,nodatacost,h;
 Cell *pCell;
 
@@ -2284,15 +2288,15 @@ for (int x2=-1; x2<2; x2++) {   // index of relative move in x direction
 					}
 					if (prmethod==2) { // harmonic mean
             if (cost > 0) {
-              w.cell[x2+1][y2+1] += (1/(double)cost);
+              w.cell[x2+1][y2+1] += (1/(float)cost);
               ncells++;
             }
           }
           if (prmethod==3) { // arithmetic mean weighted by inverse distance
             if (cost>0) {
               // NB distance is still given by (x3,y3)
-              weight = 1/sqrt((double)(pow((double)x3,2)+pow((double)y3,2)));
-              w.cell[x2+1][y2+1] += weight*(double)cost;
+              weight = 1.0f /(float)sqrt((pow((double)x3,2)+pow((double)y3,2)));
+              w.cell[x2+1][y2+1] += weight*(float)cost;
               ncells++; sumweights += weight;
             }
           }
@@ -2402,7 +2406,7 @@ void Individual::outMovePath(const int year)
 						 << status << "\t"
 						 << endl;
 			// current cell will be invalid (zero), so set back to previous cell
-			// pPrevCell = pCurrCell;
+			//pPrevCell = pCurrCell;
 			path->pathoutput = 0;
 		}
 	}
@@ -2412,34 +2416,31 @@ void Individual::outMovePath(const int year)
 
 //---------------------------------------------------------------------------
 
-// functions derived from mathlib.cpp
-
 //#if RSWIN64
-double rwrpcauchy (double location, double rho) {
+
+double wrpcauchy (double location, double rho) {
 double result;
 
 if(rho < 0.0 || rho > 1.0) {
-//	ML_ERR_return_NAN;
 	result = location;
 }
 
 if(rho == 0)
-//	result = unif_rand() * M2_PI;
-	result = pRandom->Random() * M2_PI;
+	result = pRandom->Random() * M_2PI;
 else
 	if(rho == 1) result = location;
 	else {
-		result = fmod(rcauchy(location, -log(rho)), M2_PI);
+		result = fmod(cauchy(location, -log(rho)), M_2PI);
 	}
 return result;
 }
 
-double rcauchy(double location, double scale) {
-//if (scale < 0) ML_ERR_return_NAN;
+double cauchy(double location, double scale) {
 if (scale < 0) return location;
-//return location + scale * tan(M_PI * unif_rand());
-return location + scale * tan(M_PI * pRandom->Random());
+
+return location + scale * tan(PI * pRandom->Random());
 }
+
 //#endif
 
 //---------------------------------------------------------------------------

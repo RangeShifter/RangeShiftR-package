@@ -47,9 +47,7 @@ Author: Anne-Kathleen Malchow, Humboldt University Berlin
 #include <vector>
 #include <algorithm>
 #include <locale>
-#if !RSWIN64
 #include <codecvt>
-#endif
 
 using namespace std;
 
@@ -91,9 +89,7 @@ void setglobalvarsR(Rcpp::S4);
 
 //---------------------------------------------------------------------------
 
-#if !RSWIN64
 string check_bom(string); // check BOM of a text file for UTF-16 encoding
-#endif
 rasterdata ParseRasterHead(string); //parse, read and return ASCII raster head data
 
 void BatchErrorR(string,int,int,string);

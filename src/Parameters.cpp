@@ -22,18 +22,15 @@
  
 //---------------------------------------------------------------------------
 
-#pragma hdrstop
-
 #include "Parameters.h"
 //---------------------------------------------------------------------------
-#pragma package(smart_init)
 
 //---------------------------------------------------------------------------
 
 // Environmental gradient parameters
 
 paramGrad::paramGrad(void) {
-gradient = false; gradType = 0; grad_inc = 0.05;
+gradient = false; gradType = 0; grad_inc = 0.05f;
 opt_y0 = opt_y = factor = extProbOpt = 0.0;
 shifting = false; shift_rate = 0.5; shift_begin = 0; shift_stop = 100;
 }

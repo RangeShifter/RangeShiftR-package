@@ -38,7 +38,7 @@ Methods in Ecology and Evolution, 5, 388-396. doi: 10.1111/2041-210X.12162
 
 Authors: Greta Bocedi & Steve Palmer, University of Aberdeen
 
-Last updated: 24 July 2020 by Anne-Kathleen Malchow, Potsdam University
+Last updated: 26 November 2020 by Greta Bocedi
 
 ------------------------------------------------------------------------------*/
 
@@ -100,12 +100,12 @@ struct emigTraits {
 	float d0; float alpha; float beta;
 };
 struct emigParams {
-	double d0Mean;    double d0SD;    double d0Scale;
-	double alphaMean; double alphaSD; double alphaScale;
-	double betaMean;  double betaSD;  double betaScale;
+	float d0Mean;    float d0SD;    float d0Scale;
+	float alphaMean; float alphaSD; float alphaScale;
+	float betaMean;  float betaSD;  float betaScale;
 };
 struct emigScales {
-	double d0Scale; double alphaScale; double betaScale;
+	float d0Scale; float alphaScale; float betaScale;
 };
 
 // structures for transfer parameters
@@ -139,18 +139,18 @@ struct trfrSMSTraits {
 	bool straigtenPath;
 };
 struct trfrKernParams {
-	double dist1Mean; double dist1SD; double dist1Scale;
-	double dist2Mean; double dist2SD; double dist2Scale;
-	double PKern1Mean; double PKern1SD; double PKern1Scale;
+	float dist1Mean; float dist1SD; float dist1Scale;
+	float dist2Mean; float dist2SD; float dist2Scale;
+	float PKern1Mean; float PKern1SD; float PKern1Scale;
 };
 struct trfrSMSParams {
-	double dpMean; double dpSD; double gbMean; double gbSD;
-	double alphaDBMean; double alphaDBSD; double betaDBMean; double betaDBSD;
-	double dpScale; double gbScale; double alphaDBScale; double betaDBScale;
+	float dpMean; float dpSD; float gbMean; float gbSD;
+	float alphaDBMean; float alphaDBSD; float betaDBMean; float betaDBSD;
+	float dpScale; float gbScale; float alphaDBScale; float betaDBScale;
 };
 struct trfrCRWParams {
-	double stepLgthMean; double stepLgthSD; double stepLScale;
-	double rhoMean; double rhoSD; double rhoScale;
+	float stepLgthMean; float stepLgthSD; float stepLScale;
+	float rhoMean; float rhoSD; float rhoScale;
 };
 struct trfrScales {
 	float dist1Scale; float dist2Scale; float	PKern1Scale;
@@ -174,12 +174,12 @@ struct settleTraits {
 	float s0; float alpha; float beta;
 };
 struct settParams {
-	double s0Mean;     double s0SD;     double s0Scale;
-	double alphaSMean; double alphaSSD; double alphaSScale;
-	double betaSMean;  double betaSSD;  double betaSScale;
+	float s0Mean;     float s0SD;     float s0Scale;
+	float alphaSMean; float alphaSSD; float alphaSScale;
+	float betaSMean;  float betaSSD;  float betaSScale;
 };
 struct settScales {
-	double s0Scale; double alphaSScale; double betaSScale;
+	float s0Scale; float alphaSScale; float betaSScale;
 };
 
 
@@ -472,12 +472,12 @@ public:
 	);
 	void setHabMort( // Set habitat-dependent per-step mortality
 		short,	// habitat index no.
-		double	// mortality rate
+		float	// mortality rate
 	);
 	int getHabCost( // Get habitat-dependent cost
 		short		// habitat index no.
 	);
-	double getHabMort( // Get habitat-dependent per-step mortality
+	float getHabMort( // Get habitat-dependent per-step mortality
 		short		// habitat index no.
 	);
 	void deleteHabCostMort(void); // Delete habitat-dependent costs and mortality matrices
@@ -588,10 +588,10 @@ private:
 	bool pleiotropic;
 	bool trait1Chromosome;		// 1:1 mapping of chromosome to trait
 	short nChromosomes;				// no. of chromosomes
-	double probMutn;					// allelic mutation probability
-	double probCrossover; 		// crossover probability at meiosis
-	double alleleSD;					// s.d. of initial allelic values around phenotypic value
-	double mutationSD;				// s.d. of mutation magnitude
+	float probMutn;					// allelic mutation probability
+	float probCrossover; 		// crossover probability at meiosis
+	float alleleSD;					// s.d. of initial allelic values around phenotypic value
+	float mutationSD;				// s.d. of mutation magnitude
 	short nNLoci;							// no. of nLoci set
 	short *nLoci;							// no. of loci per chromosome
 	short nTraitNames;				// no. of trait names set
@@ -614,15 +614,15 @@ private:
 	// on traits maps using FloatToStr()
 	// As evolving traits are not stage-dependent, no. of rows can be 1
 	// Indeed, they could be 1-D arrays
-	double d0Mean[1][NSEXES];
-	double d0SD[1][NSEXES];
-	double alphaMean[1][NSEXES];
-	double alphaSD[1][NSEXES];
-	double betaMean[1][NSEXES];
-	double betaSD[1][NSEXES];
-	double d0Scale;											// scaling factor for d0
-	double alphaScale;									// scaling factor for alpha
-	double betaScale;										// scaling factor for beta
+	float d0Mean[1][NSEXES];
+	float d0SD[1][NSEXES];
+	float alphaMean[1][NSEXES];
+	float alphaSD[1][NSEXES];
+	float betaMean[1][NSEXES];
+	float betaSD[1][NSEXES];
+	float d0Scale;											// scaling factor for d0
+	float alphaScale;									// scaling factor for alpha
+	float betaScale;										// scaling factor for beta
 
 	// transfer parameters
 
@@ -641,12 +641,12 @@ private:
 	// As evolving traits are are not stage-dependent, no. of rows can be 1
 	// Indeed, as they are INITIAL limits, which may subsequently be exceeded, they could be
 	// 1-D arrays
-	double dist1Mean[1][NSEXES];	// mean of initial mean of the 1st dispersal kernel (m)
-	double dist1SD[1][NSEXES]; 		// s.d. of initial mean of the 1st dispersal kernel (m)
-	double dist2Mean[1][NSEXES]; 	// mean of initial mean of the 2nd dispersal kernel (m)
-	double dist2SD[1][NSEXES]; 		// s.d. of initial mean of the 2nd dispersal kernel (m)
-	double PKern1Mean[1][NSEXES];	// mean of initial prob. of dispersing with 1st kernel
-	double PKern1SD[1][NSEXES];	  // s.d. of initial prob. of dispersing with 1st kernel
+	float dist1Mean[1][NSEXES];	// mean of initial mean of the 1st dispersal kernel (m)
+	float dist1SD[1][NSEXES]; 		// s.d. of initial mean of the 1st dispersal kernel (m)
+	float dist2Mean[1][NSEXES]; 	// mean of initial mean of the 2nd dispersal kernel (m)
+	float dist2SD[1][NSEXES]; 		// s.d. of initial mean of the 2nd dispersal kernel (m)
+	float PKern1Mean[1][NSEXES];	// mean of initial prob. of dispersing with 1st kernel
+	float PKern1SD[1][NSEXES];	  // s.d. of initial prob. of dispersing with 1st kernel
 	float dist1Scale;		// scaling factor for mean of 1st dispersal kernel (m)
 	float dist2Scale;		// scaling factor for mean of 2nd dispersal kernel (m)
 	float PKern1Scale;	// scaling factor for prob. of dispersing with 1st kernel
@@ -664,25 +664,25 @@ private:
 	float alphaDB; 			// SMS dispersal bias decay rate
 	int betaDB; 				// SMS dispersal bias decay inflection point (no. of steps)
 	float stepMort;			// constant per-step mortality probability for movement models
-	double *habStepMort;	// habitat-dependent per-step mortality probability
+	float *habStepMort;	// habitat-dependent per-step mortality probability
 	float stepLength;		// CRW step length (m)
 	float rho;					// CRW correlation coefficient
-	double dpMean[1][NSEXES];				// mean of initial SMS directional persistence
-	double dpSD[1][NSEXES];	 				// s.d. of initial SMS directional persistence
-	double gbMean[1][NSEXES];				// mean of initial SMS goal bias
-	double gbSD[1][NSEXES];	 				// s.d. of initial SMS goal bias
-	double alphaDBMean[1][NSEXES];	// mean of initial SMS dispersal bias decay rate
-	double alphaDBSD[1][NSEXES];	 	// s.d. of initial SMS dispersal bias decay rate
-	double betaDBMean[1][NSEXES];		// mean of initial SMS dispersal bias decay infl. pt.
-	double betaDBSD[1][NSEXES];	 		// s.d. of initial SMS dispersal bias decay infl. pt.
+	float dpMean[1][NSEXES];				// mean of initial SMS directional persistence
+	float dpSD[1][NSEXES];	 				// s.d. of initial SMS directional persistence
+	float gbMean[1][NSEXES];				// mean of initial SMS goal bias
+	float gbSD[1][NSEXES];	 				// s.d. of initial SMS goal bias
+	float alphaDBMean[1][NSEXES];	// mean of initial SMS dispersal bias decay rate
+	float alphaDBSD[1][NSEXES];	 	// s.d. of initial SMS dispersal bias decay rate
+	float betaDBMean[1][NSEXES];		// mean of initial SMS dispersal bias decay infl. pt.
+	float betaDBSD[1][NSEXES];	 		// s.d. of initial SMS dispersal bias decay infl. pt.
 	float dpScale;									// scaling factor for SMS directional persistence
 	float gbScale;									// scaling factor for SMS goal bias
 	float alphaDBScale;							// scaling factor for SMS dispersal bias decay rate
 	float betaDBScale;							// scaling factor for SMS dispersal bias decay infl. pt.
-	double stepLgthMean[1][NSEXES];	// mean of initial step length (m)
-	double stepLgthSD[1][NSEXES];		// s.d. of initial step length (m)
-	double rhoMean[1][NSEXES];			// mean of initial correlation coefficient
-	double rhoSD[1][NSEXES];	 			// s.d. of initial correlation coefficient
+	float stepLgthMean[1][NSEXES];	// mean of initial step length (m)
+	float stepLgthSD[1][NSEXES];		// s.d. of initial step length (m)
+	float rhoMean[1][NSEXES];			// mean of initial correlation coefficient
+	float rhoSD[1][NSEXES];	 			// s.d. of initial correlation coefficient
 	float stepLScale;								// scaling factor for step length (m)
 	float rhoScale;									// scaling factor for correlation coefficient
 	short habDimTrfr;		// dimension of habitat-dependent step mortality and costs matrices
@@ -708,12 +708,12 @@ private:
 	float	s0[NSTAGES][NSEXES];				// maximum settlement probability
 	float alphaS[NSTAGES][NSEXES];		// slope of the settlement reaction norm to density
 	float betaS[NSTAGES][NSEXES];			// inflection point of the settlement reaction norm to density
-	double s0Mean[1][NSEXES];					// mean of initial maximum settlement probability
-	double s0SD[1][NSEXES]; 					// s.d. of initial maximum settlement probability
-	double alphaSMean[1][NSEXES];			// mean of initial settlement reaction norm slope
-	double alphaSSD[1][NSEXES]; 	 		// s.d. of initial settlement reaction norm slope
-	double betaSMean[1][NSEXES]; 			// mean of initial settlement reaction norm inflection point
-	double betaSSD[1][NSEXES];	  		// s.d. of initial settlement reaction norm inflection point
+	float s0Mean[1][NSEXES];					// mean of initial maximum settlement probability
+	float s0SD[1][NSEXES]; 					// s.d. of initial maximum settlement probability
+	float alphaSMean[1][NSEXES];			// mean of initial settlement reaction norm slope
+	float alphaSSD[1][NSEXES]; 	 		// s.d. of initial settlement reaction norm slope
+	float betaSMean[1][NSEXES]; 			// mean of initial settlement reaction norm inflection point
+	float betaSSD[1][NSEXES];	  		// s.d. of initial settlement reaction norm inflection point
 	float s0Scale;										// scaling factor for maximum settlement probability
 	float alphaSScale;								// scaling factor for settlement reaction norm slope
 	float betaSScale;									// scaling factor for settlement reaction norm inflection point
