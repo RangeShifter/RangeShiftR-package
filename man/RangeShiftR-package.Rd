@@ -6,13 +6,17 @@
 \alias{RangeShiftR-package}
 \title{RangeShiftR: An R package for individual-based simulation of spatial eco-evolutionary dynamics and species' responses to environmental changes}
 \description{
-An R interface to the RangeShifter simulation software
+An R interface to the RangeShifter 2.0 simulation software.
 }
 \details{
-\emph{RangeShiftR} offers an interface to the RangeShifter simulation software \insertCite{bocedi2014}{RangeShiftR},
+\emph{RangeShiftR} offers an interface to the \emph{RangeShifter} simulation software
+\insertCite{bocedi2014,bocedi2020}{RangeShiftR},
 making it available for all machines that can build and run \emph{R}.
 
-To get started, please find a package overview and a range of tutorials on our website
+The \emph{RangeShifter} project is presented on our website
+\url{https://rangeshifter.github.io/}.
+
+To get started with the package, please find an overview and a range of tutorials here:
 \url{https://rangeshifter.github.io/RangeshiftR-tutorials/}.
 }
 \references{
@@ -21,7 +25,7 @@ To get started, please find a package overview and a range of tutorials on our w
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://rangeshifter.github.io/}
+  \item \url{https://rangeshifter.github.io/RangeshiftR-tutorials/}
 }
 
 }
@@ -31,8 +35,8 @@ Useful links:
 Authors:
 \itemize{
   \item Greta Bocedi
-  \item Steve Palmer
-  \item Justin Travis
+  \item Stephen C.F. Palmer
+  \item Justin M.J. Travis
   \item Damaris Zurell
 }
 

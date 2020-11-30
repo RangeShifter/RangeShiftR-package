@@ -8,7 +8,7 @@ increasingly used worldwide for both theoretical and applied purposes
 [(Bocedi et al. 2014)](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12162).
 
 RangeShifter is a spatially-explicit, individual-based simulation platform that 
-allows modelling species’ range dynamics , such as expansion and shifting, and 
+allows modelling species’ range dynamics, such as expansion and shifting, and 
 patch connectivity by linking complex local population dynamics and dispersal 
 behaviour, while also taking into account inter-individual variability and 
 evolutionary processes. RangeShifter is highly flexible in terms of the spatial 
