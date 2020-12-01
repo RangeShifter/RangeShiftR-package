@@ -88,7 +88,9 @@ using namespace std;
 #include "Species.h"
 #include "FractalGenerator.h"
 #include <locale>
+#if !RSWIN64
 #include <codecvt>
+#endif
 #include <Rcpp.h>
 
 //---------------------------------------------------------------------------

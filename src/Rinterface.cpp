@@ -974,7 +974,11 @@ int ReadDynLandR(Landscape *pLandscape, Rcpp::S4 LandParamsR)
 		fname = indir + habitatmaps(i);
 
 		// open file
+#if RSWIN64
+		hfile.open(fname.c_str());
+#else
 		hfile.open(fname, std::ios::binary);
+#endif
 		if(!hfile.is_open()) {
 			OpenErrorR("Dynamic landscape habitat map ",  fname);
 #if RSDEBUG
@@ -986,10 +990,12 @@ int ReadDynLandR(Landscape *pLandscape, Rcpp::S4 LandParamsR)
 #if RSDEBUG
 			DEBUGLOG << "Dynamic landscape habitat map #" << i << " open to read" << std::endl;
 #endif
+#if !RSWIN64
 			// check BOM for UTF-16
 			if(check_bom(fname) == "utf16")
 				// apply BOM-sensitive UTF-16 facet
 				hfile.imbue(std::locale(hfile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+#endif
 			// ASCII header
 			hfile >> header;
 			if (!hfile.good()) {
@@ -1064,7 +1070,11 @@ int ReadDynLandR(Landscape *pLandscape, Rcpp::S4 LandParamsR)
 			fname = indir + patchmaps(i);
 
 			// open file
+#if RSWIN64
+			pfile.open(fname.c_str());
+#else
 			pfile.open(fname, std::ios::binary);
+#endif
 			if(!pfile.is_open()) {
 				OpenErrorR("Dynamic landscape patch map ",  fname);
 #if RSDEBUG
@@ -1076,10 +1086,12 @@ int ReadDynLandR(Landscape *pLandscape, Rcpp::S4 LandParamsR)
 #if RSDEBUG
 				DEBUGLOG << "Dynamic landscape patch map #" << i << " open to read" << std::endl;
 #endif
+#if !RSWIN64
 				// check BOM for UTF-16
 				if(check_bom(fname) == "utf16")
 					// apply BOM-sensitive UTF-16 facet
 					pfile.imbue(std::locale(pfile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+#endif
 				// ASCII header
 				pfile >> header;
 				if (!pfile.good()) {
@@ -1158,7 +1170,11 @@ int ReadDynLandR(Landscape *pLandscape, Rcpp::S4 LandParamsR)
 			fname = indir + costmaps(i);
 
 			// open file
+#if RSWIN64
+			cfile.open(fname.c_str());
+#else
 			cfile.open(fname, std::ios::binary);
+#endif
 			if(!cfile.is_open()) {
 				OpenErrorR("Dynamic SMS cost map ",  fname);
 #if RSDEBUG
@@ -1170,10 +1186,12 @@ int ReadDynLandR(Landscape *pLandscape, Rcpp::S4 LandParamsR)
 #if RSDEBUG
 				DEBUGLOG << "Dynamic SMS cost map #" << i << " open to read" << std::endl;
 #endif
+#if !RSWIN64
 				// check BOM for UTF-16
 				if(check_bom(fname) == "utf16")
 					// apply BOM-sensitive UTF-16 facet
 					cfile.imbue(std::locale(cfile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+#endif
 				// ASCII header
 				cfile >> header;
 				if (!cfile.good()) {
@@ -2960,7 +2978,11 @@ int ReadGeneticsR(Rcpp::S4 GeneParamsR)
 		string fname = paramsSim->getDir(1) + archfile;
 		wifstream archFile;
 		//open file
+#if RSWIN64
+		archFile.open(fname.c_str());
+#else
 		archFile.open(fname, std::ios::binary);
+#endif
 		if(!archFile.is_open()) {
 			OpenErrorR("Architecture file", fname);
 #if RSDEBUG
@@ -2971,10 +2993,12 @@ int ReadGeneticsR(Rcpp::S4 GeneParamsR)
 #if RSDEBUG
 			DEBUGLOG << "Architecture file open to read" << std::endl;
 #endif
+#if !RSWIN64
 			// check BOM for UTF-16
 			if(check_bom(fname) == "utf16")
 				// apply BOM-sensitive UTF-16 facet
 				archFile.imbue(std::locale(archFile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+#endif
 
 			error = ReadArchFileR(archFile);
 
@@ -3498,6 +3522,7 @@ void setglobalvarsR(Rcpp::S4 control)
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
+#if !RSWIN64
 // check for UTF-16 encoding
 string check_bom(string file)
 {
@@ -3553,6 +3578,7 @@ string check_bom(string file)
 	}
 	return enc;
 }
+#endif
 
 //---------------------------------------------------------------------------
 
@@ -3569,11 +3595,16 @@ rasterdata ParseRasterHead(string file)
 	r.utf = false;
 
 	// open file
+#if RSWIN64
+	infile.open(file.c_str());
+#else
 	infile.open(file, std::ios::binary);
+#endif
 	if (infile.is_open()) {
 #if RSDEBUG
 		DEBUGLOG << "Parsing raster file " << file << std::endl;
 #endif
+#if !RSWIN64
 		// check BOM for UTF-16
 		if(check_bom(file) == "utf16") {
 			// apply BOM-sensitive UTF-16 facet
@@ -3582,6 +3613,7 @@ rasterdata ParseRasterHead(string file)
 		} else {
 			r.utf = false;
 		}
+#endif
 		// parse ASCII header
 		infile >> header;
 		if (!infile.good()) {
@@ -3650,7 +3682,11 @@ int ReadInitIndsFileR(int option, Landscape* pLandscape)
 
 	if(option == 0) { // open file, parse and read header and lines
 		// open file
+#if RSWIN64
+		initIndsFile.open(indsfile.c_str());
+#else
 		initIndsFile.open(indsfile, std::ios::binary);
+#endif
 		if(!initIndsFile.is_open()) {
 			OpenErrorR("Initial individuals file", indsfile);
 #if RSDEBUG
@@ -3661,10 +3697,12 @@ int ReadInitIndsFileR(int option, Landscape* pLandscape)
 #if RSDEBUG
 			DEBUGLOG << "Initial individuals file open to read" << std::endl;
 #endif
+#if !RSWIN64
 			// check BOM for UTF-16
 			if(check_bom(indsfile) == "utf16")
 				// apply BOM-sensitive UTF-16 facet
 				initIndsFile.imbue(std::locale(initIndsFile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
+#endif
 
 			// Check right headers format
 			initIndsFile >> header;

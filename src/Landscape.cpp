@@ -161,11 +161,15 @@ int ncols,nrows;
 wifstream dfile; // species distribution file input stream
 
 // open distribution file
+#if !RS_RCPP || RSWIN64
+	dfile.open(distfile.c_str());
+#else
 	dfile.open(distfile, std::ios::binary);
 	if(spdistraster.utf) {
 		// apply BOM-sensitive UTF-16 facet
 		dfile.imbue(std::locale(dfile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
 	}
+#endif
 if (!dfile.is_open()) return 21;
 
 // read landscape data from header records of distribution file
@@ -1904,19 +1908,27 @@ if (fileNum < 0) return 19;
 initParams init = paramsInit->getInit();
 
 // open habitat file and optionally also patch file
+#if !RS_RCPP || RSWIN64
+hfile.open(habfile.c_str());
+#else
 hfile.open(habfile, std::ios::binary);
 if(landraster.utf) {
 	// apply BOM-sensitive UTF-16 facet
 	hfile.imbue(std::locale(hfile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
 }
+#endif
 if (!hfile.is_open()) return 11;
 if (fileNum == 0) { 
 	if (patchModel) {
+#if !RS_RCPP || RSWIN64
+		pfile.open(pchfile.c_str());
+#else
 		pfile.open(pchfile, std::ios::binary);
 		if(patchraster.utf) {
 			// apply BOM-sensitive UTF-16 facet
 			pfile.imbue(std::locale(pfile.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
 		}
+#endif
 		if (!pfile.is_open()) {
 			hfile.close(); hfile.clear();
 			return 12;
@@ -2321,11 +2333,15 @@ int maxcost = 0;
 DEBUGLOG << "Landscape::readCosts(): fname=" << fname << endl;
 #endif
  // open cost file
+#if !RS_RCPP || RSWIN64
+	costs.open(fname.c_str());
+#else
 	costs.open(fname, std::ios::binary);
 	if(costsraster.utf) {
 		// apply BOM-sensitive UTF-16 facet
 		costs.imbue(std::locale(costs.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
 	}
+#endif
 //if (!costs.is_open()) {
 //	MessageDlg("COSTS IS NOT OPEN!!!!!",
 //				mtError, TMsgDlgButtons() << mbRetry,0);

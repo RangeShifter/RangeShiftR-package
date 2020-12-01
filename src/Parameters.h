@@ -1,25 +1,25 @@
 /*----------------------------------------------------------------------------
- *
- *	Copyright (C) 2020 Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Anne-Kathleen Malchow, Damaris Zurell
- *
+ *	
+ *	Copyright (C) 2020 Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Anne-Kathleen Malchow, Damaris Zurell 
+ *	
  *	This file is part of RangeShifter.
- *
+ *	
  *	RangeShifter is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, either version 3 of the License, or
  *	(at your option) any later version.
- *
+ *	
  *	RangeShifter is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *	GNU General Public License for more details.
- *
+ *	
  *	You should have received a copy of the GNU General Public License
  *	along with RangeShifter. If not, see <https://www.gnu.org/licenses/>.
- *
+ *	
  --------------------------------------------------------------------------*/
-
-
+ 
+ 
 /*------------------------------------------------------------------------------
 
 RangeShifter v2.0 Parameters
@@ -34,9 +34,9 @@ paramStoch - Environmental stochasticity parameters
 Also declares some structures and functions used throughout the program.
 
 For full details of RangeShifter, please see:
-Bocedi G., Palmer S.C.F., Pe?er G., Heikkinen R.K., Matsinos Y.G., Watts K.
+Bocedi G., Palmer S.C.F., Pe’er G., Heikkinen R.K., Matsinos Y.G., Watts K.
 and Travis J.M.J. (2014). RangeShifter: a platform for modelling spatial
-eco-evolutionary dynamics and species? responses to environmental changes.
+eco-evolutionary dynamics and species’ responses to environmental changes.
 Methods in Ecology and Evolution, 5, 388-396. doi: 10.1111/2041-210X.12162
 
 Authors: Greta Bocedi & Steve Palmer, University of Aberdeen
@@ -73,7 +73,7 @@ using namespace std;
 
 typedef intptr_t intptr;
 
-#ifndef R_EXT_CONSTANTS_H_  // the R headers define PI as a macro, so that the 'else' line results in an error
+    #ifndef R_EXT_CONSTANTS_H_  // the R headers define PI as a macro, so that the 'else' line results in an error
         #define M_2PI 6.283185307179586
         const double PI = 3.141592653589793238462643383279502884197169399375;
     #endif
@@ -153,7 +153,7 @@ private:
 
 struct envStochParams {
 	bool stoch; bool local; bool inK; bool localExt;
-	double ac; double std;
+	double ac; double std; 
 	double locExtProb;
 };
 
@@ -171,7 +171,7 @@ private:
 	bool local;				// applied locally (if not, application is global)
 	bool inK;					// in carrying capacity (if not, in growth rate)
 	bool localExt;		// local extinction applied
-	double ac;					// temporal autocorrelation coefficient
+	double ac;					// temporal autocorrelation coefficient		
 	double std;				// amplitude of fluctuations: sampled from N(0,std)
 	double locExtProb;	// local extinction probability
 };

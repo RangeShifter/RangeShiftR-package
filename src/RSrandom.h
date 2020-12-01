@@ -57,6 +57,9 @@ extern ofstream DEBUGLOG;
 
 	#include <cmath>
 	#include <random>
+	#if RSWIN64
+	#include <ctime>
+	#endif
 
 	class RSrandom {
 

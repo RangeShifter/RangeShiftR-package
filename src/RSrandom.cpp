@@ -48,8 +48,12 @@
 		random_seed[1] = 3271254416;
 		if (seed < 0) {
 			// random seed
+			#if RSWIN64
+			random_seed[2] = std::time(NULL) + ( seed * (-17) );
+			#else
 			std::random_device device;
 			random_seed[2] = device();
+			#endif
 			#if BATCH && RSDEBUG
 				DEBUGLOG << "RSrandom::RSrandom(): Generated random seed = ";
 			#endif

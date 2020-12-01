@@ -170,7 +170,15 @@ DEBUGLOG << "RunModel(): patch count is " << npatches << endl;
 //	<< " ppp.pPatch = " << ppp.pPatch << " ppp.patchNum = " << ppp.patchNum
 //	<< endl;
 #endif
+#if RSWIN64
+			SubCommunity *pSubComm = pComm->addSubComm(ppp.pPatch,ppp.patchNum); // SET UP ALL SUB-COMMUNITIES
+//			if (ppp.y >= 9995) {
+//				DEBUGLOG << "RunModel(): i=" << i << " pSubComm=" << pSubComm
+//					<< endl;
+//			}
+#else
 			pComm->addSubComm(ppp.pPatch,ppp.patchNum); // SET UP ALL SUB-COMMUNITIES
+#endif
 //	if (i == 0 || ppp.pPatch->getK() > 0.0) {
 //		// SET UP SUB-COMMUNITY FOR MATRIX PATCH AND ANY PATCH HAVING NON-ZERO CARRYING CAPACITY
 //		pComm->addSubComm(ppp.pPatch,ppp.patchNum);

@@ -1,25 +1,25 @@
 /*----------------------------------------------------------------------------
- *
- *	Copyright (C) 2020 Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Anne-Kathleen Malchow, Damaris Zurell
- *
+ *	
+ *	Copyright (C) 2020 Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Anne-Kathleen Malchow, Damaris Zurell 
+ *	
  *	This file is part of RangeShifter.
- *
+ *	
  *	RangeShifter is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, either version 3 of the License, or
  *	(at your option) any later version.
- *
+ *	
  *	RangeShifter is distributed in the hope that it will be useful,
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *	GNU General Public License for more details.
- *
+ *	
  *	You should have received a copy of the GNU General Public License
  *	along with RangeShifter. If not, see <https://www.gnu.org/licenses/>.
- *
+ *	
  --------------------------------------------------------------------------*/
-
-
+ 
+ 
 /*------------------------------------------------------------------------------
 
 RangeShifter v2.0 Individual
@@ -30,9 +30,9 @@ Various optional attributes (genes for traits, movement parameters, etc.) are
 allocated dynamically and accessed by pointers if required.
 
 For full details of RangeShifter, please see:
-Bocedi G., Palmer S.C.F., Pe?er G., Heikkinen R.K., Matsinos Y.G., Watts K.
+Bocedi G., Palmer S.C.F., Pe’er G., Heikkinen R.K., Matsinos Y.G., Watts K.
 and Travis J.M.J. (2014). RangeShifter: a platform for modelling spatial
-eco-evolutionary dynamics and species? responses to environmental changes.
+eco-evolutionary dynamics and species’ responses to environmental changes.
 Methods in Ecology and Evolution, 5, 388-396. doi: 10.1111/2041-210X.12162
 
 Authors: Greta Bocedi & Steve Palmer, University of Aberdeen
