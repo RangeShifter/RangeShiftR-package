@@ -25,7 +25,7 @@
 #define VersionH
 
 #define RSDEBUG 0
-#define RSWIN64 0
+//#define RSWIN64 0
 
 //---------------------------------------------------------------------------
 #endif
