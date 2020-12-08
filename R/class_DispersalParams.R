@@ -1,25 +1,25 @@
 #---------------------------------------------------------------------------
-#	
+#
 #	Copyright (C) 2020 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
-#	
+#
 #	This file is part of RangeShiftR.
-#	
+#
 #	RangeShiftR is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation, either version 3 of the License, or
 #	(at your option) any later version.
-#	
+#
 #	RangeShiftR is distributed in the hope that it will be useful,
 #	but WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #	GNU General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU General Public License
 #	along with RangeShiftR. If not, see <https://www.gnu.org/licenses/>.
-#	
+#
 #----------------------------------------------------------------------------
- 
- 
+
+
 
 #### DISPERSAL ####
 
@@ -123,15 +123,20 @@
 #' will prevent re-sampling from the kernel if the distance sampled does not move the individual out of its natal cell/patch. Such individuals
 #' are treated as philopatric recruits, and hence the kernel determines the probability of emigration. In this case, the emigration probability
 #' for all stages/sexes which potentially disperse should be set to \eqn{1.0}.
-#' @examples # stage- and sex-dependent emigration
-#' emigmat_1 <- matrix(c(0,0,1,20,.2,0,1,1,20,.1,1,0,.7,25,.5,1,1,.8,50,.5,2,0,.4,10,1,2,1,.5,20,1), byrow = TRUE, ncol = 5)
-#' emig_1 <- Emigration(DensDep = TRUE, StageDep = TRUE, SexDep = TRUE, EmigProb = emigmat_1)
+#' @examples # stage- and sex-dependent constant emigration probabilities:
+#' emigmat_1 <- matrix(c(0,0,1,0,1,1,1,0,.7,1,1,.8,2,0,.4,2,1,.5), byrow = TRUE, ncol = 3)
+#' emig_1 <- Emigration(StageDep = TRUE, SexDep = TRUE, EmigProb = emigmat_1)
 #' plotProbs(emig_1)
 #'
-#' # inter-individual variation
-#' emigmat_2 <- matrix(c(0,.7,.1,20,7,.2,.01,1,.9,.05,40,4,.5,.05), byrow = TRUE, ncol = 7)
-#' emig_2 <- Emigration(DensDep = TRUE, IndVar = TRUE, SexDep = TRUE, EmigProb = emigmat_2, TraitScaleFactor = c(.1,7,.05))
+#' # stage- and sex- and density-dependent emigration:
+#' emigmat_2 <- matrix(c(0,0,1,20,.2,0,1,1,20,.1,1,0,.7,25,.5,1,1,.8,50,.5,2,0,.4,10,1,2,1,.5,20,1), byrow = TRUE, ncol = 5)
+#' emig_2 <- Emigration(DensDep = TRUE, StageDep = TRUE, SexDep = TRUE, EmigProb = emigmat_2)
 #' plotProbs(emig_2)
+#'
+#' # inter-individual variation with density- and sex-dependence :
+#' emigmat_3 <- matrix(c(0,.7,.1,20,7,.2,.01,1,.9,.05,40,4,.5,.05), byrow = TRUE, ncol = 7)
+#' emig_3 <- Emigration(DensDep = TRUE, IndVar = TRUE, SexDep = TRUE, EmigProb = emigmat_3, TraitScaleFactor = c(.1,7,.05))
+#' plotProbs(emig_3)
 #' @references
 #'         \insertAllCited{}
 #' @return a parameter object of class "EmigrationParams"
