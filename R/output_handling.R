@@ -1,25 +1,25 @@
 #---------------------------------------------------------------------------
-#	
+#
 #	Copyright (C) 2020 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
-#	
+#
 #	This file is part of RangeShiftR.
-#	
+#
 #	RangeShiftR is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation, either version 3 of the License, or
 #	(at your option) any later version.
-#	
+#
 #	RangeShiftR is distributed in the hope that it will be useful,
 #	but WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #	GNU General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU General Public License
 #	along with RangeShiftR. If not, see <https://www.gnu.org/licenses/>.
-#	
+#
 #----------------------------------------------------------------------------
- 
- 
+
+
 
 #-------------------
 # Output handling and plotting functions
@@ -200,30 +200,30 @@ setMethod("ColonisationStats", "data.frame", function(x, y = NULL, years = numer
                         if(class(y) == "RasterStack") y <- y[[1]]
                         patch_occ_prob <- patch_col_time <- y
                         # denote matrix with NA
-                        values(patch_occ_prob)[values(y)==0] <- values(patch_col_time)[values(y)==0] <- NA
+                        raster::values(patch_occ_prob)[raster::values(y)==0] <- raster::values(patch_col_time)[raster::values(y)==0] <- NA
                         # init all habitat patches to also address those that never had a population (these don't occur in RS output)
-                        values(patch_occ_prob)[values(y) >0] <- 0
-                        values(patch_col_time)[values(y) >0] <- -9
+                        raster::values(patch_occ_prob)[raster::values(y) >0] <- 0
+                        raster::values(patch_col_time)[raster::values(y) >0] <- -9
 
                         # fill output rasters
                         #if(length(years)>1){
-                            patch_outstack <- stack()
+                            patch_outstack <- raster::stack()
                             for (j in 1:length(years)){
-                                patch_outstack <- addLayer(patch_outstack, patch_occ_prob)
+                                patch_outstack <- raster::addLayer(patch_outstack, patch_occ_prob)
                                 for (i in patches){
-                                    values(patch_outstack[[j]])[values(y)==i] <- occ_prob[occ_prob$patch==i,paste(years[j])]
+                                    raster::values(patch_outstack[[j]])[raster::values(y)==i] <- occ_prob[occ_prob$patch==i,paste(years[j])]
                                 }
                             }
                         #}
                         #else{
                         #    for (i in patches){
-                        #        values(patch_occ_prob)[values(y)==i] <- occ_prob[occ_prob$patch==i,"occ_prob"]
+                        #        raster::values(patch_occ_prob)[raster::values(y)==i] <- occ_prob[occ_prob$patch==i,"occ_prob"]
                         #    }
                         #    patch_outstack <- patch_occ_prob
                         #}
 
                         for (i in patches){
-                            values(patch_col_time)[values(y)==i] <- ifelse(is.na(col_time_mean[paste(i)]),-9,col_time_mean[paste(i)])
+                            raster::values(patch_col_time)[raster::values(y)==i] <- ifelse(is.na(col_time_mean[paste(i)]),-9,col_time_mean[paste(i)])
                         }
 
                         return(list(occ_prob=occ_prob, col_time=col_time, map_occ_prob=patch_outstack, map_col_time=patch_col_time))
@@ -241,21 +241,21 @@ setMethod("ColonisationStats", "data.frame", function(x, y = NULL, years = numer
                             # initialise output rasters
                             patch_outstack <- y
                             # denote matrix with NA
-                            values(patch_outstack)[values(y)==0] <- NA
+                            raster::values(patch_outstack)[raster::values(y)==0] <- NA
                             # all habitat patches to address those that never had a population
-                            values(patch_outstack)[values(y)>0] <- 0.0
-                            values(patch_outstack[[N_layers]])[values(y[[N_layers]])>0] <- -9
+                            raster::values(patch_outstack)[raster::values(y)>0] <- 0.0
+                            raster::values(patch_outstack[[N_layers]])[raster::values(y[[N_layers]])>0] <- -9
 
                             # fill output rasters
                             for (i in patches){
                                 #if(N_layers==2){
-                                #    values(patch_outstack[[1]])[values(y[[1]])==i] <- occ_prob[occ_prob$patch==i,"occ_prob"]
+                                #    raster::values(patch_outstack[[1]])[raster::values(y[[1]])==i] <- occ_prob[occ_prob$patch==i,"occ_prob"]
                                 #}else {
                                     for (j in 1:length(years)){
-                                        values(patch_outstack[[j]])[values(y[[j]])==i] <- occ_prob[occ_prob$patch==i,paste(years[j])]
+                                        raster::values(patch_outstack[[j]])[raster::values(y[[j]])==i] <- occ_prob[occ_prob$patch==i,paste(years[j])]
                                     }
                                 #}
-                                values(patch_outstack[[N_layers]])[values(y[[N_layers]])==i] <- ifelse(is.na(col_time_mean[paste(i)]),-9,col_time_mean[paste(i)])
+                                raster::values(patch_outstack[[N_layers]])[raster::values(y[[N_layers]])==i] <- ifelse(is.na(col_time_mean[paste(i)]),-9,col_time_mean[paste(i)])
                             }
                             return(list(occ_prob=occ_prob, col_time=col_time, map_occ_prob=patch_outstack[[-N_layers]], map_col_time=patch_outstack[[N_layers]]))
 
@@ -269,23 +269,23 @@ setMethod("ColonisationStats", "data.frame", function(x, y = NULL, years = numer
                         if(class(y) == "RasterStack") y <- y[[1]]
                         patch_occ_prob <- patch_col_time <- y
                         # init all habitat patches to also address those that never had a population (these don't occur in RS output)
-                        values(patch_occ_prob)[!is.na(values(y))] <- 0
-                        values(patch_col_time)[!is.na(values(y))] <- -9
+                        raster::values(patch_occ_prob)[!is.na(raster::values(y))] <- 0
+                        raster::values(patch_col_time)[!is.na(raster::values(y))] <- -9
                         # make value index from patchIDs
                         value_ix <- floor(patches/(10^digitsY))+(nrow(y)-patches%%(10^digitsY))*ncol(y)
 
                         # fill output rasters
                         #if(length(years)>1){
-                            patch_outstack <- stack()
+                            patch_outstack <- raster::stack()
                             for (j in 1:length(years)){
-                                patch_outstack <- addLayer(patch_outstack, patch_occ_prob)
-                                values(patch_outstack[[j]])[value_ix] <- occ_prob[,j+2]
+                                patch_outstack <- raster::addLayer(patch_outstack, patch_occ_prob)
+                                raster::values(patch_outstack[[j]])[value_ix] <- occ_prob[,j+2]
                             }
                         #} else{
-                        #    values(patch_occ_prob)[value_ix] <- occ_prob[,1]
+                        #    raster::values(patch_occ_prob)[value_ix] <- occ_prob[,1]
                         #    patch_outstack <- patch_occ_prob
                         #}
-                        values(patch_col_time)[value_ix] <- ifelse(is.na(col_time_mean[]),-9,col_time_mean[])
+                        raster::values(patch_col_time)[value_ix] <- ifelse(is.na(col_time_mean[]),-9,col_time_mean[])
 
                         return(list(occ_prob=occ_prob, col_time=col_time, map_occ_prob=patch_outstack, map_col_time=patch_col_time))
 
@@ -317,33 +317,33 @@ setMethod("ColonisationStats", "RSparams", function(x, y = getwd(), years = nume
                         if(s@control@patchmodel){ # for patch-based model, read all relevant patch-maps
                             # non-dynamic landscape
                             if(length(s@land@LandscapeFile)==1){
-                                patch_r <- try(raster(paste0(dirpath, "Inputs/", s@land@PatchFile)))
+                                patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@PatchFile)))
                                 if ( class(patch_r) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
 
                                 if(class(pop_df) != "try-error" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
                             }
                             # dynamic landscape
                             else{
-                                patch_r <- stack()
+                                patch_r <- raster::stack()
                                 # rasters for occ_prob output
                                 for(year in years){
                                     current <- which(s@land@DynamicLandYears == max(s@land@DynamicLandYears[s@land@DynamicLandYears<=year]) )
-                                    patch_curr <- try(raster(paste0(dirpath, "Inputs/", s@land@PatchFile[current])))
+                                    patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@PatchFile[current])))
                                     if ( class(patch_curr) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
-                                    else patch_r <- addLayer(patch_r ,patch_curr)
+                                    else patch_r <- raster::addLayer(patch_r , patch_curr)
                                 }
                                 # rasters for col_time output
                                 year <- max(pop_df$Year)
                                 current <- which(s@land@DynamicLandYears == max(s@land@DynamicLandYears[s@land@DynamicLandYears<=year]) )
-                                patch_curr <- try(raster(paste0(dirpath, "Inputs/", s@land@PatchFile[current])))
+                                patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@PatchFile[current])))
                                 if ( class(patch_curr) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
-                                else patch_r <- addLayer(patch_r ,patch_curr)
+                                else patch_r <- raster::addLayer(patch_r , patch_curr)
 
                                 if(class(pop_df) != "try-error" & length(patch_r@layers)==(length(years)+1) ) res <- ColonisationStats(pop_df,patch_r,years)
                             }
                         }else{
                             # for cell-based model, read only main habitat maps to use as raster template
-                            patch_r <- try(raster(paste0(dirpath, "Inputs/", s@land@LandscapeFile[1])))
+                            patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@LandscapeFile[1])))
                             if ( class(patch_r) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
                             if(class(pop_df) != "try-error" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
                         }

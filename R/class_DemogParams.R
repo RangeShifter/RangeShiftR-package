@@ -1,25 +1,25 @@
 #---------------------------------------------------------------------------
-#	
+#
 #	Copyright (C) 2020 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
-#	
+#
 #	This file is part of RangeShiftR.
-#	
+#
 #	RangeShiftR is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation, either version 3 of the License, or
 #	(at your option) any later version.
-#	
+#
 #	RangeShiftR is distributed in the hope that it will be useful,
 #	but WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #	GNU General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU General Public License
 #	along with RangeShiftR. If not, see <https://www.gnu.org/licenses/>.
-#	
+#
 #----------------------------------------------------------------------------
- 
- 
+
+
 
 #### DEMOGRAPHY ####
 
@@ -42,7 +42,7 @@
 #' @param Stages Number of life-stages (integer). Requires a minimum of \eqn{2}, for \"juvenile\" and \"adult\". Maximum is 10.
 #' @param TransMatrix Transition matrix. Defines the development probabilities from each stage into the next, as well as the respective survival probabilities and fecundities. See Details for matrix structure and notation.
 #' @param MaxAge Maximum age in years, defaults to \eqn{100}. (integer)
-#' @param MinAge Integer vector containing the ages which an individual in stage \eqn{i} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i+1)}. The defaults are \eqn{0} for all stages and sexes. The required format is described in the Details.
+#' @param MinAge Integer vector containing the ages which an individual in stage \eqn{i-1} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i)}. The defaults are \eqn{0} for all stages and sexes. The required format is described in the Details.
 #' @param RepSeasons Number of potential reproduction events per year. Defaults to \eqn{1}. (integer)
 #' @param RepInterval Number of reproductive seasons which must be missed following a reproduction attempt, before another reproduction attempt may occur. Defaults to \eqn{0}. (integer)
 #' @param PRep Probability of reproducing in subsequent reproductive seasons. Defaults to \eqn{1.0}.
@@ -93,8 +93,8 @@
 #' φ is equal to the true maximum fecundity and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is less than \eqn{1.0}.
 #' Only the first approach allows straightforward direct comparison with standard analytical matrix models.
 #'
-#' \emph{Minimum ages:} For every row in the transition matrix, a minimum age must be provided through a vector in argument \code{MinAge}. It specifies the age which an individual in stage \eqn{i} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i+1)}. The vector must be in
-#' the order of increasing stage, stating first male then female values; i.e. \eqn{0,1m,1f,2m,2f,...} Note that (analogous to the transition matrix) the juvenile stage 0 has only one entry for male and female. The defaults are \eqn{0} for all stages and sexes.
+#' \emph{Minimum ages:} For every row in the transition matrix, a minimum age must be provided through a vector in argument \code{MinAge}. It specifies the age which an individual in stage \eqn{i-1} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i)}. The vector must be in
+#' the order of increasing stage, stating first male then female values; i.e. \eqn{0,1m,1f,2m,2f,...}. Note that (analogous to the transition matrix) the juvenile stage (\eqn{i=0}) has only one entry for male and female. The defaults are \eqn{0} for all stages and sexes.
 #' Note that the minimum age for juveniles (stage \eqn{0}) is by definition zero, and that the minimum age for stage \eqn{1} is required to also be zero because individuals may not persist as juveniles beyond the breeding season in which they are born.
 #'
 #' It is possible to have one or more reproductive seasons per year (\code{RepSeasons}), or a reproductive event once every few years (controlled by \code{RepInterval}). At each reproductive season, two parameters

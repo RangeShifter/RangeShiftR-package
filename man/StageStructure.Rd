@@ -18,7 +18,7 @@ StageStructure(Stages, TransMatrix, MaxAge = 100, MinAge = 0,
 
 \item{MaxAge}{Maximum age in years, defaults to \eqn{100}. (integer)}
 
-\item{MinAge}{Integer vector containing the ages which an individual in stage \eqn{i} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i+1)}. The defaults are \eqn{0} for all stages and sexes. The required format is described in the Details.}
+\item{MinAge}{Integer vector containing the ages which an individual in stage \eqn{i-1} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i)}. The defaults are \eqn{0} for all stages and sexes. The required format is described in the Details.}
 
 \item{RepSeasons}{Number of potential reproduction events per year. Defaults to \eqn{1}. (integer)}
 
@@ -85,8 +85,8 @@ two ways. Either, as in the examples above, it is included in adult fecundity φ
 φ is equal to the true maximum fecundity and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is less than \eqn{1.0}.
 Only the first approach allows straightforward direct comparison with standard analytical matrix models.
 
-\emph{Minimum ages:} For every row in the transition matrix, a minimum age must be provided through a vector in argument \code{MinAge}. It specifies the age which an individual in stage \eqn{i} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i+1)}. The vector must be in
-the order of increasing stage, stating first male then female values; i.e. \eqn{0,1m,1f,2m,2f,...} Note that (analogous to the transition matrix) the juvenile stage 0 has only one entry for male and female. The defaults are \eqn{0} for all stages and sexes.
+\emph{Minimum ages:} For every row in the transition matrix, a minimum age must be provided through a vector in argument \code{MinAge}. It specifies the age which an individual in stage \eqn{i-1} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i)}. The vector must be in
+the order of increasing stage, stating first male then female values; i.e. \eqn{0,1m,1f,2m,2f,...}. Note that (analogous to the transition matrix) the juvenile stage (\eqn{i=0}) has only one entry for male and female. The defaults are \eqn{0} for all stages and sexes.
 Note that the minimum age for juveniles (stage \eqn{0}) is by definition zero, and that the minimum age for stage \eqn{1} is required to also be zero because individuals may not persist as juveniles beyond the breeding season in which they are born.
 
 It is possible to have one or more reproductive seasons per year (\code{RepSeasons}), or a reproductive event once every few years (controlled by \code{RepInterval}). At each reproductive season, two parameters

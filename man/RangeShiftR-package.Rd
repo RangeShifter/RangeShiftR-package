@@ -6,12 +6,18 @@
 \alias{RangeShiftR-package}
 \title{RangeShiftR: An R package for individual-based simulation of spatial eco-evolutionary dynamics and species' responses to environmental changes}
 \description{
-An R interface to the RangeShifter 2.0 simulation software.
+RangeShiftR provides individual-based simulations of spatial eco-evolutionary dynamics. It is based on the C++ software RangeShifter, making it flexible and fast. RangeShiftR models the processes of demography, dispersal and evolution in an inter-dependent way, offering substantial complexity in the corresponding modelling choices. It is entirely open-source and aims to facilitate the application of individual-based and mechanistic modelling to eco-evolutionary questions.
 }
 \details{
-\emph{RangeShiftR} offers an interface to the \emph{RangeShifter} simulation software
+\code{RangeShiftR} provides flexible and fast simulations of spatial eco-evolutionary dynamics.
+It implements the individual-based simulation software \emph{RangeShifter},
 \insertCite{bocedi2014,bocedi2020}{RangeShiftR},
 making it available for all machines that can build and run \emph{R}.
+
+\code{RangeShiftR} models the processes of demography, dispersal and evolution in an
+inter-dependent way, offering substantial complexity in the corresponding modelling choices.
+It is entirely open-source and aims to facilitate the application
+of individual-based and mechanistic modelling to eco-evolutionary questions.
 
 The \emph{RangeShifter} project is presented on our website
 \url{https://rangeshifter.github.io/}.

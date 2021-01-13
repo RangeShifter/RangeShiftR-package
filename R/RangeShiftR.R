@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------
 #
-#	Copyright (C) 2020 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
+#	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
 #
 #	This file is part of RangeShiftR.
 #
@@ -21,9 +21,15 @@
 
 
 #' @details
-#' \emph{RangeShiftR} offers an interface to the \emph{RangeShifter} simulation software
+#' \code{RangeShiftR} provides flexible and fast simulations of spatial eco-evolutionary dynamics.
+#' It implements the individual-based simulation software \emph{RangeShifter},
 #' \insertCite{bocedi2014,bocedi2020}{RangeShiftR},
 #' making it available for all machines that can build and run \emph{R}.
+#'
+#' \code{RangeShiftR} models the processes of demography, dispersal and evolution in an
+#' inter-dependent way, offering substantial complexity in the corresponding modelling choices.
+#' It is entirely open-source and aims to facilitate the application
+#' of individual-based and mechanistic modelling to eco-evolutionary questions.
 #'
 #' The \emph{RangeShifter} project is presented on our website
 #' \url{https://rangeshifter.github.io/}.
@@ -44,8 +50,8 @@ NULL
 
 
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("RangeshiftR version 1.0.0 (30.11.2020)\n",
-                          "Copyright (C) 2020 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n",
+    packageStartupMessage("RangeshiftR version 1.0.2 (11.01.2021)\n",
+                          "Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n",
                           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.\n",
                           "You are welcome to redistribute it and/or modify it under certain conditions;\n",
                           "type 'RangeShiftR_license()' for details.\n")
@@ -61,8 +67,8 @@ NULL
 #' @export
 RangeShiftR_license <- function ()
 {
-    cat("\nRangeshiftR version 1.0.0 (30.11.2020)\n")
-    cat("Copyright (C) 2020 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n")
+    cat("\nRangeshiftR version 1.0.2 (11.01.2021)\n")
+    cat("Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n")
     cat("This program is free software: you can redistribute it and/or modify\n")
     cat("it under the terms of the GNU General Public License as published by\n")
     cat("the Free Software Foundation, either version 3 of the License, or\n")

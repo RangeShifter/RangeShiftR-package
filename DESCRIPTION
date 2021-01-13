@@ -1,7 +1,7 @@
 Package: RangeShiftR
 Type: Package
 Title: An R package for individual-based simulation of spatial eco-evolutionary dynamics and species' responses to environmental changes
-Version: 1.0.0
+Version: 1.0.2
 Authors@R: c(
 	person("Anne-Kathleen", "Malchow", email = "rangeshiftr@uni-potsdam.de", role = c("aut", "cre")),
 	person("Greta", "Bocedi", role = c("aut")),
@@ -9,13 +9,13 @@ Authors@R: c(
 	person("Justin M.J.", "Travis", role = c("aut")),
 	person("Damaris", "Zurell", role = c("aut"))
 	)
-Date: 2020-10-01
+Date: 2021-01-11
 URL: https://rangeshifter.github.io/RangeshiftR-tutorials/
-Description: An R interface to the RangeShifter 2.0 simulation software.
+Description: RangeShiftR provides individual-based simulations of spatial eco-evolutionary dynamics. It is based on the C++ software RangeShifter, making it flexible and fast. RangeShiftR models the processes of demography, dispersal and evolution in an inter-dependent way, offering substantial complexity in the corresponding modelling choices. It is entirely open-source and aims to facilitate the application of individual-based and mechanistic modelling to eco-evolutionary questions.
 License: GPL-3
 Depends: R (>= 3.6)
 SystemRequirements: C++11
-Imports: Rcpp (>= 1.0.0), raster, Rdpack (>= 0.7)
+Imports: Rcpp (>= 1.0.0), raster (>= 3.0.0), Rdpack (>= 0.7)
 RdMacros: Rdpack
 LinkingTo: Rcpp
 Encoding: UTF-8
