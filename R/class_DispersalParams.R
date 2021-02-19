@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------
 #
-#	Copyright (C) 2020 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
+#	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
 #
 #	This file is part of RangeShiftR.
 #
@@ -199,7 +199,7 @@ setValidity("EmigrationParams", function(object) {
             }
         }
         else {
-            if (class(object@EmigProb)!="matrix" && length(object@EmigProb)!=1) {
+            if (class(object@EmigProb)[1]!="matrix" && length(object@EmigProb)!=1) {
                 msg <- c(msg, "EmigProb must be a matrix!")
             }
             else {
@@ -651,7 +651,7 @@ setValidity("DispersalKernel", function(object) {
             }
         }
         else {
-            if (class(object@Distances)!="matrix") {
+            if (class(object@Distances)[1] !="matrix") {
                 msg <- c(msg, "Distances must be a matrix!")
             }
         }
