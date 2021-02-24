@@ -287,7 +287,7 @@ setMethod("initialize", "EmigrationParams", function(.Object, ...) {
         validObject(.Object)
     }
     if (!is.null(args$EmigProb)) {
-        if (class(args$EmigProb)=="numeric" && length(args$EmigProb)==1) {
+        if (class(args$EmigProb)[1] =="numeric" && length(args$EmigProb)==1) {
             .Object@EmigProb <- as.matrix(args$EmigProb)
         }
     }
@@ -754,7 +754,7 @@ setMethod("initialize", "DispersalKernel", function(.Object, ...) {
     if ( length(args) == 0 ) {
         validObject(.Object)
     }
-    if (class(args$Distances)=="numeric" && length(args$Distances)==1) {
+    if (class(args$Distances)[1]=="numeric" && length(args$Distances)==1) {
         .Object@Distances <- as.matrix(args$Distances)
     }
     if (!.Object@IndVar) {
@@ -1806,7 +1806,7 @@ setValidity("SettlementParams", function(object) {
         msg <- c(msg, "Settle must be set!")
     }
     else{
-        if (class(object@Settle)=="numeric" && length(object@Settle)!=1) {
+        if (class(object@Settle)[1]=="numeric" && length(object@Settle)!=1) {
             msg <- c(msg, "Settle must be a matrix!")
         }
     }
@@ -1920,7 +1920,7 @@ setMethod("initialize", "SettlementParams", function(.Object,...) {
         validObject(.Object)
     }
     if (!is.null(args$Settle)) {
-        if (class(args$Settle)=="numeric" && length(args$Settle)==1) {
+        if (class(args$Settle)[1]=="numeric" && length(args$Settle)==1) {
             .Object@Settle <- as.matrix(args$Settle)
         }
     }
@@ -2081,7 +2081,7 @@ Dispersal <- setClass("DispersalParams", slots = c(Emigration = "EmigrationParam
                                          Transfer   = DispersalKernel(),
                                          Settlement = Settlement())
 )
-    ## add references to all sub-classes to heres explanation of IndVar and TraitScaleFactor
+    ## add references to all sub-classes to this explanation of IndVar and TraitScaleFactor
 
 setValidity("DispersalParams", function(object) {
     msg <- NULL
