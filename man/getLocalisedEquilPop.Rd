@@ -2,7 +2,7 @@
 % Please edit documentation in R/output_handling.R
 \name{getLocalisedEquilPop}
 \alias{getLocalisedEquilPop}
-\title{Calculates the equilibrium distribution for a localised (i.e. non-spatial) closed population}
+\title{Calculates the equilibrium density and stage distribution for a localised (i.e. non-spatial) closed population}
 \usage{
 getLocalisedEquilPop(demog, ...)
 }
@@ -11,25 +11,28 @@ getLocalisedEquilPop(demog, ...)
 
 \item{DensDep_values}{values of \eqn{1/b} to run the matrix model for}
 
-\item{plot}{plot the equilibrium population? (default is \code{TRUE})}
+\item{plot}{plot the equilibrium densities? (default is \code{TRUE})}
 
 \item{stages_out}{which stages to plot? (defaults to all)}
 
 \item{juv.stage}{use explicit juvenile (zeroth) stage? (default is \code{TRUE})}
 
-\item{t_rec}{time steps to record (defaults to \eqn{1}); if \code{t_rec}\eqn{>1}, the mean over all time steps is returned}
+\item{t_rec}{number of time steps to record at the end (defaults to \eqn{1}); if \code{t_rec}\eqn{>1}, the mean over all recorded time steps is returned}
 
-\item{N_0}{initial condition, i.e. population at time zero; must include stage zero regardless of the value of \code{juv.stage}}
+\item{N_0}{initial condition, i.e. population density at time zero; must include stage zero regardless of the value of \code{juv.stage}}
 
 \item{t_max}{allowed number of time steps to reach equilibrium (default is \eqn{1000})}
 
-\item{delta}{tolerance to define equilibrium (default is \eqn{.1}); the utilised measure is euclidian distance of current to previous time steps}
+\item{delta}{tolerance to check for equilibrium (default is \eqn{.1}); the utilised measure is euclidian distance of current to previous time steps}
 
 \item{diagnostics}{in addition to recorded population vectors, returns the number of steps taken as well as the transition matrix and the value if delta at the last step (default is \code{FALSE})}
 }
+\value{
+a matrix of population densities with a named row for each stage and a column for each given value of \eqn{1/b}
+}
 \description{
 Uses the \emph{RangeShiftR} Demography module to create the corresponding matrix model and runs it until equilibrium is reached.
-This corresponds to a population in a single cell without dispersal.
+This corresponds to a localised population in a single cell without dispersal (i.e. no immigration or emigration).
 Since the matrix model representation is used, some options (e.g. maximum age) of the \code{\link[RangeShiftR]{Demography}} module can not be taken into account.
 }
 \details{

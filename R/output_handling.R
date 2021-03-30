@@ -799,26 +799,27 @@ get_eq_pop <- function(b, demog, N_0 = NULL, t_max = 1000, t_rec = 1, delta = .1
 
 ## ---- Frontend Plot function -----
 
-#' Calculates the equilibrium distribution for a localised (i.e. non-spatial) closed population
+#' Calculates the equilibrium density and stage distribution for a localised (i.e. non-spatial) closed population
 #'
 #' Uses the \emph{RangeShiftR} Demography module to create the corresponding matrix model and runs it until equilibrium is reached.
-#' This corresponds to a population in a single cell without dispersal.
+#' This corresponds to a localised population in a single cell without dispersal (i.e. no immigration or emigration).
 #' Since the matrix model representation is used, some options (e.g. maximum age) of the \code{\link[RangeShiftR]{Demography}} module can not be taken into account.
 #' @param demog DemogParams object with a \code{StageStructure}
 #' @param DensDep_values values of \eqn{1/b} to run the matrix model for
-#' @param plot plot the equilibrium population? (default is \code{TRUE})
+#' @param plot plot the equilibrium densities? (default is \code{TRUE})
 #' @param stages_out which stages to plot? (defaults to all)
 #' @param juv.stage use explicit juvenile (zeroth) stage? (default is \code{TRUE})
-#' @param t_rec time steps to record (defaults to \eqn{1}); if \code{t_rec}\eqn{>1}, the mean over all time steps is returned
-#' @param N_0 initial condition, i.e. population at time zero; must include stage zero regardless of the value of \code{juv.stage}
+#' @param t_rec number of time steps to record at the end (defaults to \eqn{1}); if \code{t_rec}\eqn{>1}, the mean over all recorded time steps is returned
+#' @param N_0 initial condition, i.e. population density at time zero; must include stage zero regardless of the value of \code{juv.stage}
 #' @param t_max allowed number of time steps to reach equilibrium (default is \eqn{1000})
-#' @param delta tolerance to define equilibrium (default is \eqn{.1}); the utilised measure is euclidian distance of current to previous time steps
+#' @param delta tolerance to check for equilibrium (default is \eqn{.1}); the utilised measure is euclidian distance of current to previous time steps
 #' @param diagnostics in addition to recorded population vectors, returns the number of steps taken as well as the transition matrix and the value if delta at the last step (default is \code{FALSE})
 #' @details \emph{RangeShiftR} requires an additional juvenile stage to be added to the common transition matrix as stage \eqn{0} (in order
 #' to allow for juvenile dispersal). For the simulation with \code{RunMatrixModel()}, this stage can be kept (\code{juv.stage=TRUE})
 #' or removed to yield the corresponding Lefkovitch matrix (\code{juv.stage=FALSE}).\cr
 #' The default initial state \code{N_0} is a population at its respective density \eqn{1/b} with unpopulated juvenile stage and
 #' all higher stages equally populated.\cr
+#' @return a matrix of population densities with a named row for each stage and a column for each given value of \eqn{1/b}
 #' @export
 setGeneric("getLocalisedEquilPop", function(demog,...) standardGeneric("getLocalisedEquilPop") )
 
@@ -840,7 +841,7 @@ setMethod("getLocalisedEquilPop", "DemogParams", function(demog, DensDep_values,
         colors <- hcl.colors(length(stages_out), palette = "Harmonic")
         if(demog@ReproductionType <2){
             barplot(res[as.character(stages_out),], names.arg = as.integer(DensDep_values), beside = F, col = colors,
-                          main = "Localised Equilibrium Populations", xlab = "1/b", ylab = "Population density")
+                          main = "Localised equilibrium densities", xlab = "1/b", ylab = "Population density")
         }
         if(demog@ReproductionType==2){
             if(length(stages_out)<2) warning("getLocalisedEquilPop(): Please specify more than one stage when plotting a sex-explicit model.", call. = TRUE)
@@ -851,14 +852,14 @@ setMethod("getLocalisedEquilPop", "DemogParams", function(demog, DensDep_values,
                 res_2 <- cbind(res_2[mal,1:length(DensDep_values)],res_2[fem,1:length(DensDep_values)])
                 res_2 <- cbind(res_2[,c(sapply(1:length(DensDep_values), function(i){c(0,1)*length(DensDep_values)+i}))])
                 barplot(res_2, space=c(0.3,0.1), names.arg = c(rbind(DensDep_values,NA)), beside = F, col = rep(colors, 2),
-                        main = "Localised Equilibrium Populations", xlab = "1/b", ylab = "Population density")
+                        main = "Localised equilibrium densities", xlab = "1/b", ylab = "Population density")
                 text(seq(0.5,length(DensDep_values)*2,2)*1.2, colSums(res_2[,seq(1,length(DensDep_values)*2,2)])*1.1, "m", cex=1, col="black")
                 text(seq(1.5,length(DensDep_values)*2,2)*1.2, colSums(res_2[,seq(2,length(DensDep_values)*2,2)])*1.1, "f", cex=1, col="black")
             }
         }
         legend("topleft", legend = rev(sapply(stages_out, function(s){paste("Stage",s)})), col = rev(colors), pch = 16)
     }
-    # return eqilibrium populations
+    # return eqilibrium population densities
     return(res)
 })
 
