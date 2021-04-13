@@ -33,8 +33,8 @@ LandParams <- setClass("LandParams", slots = c(LandNum = "integer_OR_numeric")
 
 setValidity("LandParams", function(object) {
     msg <- NULL
-    if (is.na(object@LandNum) || length(object@LandNum)==0) {
-        msg <- c(msg, "LandNum must be set!")
+    if (is.na(object@LandNum) || length(object@LandNum)!=1) {
+        msg <- c(msg, "LandNum must be set and of length 1!")
     }
     else {
         if (object@LandNum < 1) {
@@ -124,8 +124,8 @@ ArtificialLandscape <- setClass("ArtificialLandscape", slots = c(propSuit = "num
 
 setValidity("ArtificialLandscape", function(object) {
     msg <- NULL
-    if (is.na(object@propSuit) || length(object@propSuit)==0) {
-        msg <- c(msg, "Proportion of suitable habitat must be set!")
+    if (is.na(object@propSuit) || length(object@propSuit)!=1) {
+        msg <- c(msg, "Proportion of suitable habitat must be set and of length 1!")
     }
     else {
         if (object@propSuit<0 || object@propSuit>1) {
@@ -140,24 +140,24 @@ setValidity("ArtificialLandscape", function(object) {
             msg <- c(msg, "K_or_DensDep must not be smaller than 0.")
         }
     }
-    if (is.na(object@Resolution) || length(object@Resolution)==0) {
-        msg <- c(msg, "Resolution of landscape must be set!")
+    if (is.na(object@Resolution) || length(object@Resolution)!=1) {
+        msg <- c(msg, "Resolution of landscape must be set and of length 1!")
     }
     else {
         if (object@Resolution < 1) {
             msg <- c(msg, "Resolution of landscape must be positive.")
         }
     }
-    if (is.na(object@dimX) || length(object@dimX)==0) {
+    if (is.na(object@dimX) || length(object@dimX)!=1) {
         msg <- c(msg, "dimX must be set!")
     }
-    if (is.na(object@dimY) || length(object@dimY)==0) {
+    if (is.na(object@dimY) || length(object@dimY)!=1) {
         msg <- c(msg, "dimY must be set!")
     }
-    if (is.na(object@fractal) || length(object@fractal)==0) {
+    if (is.na(object@fractal) || length(object@fractal)!=1) {
         msg <- c(msg, "fractal must be set!")
     }
-    if (is.na(object@continuous) || length(object@continuous)==0) {
+    if (is.na(object@continuous) || length(object@continuous)!=1) {
         msg <- c(msg, "continuous must be set!")
     }
     if (is.null(msg)) {
@@ -181,7 +181,7 @@ setValidity("ArtificialLandscape", function(object) {
             if (object@dimY < object@dimX) {
                 msg <- c(msg, "Y-dimension may not be less than X-dimension for a fractal landscape.")
             }
-            if (is.na(object@hurst) || length(object@hurst)==0) {
+            if (is.na(object@hurst) || length(object@hurst)!=1) {
                 msg <- c(msg, "Hurst exponent must be set for a fractal landscape.")
             }
             else {
@@ -202,7 +202,7 @@ setValidity("ArtificialLandscape", function(object) {
             }
         }
         if(object@continuous) {
-            if (is.na(object@minPct) || length(object@minPct)==0) {
+            if (is.na(object@minPct) || length(object@minPct)!=1) {
                 minP.ok = FALSE
                 msg <- c(msg, "Minimum habitat percentage must be set for a continuous landscape.")
             }
@@ -213,7 +213,7 @@ setValidity("ArtificialLandscape", function(object) {
                 }
                 else {minP.ok = TRUE}
             }
-            if (is.na(object@maxPct) || length(object@maxPct)==0) {
+            if (is.na(object@maxPct) || length(object@maxPct)!=1) {
                 maxP.ok = FALSE
                 msg <- c(msg, "Maximum habitat percentage must be set for a continuous landscape.")
             }
@@ -407,14 +407,12 @@ ImportedLandscape <- setClass("ImportedLandscape", slots = c(LandscapeFile = "ch
                                                  DynamicLandYears = 0L) #= data.frame())
                               , contains = "LandParams")
 
-        # add interface and docu for Dynamic Landscapes
-
 setValidity("ImportedLandscape", function(object) {
     msg <- NULL
     if (anyNA(object@LandscapeFile) || length(object@LandscapeFile)==0) {
         msg <- c(msg, "No filename to import Landscape from was given.")
     }
-    if (is.na(object@Resolution) || length(object@Resolution)==0) {
+    if (is.na(object@Resolution) || length(object@Resolution)!=1) {
         msg <- c(msg, "Resolution of landscape must be given!")
     }
     else {
@@ -422,7 +420,7 @@ setValidity("ImportedLandscape", function(object) {
             msg <- c(msg, "Resolution of landscape must be positive.")
         }
     }
-    if (is.na(object@HabPercent) || length(object@HabPercent)==0) {
+    if (is.na(object@HabPercent) || length(object@HabPercent)!=1) {
         msg <- c(msg, "HabPercent must be set!")
     }
     if (anyNA(object@K_or_DensDep) || length(object@K_or_DensDep)==0) {
@@ -430,11 +428,11 @@ setValidity("ImportedLandscape", function(object) {
     }
     else {
         if (any(object@K_or_DensDep<0)) {
-            msg <- c(msg, "K_or_DensDep must not be smaller than 0 for any habitat type.")
+            msg <- c(msg, "K_or_DensDep must not be smaller than zero for any habitat type.")
         }
     }
     if (!object@HabPercent) {
-        if (is.na(object@Nhabitats) || length(object@Nhabitats)==0) {
+        if (is.na(object@Nhabitats) || length(object@Nhabitats)!=1) {
             msg <- c(msg, "Number of habitat codes must be given for the imported landscape. If your landscape is specified by a habitat cover percentage, please set \"HabPercent = TRUE\". ")
         }
         else {
@@ -486,8 +484,8 @@ setValidity("ImportedLandscape", function(object) {
         }
     }
     if (object@SpDistFile!="NULL") {
-        if (is.na(object@SpDistResolution) || length(object@SpDistResolution)==0) {
-            msg <- c(msg, "Resolution of Species distribution must be set!")
+        if (is.na(object@SpDistResolution) || length(object@SpDistResolution)!=1) {
+            msg <- c(msg, "Resolution of Species distribution must be set and of length 1!")
         }
         else {
             if (object@SpDistResolution < 1) {

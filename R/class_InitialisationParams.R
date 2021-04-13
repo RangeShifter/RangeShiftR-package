@@ -1,25 +1,25 @@
 #---------------------------------------------------------------------------
-#	
+#
 #	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
-#	
+#
 #	This file is part of RangeShiftR.
-#	
+#
 #	RangeShiftR is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation, either version 3 of the License, or
 #	(at your option) any later version.
-#	
+#
 #	RangeShiftR is distributed in the hope that it will be useful,
 #	but WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #	GNU General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU General Public License
 #	along with RangeShiftR. If not, see <https://www.gnu.org/licenses/>.
-#	
+#
 #----------------------------------------------------------------------------
- 
- 
+
+
 
 #### CLASS INITIALISATIONPARAMS
 
@@ -192,12 +192,11 @@ Initialise <- setClass("InitialisationParams", slots = c(InitType = "integer_OR_
                                           RestrictFreq = 0L,
                                           FinalFreezeYear = 0L)
 )
-# finish initialize
 
 setValidity('InitialisationParams', function(object){
     msg <- NULL
-    if (is.na(object@InitType) || length(object@InitType) == 0){
-        msg <- c(msg, 'Type of initialisation (InitType) must be set!')
+    if (is.na(object@InitType) || length(object@InitType)!=1){
+        msg <- c(msg, 'Type of initialisation (InitType) must be set and of length 1!')
     }
     else {
         if (!object@InitType %in% c(0,1,2)){
@@ -205,7 +204,7 @@ setValidity('InitialisationParams', function(object){
         }
         else { # Valid InitType
             if (object@InitType == 0){  # Free Init
-                if (is.na(object@FreeType) || length(object@FreeType) == 0){
+                if (is.na(object@FreeType) || length(object@FreeType)!=1){
                     msg <- c(msg, 'FreeType is required if InitType = 0 (Free initialisation).')
                 }
                 else{
@@ -214,7 +213,7 @@ setValidity('InitialisationParams', function(object){
                     }
                     else { # Valid FreeType
                         if (object@FreeType == 0){ #random
-                            if (is.na(object@NrCells) || length(object@NrCells) == 0){
+                            if (is.na(object@NrCells) || length(object@NrCells)!=1){
                                 msg <- c(msg, 'NrCells is required if FreeType = 0 (Random Free initialisation).')
                             }
                             else { # Valid NrCells
@@ -276,7 +275,7 @@ setValidity('InitialisationParams', function(object){
                 }
             }
             if (object@InitType == 1){  # Init Distmap
-                if (is.na(object@SpType) || length(object@SpType) == 0){
+                if (is.na(object@SpType) || length(object@SpType)!=1){
                     msg <- c(msg, 'SpType is required if InitType = 1 (from loaded species distribution map).')
                 }
                 else{
@@ -285,7 +284,7 @@ setValidity('InitialisationParams', function(object){
                     }
                     else { # Valid SpType
                         if (object@SpType == 1){ #random
-                            if (is.na(object@NrCells) || length(object@NrCells) == 0){
+                            if (is.na(object@NrCells) || length(object@NrCells)!=1){
                                 msg <- c(msg, 'NrCells is required if SpType = 1 (Random initialisation from loaded species distribution map).')
                             }
                             else { # Valid NrCells
@@ -304,8 +303,8 @@ setValidity('InitialisationParams', function(object){
             }
         }
     }
-    if (is.na(object@InitDens) || length(object@InitDens) == 0) {
-        msg <- c(msg, 'InitDens must be set!')
+    if (is.na(object@InitDens) || length(object@InitDens)!=1) {
+        msg <- c(msg, 'InitDens must be set and of length 1!')
     }
     else {
         if (!object@InitDens %in% c(0,1,2)) {
@@ -313,7 +312,7 @@ setValidity('InitialisationParams', function(object){
         }
         else {
             if (object@InitDens == 2){
-                if(is.na(object@IndsHaCell) || length(object@IndsHaCell) == 0) {
+                if(is.na(object@IndsHaCell) || length(object@IndsHaCell)!=1) {
                     msg <- c(msg, 'IndsHaCell is required if InitDens = 2')
                 }
                 else {
@@ -346,32 +345,32 @@ setValidity('InitialisationParams', function(object){
             }
         }
     }
-    if (is.na(object@InitFreezeYear) || length(object@InitFreezeYear) == 0) {
-        msg <- c(msg, 'InitFreezeYear must be set!')
+    if (is.na(object@InitFreezeYear) || length(object@InitFreezeYear)!=1) {
+        msg <- c(msg, 'InitFreezeYear must be set and of length 1!')
     }
     else {
         if(object@InitFreezeYear < 0) {
             msg <- c(msg, 'InitFreezeYear must be greater or equal 0!')
         }
     }
-    if (is.na(object@RestrictRows) || length(object@RestrictRows) == 0) {
-        msg <- c(msg, 'RestrictRows must be set!')
+    if (is.na(object@RestrictRows) || length(object@RestrictRows)!=1) {
+        msg <- c(msg, 'RestrictRows must be set and of length 1!')
     }
     else {
         if(object@RestrictRows < 0) {
             msg <- c(msg, 'RestrictRows must be greater or equal 0!')
         }
     }
-    if (is.na(object@RestrictFreq) || length(object@RestrictFreq) == 0) {
-        msg <- c(msg, 'RestrictFreq must be set!')
+    if (is.na(object@RestrictFreq) || length(object@RestrictFreq)!=1) {
+        msg <- c(msg, 'RestrictFreq must be set and of length 1!')
     }
     else {
         if(object@RestrictFreq <= 0 && object@RestrictRows > 0) {
             msg <- c(msg, 'RestrictFreq must be strictly positive!')
         }
     }
-    if (is.na(object@FinalFreezeYear) || length(object@FinalFreezeYear) == 0) {
-        msg <- c(msg, 'FinalFreezeYear must be set!')
+    if (is.na(object@FinalFreezeYear) || length(object@FinalFreezeYear)!=1) {
+        msg <- c(msg, 'FinalFreezeYear must be set and of length 1!')
     }
     else {
         if(object@FinalFreezeYear < 0) {

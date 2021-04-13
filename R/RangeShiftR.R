@@ -67,7 +67,7 @@ NULL
 #' @export
 RangeShiftR_license <- function ()
 {
-    cat("\nRangeshiftR version 1.0.2 (11.01.2021)\n")
+    cat("\nRangeshiftR version 1.0.3 (13.04.2021)\n")
     cat("Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n")
     cat("This program is free software: you can redistribute it and/or modify\n")
     cat("it under the terms of the GNU General Public License as published by\n")

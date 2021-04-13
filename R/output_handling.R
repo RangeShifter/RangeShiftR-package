@@ -859,7 +859,7 @@ setMethod("getLocalisedEquilPop", "DemogParams", function(demog, DensDep_values,
         }
         legend("topleft", legend = rev(sapply(stages_out, function(s){paste("Stage",s)})), col = rev(colors), pch = 16)
     }
-    # return eqilibrium population densities
+    # return equilibrium population densities
     return(res)
 })
 

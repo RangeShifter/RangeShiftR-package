@@ -165,15 +165,15 @@ Emigration <- setClass("EmigrationParams", slots = c(DensDep = "logical",
 
 setValidity("EmigrationParams", function(object) {
     msg <- NULL
-    if (is.na(object@DensDep) || length(object@DensDep)==0) {
-        msg <- c(msg, "DensDep must be set!")
+    if (is.na(object@DensDep) || length(object@DensDep)!=1) {
+        msg <- c(msg, "DensDep must be set and of length 1!")
     }
-    if (is.na(object@IndVar) || length(object@IndVar)==0) {
-        msg <- c(msg, "IndVar must be set!")
+    if (is.na(object@IndVar) || length(object@IndVar)!=1) {
+        msg <- c(msg, "IndVar must be set and of length 1!")
     }
     else {
-        if (is.na(object@StageDep) || length(object@StageDep)==0) {
-            msg <- c(msg, "StageDep must be set!")
+        if (is.na(object@StageDep) || length(object@StageDep)!=1) {
+            msg <- c(msg, "StageDep must be set and of length 1!")
         }
         else{
             if (object@IndVar && object@StageDep) {
@@ -181,8 +181,8 @@ setValidity("EmigrationParams", function(object) {
             }
         }
     }
-    if (is.na(object@SexDep) || length(object@SexDep)==0) {
-        msg <- c(msg, "SexDep must be set!")
+    if (is.na(object@SexDep) || length(object@SexDep)!=1) {
+        msg <- c(msg, "SexDep must be set and of length 1!")
     }
     if (anyNA(object@EmigProb) || length(object@EmigProb)==0) {
         msg <- c(msg, "EmigProb must be set!")
@@ -269,8 +269,8 @@ setValidity("EmigrationParams", function(object) {
             }
         }
     }
-    if (is.na(object@UseFullKern) || length(object@UseFullKern)==0) {
-        msg <- c(msg, "UseFullKern must be set!")
+    if (is.na(object@UseFullKern) || length(object@UseFullKern)!=1) {
+        msg <- c(msg, "UseFullKern must be set and of length 1!")
     }
     else {
         if (object@DensDep && object@UseFullKern) {
@@ -622,15 +622,15 @@ DispersalKernel <- setClass("DispersalKernel", slots = c(IndVar = "logical",
 
 setValidity("DispersalKernel", function(object) {
     msg <- NULL
-    if (is.na(object@DoubleKernel) || length(object@DoubleKernel)==0) {
-        msg <- c(msg, "DoubleKernel must be set!")
+    if (is.na(object@DoubleKernel) || length(object@DoubleKernel)!=1) {
+        msg <- c(msg, "DoubleKernel must be set and of length 1!")
     }
-    if (is.na(object@IndVar) || length(object@IndVar)==0) {
-        msg <- c(msg, "IndVar must be set!")
+    if (is.na(object@IndVar) || length(object@IndVar)!=1) {
+        msg <- c(msg, "IndVar must be set and of length 1!")
     }
     else {
-        if (is.na(object@StageDep) || length(object@StageDep)==0) {
-            msg <- c(msg, "StageDep must be set!")
+        if (is.na(object@StageDep) || length(object@StageDep)!=1) {
+            msg <- c(msg, "StageDep must be set and of length 1!")
         }
         else{
             if (object@IndVar && object@StageDep) {
@@ -638,8 +638,8 @@ setValidity("DispersalKernel", function(object) {
             }
         }
     }
-    if (is.na(object@SexDep) || length(object@SexDep)==0) {
-        msg <- c(msg, "SexDep must be set!")
+    if (is.na(object@SexDep) || length(object@SexDep)!=1) {
+        msg <- c(msg, "SexDep must be set and of length 1!")
     }
     if (anyNA(object@Distances) || length(object@Distances)==0) {
         msg <- c(msg, "Distances must be set!")
@@ -721,22 +721,22 @@ setValidity("DispersalKernel", function(object) {
             }
         }
     }
-    if (is.na(object@DistMort) || length(object@DistMort)==0) {
-        msg <- c(msg, "DistMort must be set!")
+    if (is.na(object@DistMort) || length(object@DistMort)!=1) {
+        msg <- c(msg, "DistMort must be set and of length 1!")
     }
     else {
         if (object@DistMort) {
             # atm no conditions for Slope, InflPoint
             if (is.na(object@Slope) || length(object@Slope)!=1) {
-                msg <- c(msg, "Slope must be set!")
+                msg <- c(msg, "Slope must be set and of length 1!")
             }
             if (is.na(object@InflPoint) || length(object@InflPoint)!=1) {
-                msg <- c(msg, "InflPoint must be set!")
+                msg <- c(msg, "InflPoint must be set and of length 1!")
             }
         }
         else {
             if (is.na(object@MortProb) || length(object@MortProb)!=1) {
-                msg <- c(msg, "MortProb must be set!")
+                msg <- c(msg, "MortProb must be set and of length 1!")
             }
             else {
                 if (object@MortProb < 0 | object@MortProb >= 1 ) {
@@ -1092,40 +1092,40 @@ SMS <- setClass("StochMove", slots = c(PR = "integer_OR_numeric",
 )
 setValidity("StochMove", function(object) {
     msg <- NULL
-    if (is.na(object@PR) || length(object@PR)==0) {
-        msg <- c(msg, "PR must be set!")
+    if (is.na(object@PR) || length(object@PR)!=1) {
+        msg <- c(msg, "PR must be set and of length 1!")
     }
     else{
         if (object@PR < 1.0) {
-            msg <- c(msg, "PR must be >= 1.0!")
+            msg <- c(msg, "PR must be >= 1!")
         }
     }
-    if (is.na(object@PRMethod) || length(object@PRMethod)==0) {
-        msg <- c(msg, "PRMethod must be set!")
+    if (is.na(object@PRMethod) || length(object@PRMethod)!=1) {
+        msg <- c(msg, "PRMethod must be set and of length 1!")
     }
     else{
         if (object@PRMethod != 1 && object@PRMethod != 2 && object@PRMethod != 3) {
             msg <- c(msg, "PRMethod must be either 1, 2 or 3!")
         }
     }
-    if (is.na(object@MemSize) || length(object@MemSize)==0) {
-        msg <- c(msg, "MemSize must be set!")
+    if (is.na(object@MemSize) || length(object@MemSize)!=1) {
+        msg <- c(msg, "MemSize must be set and of length 1!")
     }
     else{
         if (object@MemSize < 1 || object@MemSize > 14) {
             msg <- c(msg, "MemSize must be between 1 and 14 !")
         }
     }
-    if (is.na(object@GoalType) || length(object@GoalType)==0) {
-        msg <- c(msg, "GoalType must be set!")
+    if (is.na(object@GoalType) || length(object@GoalType)!=1) {
+        msg <- c(msg, "GoalType must be set and of length 1!")
     }
     else{
         if (object@GoalType != 0 && object@GoalType != 2) {
             msg <- c(msg, "GoalType must be either 0 or 2!")
         }
     }
-    if (is.na(object@IndVar) || length(object@IndVar)==0) {
-        msg <- c(msg, "IndVar must be set!")
+    if (is.na(object@IndVar) || length(object@IndVar)!=1) {
+        msg <- c(msg, "IndVar must be set and of length 1!")
     }
     if(is.null(msg)){
         if (anyNA(object@DP) || length(object@DP)==0) {
@@ -1275,8 +1275,8 @@ setValidity("StochMove", function(object) {
             }
         }
     }
-    if (is.na(object@StraightenPath) || length(object@StraightenPath)==0) {
-        msg <- c(msg, "StraightenPath must be set!")
+    if (is.na(object@StraightenPath) || length(object@StraightenPath)!=1) {
+        msg <- c(msg, "StraightenPath must be set and of length 1!")
     }
     if (anyNA(object@Costs) || length(object@Costs)==0) {
         msg <- c(msg, "Costs must be set!")
@@ -1494,8 +1494,8 @@ CorrRW <- setClass("CorrRW", slots = c(IndVar = "logical",
 )
 setValidity("CorrRW", function(object) {
     msg <- NULL
-    if (is.na(object@IndVar) || length(object@IndVar)==0) {
-        msg <- c(msg, "IndVar must be set!")
+    if (is.na(object@IndVar) || length(object@IndVar)!=1) {
+        msg <- c(msg, "IndVar must be set and of length 1!")
     }
     if (anyNA(object@StepLength) || length(object@StepLength)==0) {
         msg <- c(msg, "StepLength must be set!")
@@ -1569,8 +1569,8 @@ setValidity("CorrRW", function(object) {
             }
         }
     }
-    if (is.na(object@StraightenPath) || length(object@StraightenPath)==0) {
-        msg <- c(msg, "StraightenPath must be set!")
+    if (is.na(object@StraightenPath) || length(object@StraightenPath)!=1) {
+        msg <- c(msg, "StraightenPath must be set and of length 1!")
     }
     if (anyNA(object@StepMort) || length(object@StepMort)==0) {
         msg <- c(msg, "StepMort must be set!")
@@ -1796,11 +1796,11 @@ Settlement <- setClass("SettlementParams", slots = c(StageDep = "logical",
 
 setValidity("SettlementParams", function(object) {
     msg <- NULL
-    if (is.na(object@StageDep) || length(object@StageDep)==0) {
-        msg <- c(msg, "StageDep must be set!")
+    if (is.na(object@StageDep) || length(object@StageDep)!=1) {
+        msg <- c(msg, "StageDep must be set and of length 1!")
     }
-    if (is.na(object@SexDep) || length(object@SexDep)==0) {
-        msg <- c(msg, "SexDep must be set!")
+    if (is.na(object@SexDep) || length(object@SexDep)!=1) {
+        msg <- c(msg, "SexDep must be set and of length 1!")
     }
     if (anyNA(object@Settle) || length(object@Settle)==0) {
         msg <- c(msg, "Settle must be set!")
@@ -1820,11 +1820,11 @@ setValidity("SettlementParams", function(object) {
             }
         }
     }
-    if (is.na(object@DensDep) || length(object@DensDep)==0) {
-        msg <- c(msg, "DensDep must be set!")
+    if (is.na(object@DensDep) || length(object@DensDep)!=1) {
+        msg <- c(msg, "DensDep must be set and of length 1!")
     }
-    if (is.na(object@IndVar) || length(object@IndVar)==0) {
-        msg <- c(msg, "IndVar must be set!")
+    if (is.na(object@IndVar) || length(object@IndVar)!=1) {
+        msg <- c(msg, "IndVar must be set and of length 1!")
     }
     if (is.null(msg)) {
         if ( object@IndVar && !object@DensDep ) {
