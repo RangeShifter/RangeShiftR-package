@@ -46,12 +46,12 @@
 #' @param RepSeasons Number of potential reproduction events per year. Defaults to \eqn{1}. (integer)
 #' @param RepInterval Number of reproductive seasons which must be missed following a reproduction attempt, before another reproduction attempt may occur. Defaults to \eqn{0}. (integer)
 #' @param PRep Probability of reproducing in subsequent reproductive seasons. Defaults to \eqn{1.0}.
-#' @param SurvSched Scheduling of Survival. When should survival and development occur?\cr 0 = At reproduction (default)\cr 1 = Between reproductive events\cr 2 = Annually (only for \code{RepSeasons>1})
+#' @param SurvSched Scheduling of Survival. When should survival and development occur?\cr 0 = At reproduction\cr 1 = Between reproductive events (default)\cr 2 = Annually (only for \code{RepSeasons>1})
 #' @param FecDensDep,DevDensDep,SurvDensDep Density-dependent fecundity / development / survival probabilities? Defaults to \code{FALSE}. See Details for functional form of density-dependence.
 #' @param DevDensCoeff,SurvDensCoeff Relative density dependence coefficient for development / survival. Defaults to \eqn{1.0}.
-# @param FecStageWts,DevStageWts,SurvStageWts Stage-dependent density depedence in fecundity / development / survival? Defaults to \code{FALSE}.
-# @param FecStageWtsMatrix,DevStageWtsMatrix,SurvStageWtsMatrix Required if stage-dependent density depedence, i.e. if respective \code{FecStageWts}/\code{DevStageWts}/\code{SurfStageWts=TRUE}. Takes a quadratic matrix with (#stages * #sexes) rows/columns indicating the weight of the abundance of each sex/stage on the fecundity/development/survival of each other sex/stage.
-#' @param FecStageWtsMatrix,DevStageWtsMatrix,SurvStageWtsMatrix Stage-dependent weights in density depedence of fecundity / development / survival. Takes a quadratic matrix with (#sexes * #stages) rows/columns indicating the weight of the abundance of each stage/sex on the fecundity/development/survival of each other stage/sex. If not set, all stages are weighted equally.
+# @param FecStageWts,DevStageWts,SurvStageWts Stage-dependent density dependence in fecundity / development / survival? Defaults to \code{FALSE}.
+# @param FecStageWtsMatrix,DevStageWtsMatrix,SurvStageWtsMatrix Required if stage-dependent density dependence, i.e. if respective \code{FecStageWts}/\code{DevStageWts}/\code{SurfStageWts=TRUE}. Takes a quadratic matrix with (#stages * #sexes) rows/columns indicating the weight of the abundance of each sex/stage on the fecundity/development/survival of each other sex/stage.
+#' @param FecStageWtsMatrix,DevStageWtsMatrix,SurvStageWtsMatrix Stage-dependent weights in density dependence of fecundity / development / survival. Takes a quadratic matrix with (#sexes * #stages) rows/columns indicating the weight of the abundance of each stage/sex on the fecundity/development/survival of each other stage/sex. If not set, all stages are weighted equally.
 #' @param PostDestructn In a dynamic landscape, determine if all individuals of a population should die (\code{FALSE}, default) or disperse (\code{TRUE}) if its patch gets destroyed.
 #' @details In stage-structured populations, generations can overlap and individuals can be classified in different stages (e.g. immature vs. breeding individuals) differing in their
 #' demographic parameters. Individuals are characterized by their age and stage. Each stage has a certain fecundity, survival probability and probability of developing to the next stage.
@@ -184,7 +184,7 @@ StageStructure <- setClass("StagesParams", slots = c(Stages = "integer_OR_numeri
                                               RepSeasons = 1L,
                                               RepInterval = 0L,
                                               PRep = 1.0,
-                                              SurvSched = 0L,
+                                              SurvSched = 1L,
                                               FecDensDep = FALSE,
                                               FecStageWts = FALSE,
                                               #FecStageWtsMatrix = matrix(data = NA, nrow = 1, ncol = 1),

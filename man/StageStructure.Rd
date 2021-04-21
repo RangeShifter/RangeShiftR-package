@@ -26,13 +26,13 @@ StageStructure(Stages, TransMatrix, MaxAge = 100, MinAge = 0,
 
 \item{PRep}{Probability of reproducing in subsequent reproductive seasons. Defaults to \eqn{1.0}.}
 
-\item{SurvSched}{Scheduling of Survival. When should survival and development occur?\cr 0 = At reproduction (default)\cr 1 = Between reproductive events\cr 2 = Annually (only for \code{RepSeasons>1})}
+\item{SurvSched}{Scheduling of Survival. When should survival and development occur?\cr 0 = At reproduction\cr 1 = Between reproductive events (default)\cr 2 = Annually (only for \code{RepSeasons>1})}
 
 \item{FecDensDep, DevDensDep, SurvDensDep}{Density-dependent fecundity / development / survival probabilities? Defaults to \code{FALSE}. See Details for functional form of density-dependence.}
 
 \item{DevDensCoeff, SurvDensCoeff}{Relative density dependence coefficient for development / survival. Defaults to \eqn{1.0}.}
 
-\item{FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix}{Stage-dependent weights in density depedence of fecundity / development / survival. Takes a quadratic matrix with (#sexes * #stages) rows/columns indicating the weight of the abundance of each stage/sex on the fecundity/development/survival of each other stage/sex. If not set, all stages are weighted equally.}
+\item{FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix}{Stage-dependent weights in density dependence of fecundity / development / survival. Takes a quadratic matrix with (#sexes * #stages) rows/columns indicating the weight of the abundance of each stage/sex on the fecundity/development/survival of each other stage/sex. If not set, all stages are weighted equally.}
 
 \item{PostDestructn}{In a dynamic landscape, determine if all individuals of a population should die (\code{FALSE}, default) or disperse (\code{TRUE}) if its patch gets destroyed.}
 }
