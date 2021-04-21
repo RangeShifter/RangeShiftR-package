@@ -11,9 +11,9 @@ Initialise(InitType = 0, FreeType = 1, SpType = 0, NrCells, InitIndsFile = "NULL
 }
 \arguments{
 \item{InitType}{Type of initialisation:\cr
-\eqn{0} = Free initialisation according to habitat map (default) (set \code{FreeType}), \cr
-\eqn{1} = From loaded species distribution map (set \code{SpType}),\cr
-\eqn{2} = From initial individuals list file (set \code{InitIndsFile}).
+\code{InitType} = \eqn{0}: Free initialisation according to habitat map (default) (set \code{FreeType}), \cr
+\code{InitType} = \eqn{1}: From loaded species distribution map (set \code{SpType}),\cr
+\code{InitType} = \eqn{2}: From initial individuals list file (set \code{InitIndsFile}).
 \cr Must to be \eqn{0} for an \code{\link[RangeShiftR]{ArtificialLandscape}}.}
 
 \item{FreeType, NrCells}{Option for \emph{free initialisation}, i.e. required only if \code{InitType}\eqn{ = 0}:\cr
@@ -37,9 +37,9 @@ Requires a vector of length equal to the number of stages; its entries must be \
 can't be initialised and thus stage \eqn{0} (first entry) must have a value of \eqn{0.0}.}
 
 \item{InitAge}{For \code{StageStructure}d models only: Initial age distribution within each stage:\cr
-\eqn{0} = Minimum age for the respective stage.\cr
-\eqn{1} = Age randomly sampled between the minimum and the maximum age for the respective stage.\cr
-\eqn{2} = According to a quasi-equilibrium distribution (default).}
+\code{InitAge} = \eqn{0}: Minimum age for the respective stage.\cr
+\code{InitAge} = \eqn{1}: Age randomly sampled between the minimum and the maximum age for the respective stage.\cr
+\code{InitAge} = \eqn{2}: According to a quasi-equilibrium distribution (default).}
 
 \item{minX, maxX, minY, maxY}{Option for \emph{free initialisation} (\code{InitType}\eqn{ = 0}): Restrict initial range in X- and/or Y- coordinates, given in number of cells.
 All must be \eqn{\ge 0} and (\code{maxX,maxY})\eqn{>}(\code{minX,minY}). (Integer)}
@@ -48,7 +48,7 @@ All must be \eqn{\ge 0} and (\code{maxX,maxY})\eqn{>}(\code{minX,minY}). (Intege
 its initial range limits.}
 
 \item{RestrictRows}{Option for \emph{free initialisation} (\code{InitType}\eqn{ = 0}): The number of rows at northern front to restrict range.
-If set to \eqn{0}, the range restriction tured off.}
+If set to \eqn{0}, the range restriction turned off.}
 
 \item{RestrictFreq}{Option for \emph{free initialisation} (\code{InitType}\eqn{ = 0}): Frequency in years at which range is restricted to northern front.}
 
@@ -68,7 +68,6 @@ with additional options for each type, see the Details.\cr
 Additionally, initial density and, if applicable, initial stage and age distributions can be set.
 }
 \details{
-## Initialisation Types
 \emph{Initialisation Types}\cr
 \itemize{
     \item \emph{Free Initialisation.} (\code{InitType}\eqn{ = 0})\cr The population is initialised according to suitable habitat in the landscape.
@@ -80,10 +79,10 @@ All habitat cells/patches within either all (\code{SpType}\eqn{=0}), or a specif
 (\code{SpType}\eqn{=1}) presence cells (which can have a lower resolution) specified by this distribution map will seeded.
     \item \emph{From initial individuals list file.} (\code{InitType}\eqn{ = 2})\cr The population is initialised according to a list of specific
 individuals (of given sex, age and stage, if appropriate) in specified cells/patches. This option allows simulation of a reintroduction
-scenario.\cr The list has to be loaded from a file in the path given by \code{InitIndsFile}. It must be a tab-seperated list with
+scenario.\cr The list has to be loaded from a file in the path given by \code{InitIndsFile}. It must be a tab-separated list with
 explicit column headers and one row for each individual to be initialized. The expected column headers depend on the model settings and
-must match the following order exactly: 'Year', 'Species', for cell-/patch-based: 'X', 'Y' / 'PatchID', 'Ninds', for sexual model: 'Sex',
-for stage-structured population: 'Age', 'Stage'.
+must match the following order exactly: 'Year', 'Species' (must \eqn{= 0}), for cell-/patch-based: 'X', 'Y' / 'PatchID', 'Ninds', for sexual model: 'Sex',
+for stage-structured population: 'Age', 'Stage'. The sex is specified with \eqn{0} for \emph{female} and \eqn{1} for \emph{male}.
 }
 
 \emph{Initialial density, stage, and age}\cr

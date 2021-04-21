@@ -827,7 +827,7 @@ setMethod("getLocalisedEquilPop", "DemogParams", function(demog, DensDep_values,
                                                     t_max = 1000, N_0 = NULL, delta=.1, diagnostics=FALSE){
     # make b from 1/b
     b_vector <- 1/DensDep_values
-    # calculate eqilibrium population
+    # calculate equilibrium population
     if(t_rec==1) res <- sapply(b_vector, get_eq_pop, demog=demog, t_rec = t_rec, rm.stage0 = !juv.stage)
     if(t_rec>1) {res <- lapply(b_vector, get_eq_pop, demog=demog, t_rec = t_rec, rm.stage0 = !juv.stage)
                  res <- sapply(res, rowMeans)}
@@ -836,11 +836,13 @@ setMethod("getLocalisedEquilPop", "DemogParams", function(demog, DensDep_values,
     if(demog@ReproductionType==2){row.names(res) <- rep(seq((!juv.stage),demog@StageStruct@Stages-1), each = 2)}
     # plot stages ?
     if(plot) {
+        # x-axis labels
+        xlabs <- print(DensDep_values, digits = 2)
         # which stages to plot?
         if(is.null(stages_out)) stages_out = seq((!juv.stage),demog@StageStruct@Stages-1)
         colors <- hcl.colors(length(stages_out), palette = "Harmonic")
         if(demog@ReproductionType <2){
-            barplot(res[as.character(stages_out),], names.arg = as.integer(DensDep_values), beside = F, col = colors,
+            barplot(res[as.character(stages_out),], names.arg = xlabs, beside = F, col = colors,
                           main = "Localised equilibrium densities", xlab = "1/b", ylab = "Population density")
         }
         if(demog@ReproductionType==2){
@@ -851,7 +853,7 @@ setMethod("getLocalisedEquilPop", "DemogParams", function(demog, DensDep_values,
                 fem <- seq.int(2,length(stages_out)*2,2)
                 res_2 <- cbind(res_2[mal,1:length(DensDep_values)],res_2[fem,1:length(DensDep_values)])
                 res_2 <- cbind(res_2[,c(sapply(1:length(DensDep_values), function(i){c(0,1)*length(DensDep_values)+i}))])
-                barplot(res_2, space=c(0.3,0.1), names.arg = c(rbind(DensDep_values,NA)), beside = F, col = rep(colors, 2),
+                barplot(res_2, space=c(0.3,0.1), names.arg = c(rbind(xlabs,NA)), beside = F, col = rep(colors, 2),
                         main = "Localised equilibrium densities", xlab = "1/b", ylab = "Population density")
                 text(seq(0.5,length(DensDep_values)*2,2)*1.2, colSums(res_2[,seq(1,length(DensDep_values)*2,2)])*1.1, "m", cex=1, col="black")
                 text(seq(1.5,length(DensDep_values)*2,2)*1.2, colSums(res_2[,seq(2,length(DensDep_values)*2,2)])*1.1, "f", cex=1, col="black")

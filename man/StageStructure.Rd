@@ -12,7 +12,7 @@ StageStructure(Stages, TransMatrix, MaxAge = 100, MinAge = 0,
                PostDestructn = FALSE)
 }
 \arguments{
-\item{Stages}{Number of life-stages (integer). Requires a minimum of \eqn{2}, for \"juvenile\" and \"adult\". Maximum is 10.}
+\item{Stages}{Number of life-stages (integer). Requires a minimum of \eqn{2}, for "juvenile" (stage 0) and "adult". Maximum is 10.}
 
 \item{TransMatrix}{Transition matrix. Defines the development probabilities from each stage into the next, as well as the respective survival probabilities and fecundities. See Details for matrix structure and notation.}
 

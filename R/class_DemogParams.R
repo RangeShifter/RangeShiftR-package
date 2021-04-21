@@ -39,7 +39,7 @@
 #'                FecDensDep = FALSE, DevDensDep = FALSE, SurvDensDep = FALSE,
 #'                FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix,
 #'                PostDestructn = FALSE)
-#' @param Stages Number of life-stages (integer). Requires a minimum of \eqn{2}, for \"juvenile\" and \"adult\". Maximum is 10.
+#' @param Stages Number of life-stages (integer). Requires a minimum of \eqn{2}, for "juvenile" (stage 0) and "adult". Maximum is 10.
 #' @param TransMatrix Transition matrix. Defines the development probabilities from each stage into the next, as well as the respective survival probabilities and fecundities. See Details for matrix structure and notation.
 #' @param MaxAge Maximum age in years, defaults to \eqn{100}. (integer)
 #' @param MinAge Integer vector containing the ages which an individual in stage \eqn{i-1} (with sex \eqn{m/f}, if applicable) must already have reached before it can develop into the next stage \eqn{(i)}. The defaults are \eqn{0} for all stages and sexes. The required format is described in the Details.
