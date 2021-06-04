@@ -50,7 +50,7 @@ NULL
 
 
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("RangeshiftR version 1.0.2 (11.01.2021)\n",
+    packageStartupMessage("RangeshiftR version 1.0.3 (11.01.2021)\n",
                           "Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n",
                           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.\n",
                           "You are welcome to redistribute it and/or modify it under certain conditions;\n",

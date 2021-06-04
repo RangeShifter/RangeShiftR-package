@@ -873,9 +873,9 @@ outrange << "\t" << s.occupied << "\t" << occsuit;
 if (s.ninds > 0) {
 	landOrigin origin = pLandscape->getOrigin();
 	outrange << "\t" << s.minX * ppLand.resol + origin.minEast
-		<< "\t" << s.maxX+1 * ppLand.resol + origin.minEast
+		<< "\t" << (s.maxX+1) * ppLand.resol + origin.minEast
 		<< "\t" << s.minY * ppLand.resol + origin.minNorth
-		<< "\t" << s.maxY+1 * ppLand.resol + origin.minNorth;
+		<< "\t" << (s.maxY+1) * ppLand.resol + origin.minNorth;
 }
 else
 	outrange <<"\t0\t0\t0\t0";
@@ -1659,8 +1659,8 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 
 	landParams ppLand = pLandscape->getLandParams();
 	Rcpp::IntegerMatrix pop_map_year(ppLand.dimY,ppLand.dimX);
-	intptr ppatch = 0;
 	Patch *pPatch = 0;
+	int patchNum = 0;
 	intptr subcomm = 0;
 	SubCommunity *pSubComm = 0;
 	popStats pop;
@@ -1673,20 +1673,18 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 			if (pCell == 0) { // no-data cell
 				pop_map_year(ppLand.dimY-1-y,x) = NA_INTEGER;
 			} else {
-				ppatch = pCell->getPatch();
-				if (ppatch == 0) { // matrix cell
+				pPatch = (Patch*)pCell->getPatch();
+				patchNum = pPatch->getPatchNum();
+				if (patchNum == 0) { // matrix
 					pop_map_year(ppLand.dimY-1-y,x) = 0;
 				} else {
-					pPatch = (Patch*)ppatch;
-					if (pPatch != 0) {
-						subcomm = pPatch->getSubComm();
-						if (subcomm == 0) {
-							pop_map_year(ppLand.dimY-1-y,x) = 0;
-						} else {
-							pSubComm = (SubCommunity*)subcomm;
-							pop = pSubComm->getPopStats();
-							pop_map_year(ppLand.dimY-1-y,x) = pop.nInds; // use indices like this because matrix gets transposed upon casting it into a raster on R-level
-						}
+					subcomm = pPatch->getSubComm();
+					if (subcomm == 0) { // check if sub-community exists
+						pop_map_year(ppLand.dimY-1-y,x) = 0;
+					} else {
+						pSubComm = (SubCommunity*)subcomm;
+						pop = pSubComm->getPopStats();
+						pop_map_year(ppLand.dimY-1-y,x) = pop.nInds; // use indices like this because matrix gets transposed upon casting it into a raster on R-level
 					}
 				}
 			}
