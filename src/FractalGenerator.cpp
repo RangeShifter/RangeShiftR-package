@@ -182,7 +182,7 @@ for (x = 0; x < X; x++) // put all the cells with their values in a vector
 
 sort(patches.begin(),patches.end(),compare);  // sorts the vector
 
-Nno = ((int)prop*X*Y);
+Nno = (int)(prop*X*Y);
 for (ii = 0; ii < Nno; ii++)
 {
 	patches[ii].value = 0.0;
