@@ -298,59 +298,68 @@ setMethod("ColonisationStats", "data.frame", function(x, y = NULL, years = numer
 })
 
 setMethod("ColonisationStats", "RSparams", function(x, y = getwd(), years = numeric(0), maps = FALSE) {
-    if(class(s@land)=="ImportedLandscape" || class(maps)=="logical") {
-        if(s@simul@OutIntPop>0){
+    res <- NULL
+    if(class(x@land)=="ImportedLandscape" || class(maps)=="logical") {
+        if(x@simul@OutIntPop>0){
             if(!is.null(y) & class(y)=="character" ){
                 if(class(years) %in% c("integer","numeric") ){
 
                     # read population output
                     pop_df <- try(readPop(x, y, center=FALSE))
-                    if ( class(pop_df) == "try-error" ) {
+                    if ( class(pop_df) == "try-error" ) {            # try() returned a warning
                         warning("ColonisationStats(): Couldn't read population output for this simulation.", call. = FALSE)
-                        #return(NULL)
+                        return(NULL)
                     }
+                    if ( class(pop_df) == "character" ) return(NULL) # readPop() returned a warning
+
+                    # set year to last recorded year if none is given
                     if(length(years)==0) years <- max(pop_df$Year)
 
                     # read patch rasters if needed
                     if(maps){
                         #require('raster')
-                        if(s@control@patchmodel){ # for patch-based model, read all relevant patch-maps
+                        if(x@control@patchmodel){ # for patch-based model, read all relevant patch-maps
                             # non-dynamic landscape
-                            if(length(s@land@LandscapeFile)==1){
-                                patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@PatchFile)))
-                                if ( class(patch_r) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
+                            if(length(x@land@LandscapeFile)==1){
 
-                                if(class(pop_df) != "try-error" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
+                                patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@PatchFile)))
+                                if( class(patch_r) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file ", x@land@PatchFile , call. = FALSE)
+
+                                if( class(pop_df) == "data.frame" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
+
                             }
                             # dynamic landscape
                             else{
                                 patch_r <- raster::stack()
                                 # rasters for occ_prob output
                                 for(year in years){
-                                    current <- which(s@land@DynamicLandYears == max(s@land@DynamicLandYears[s@land@DynamicLandYears<=year]) )
-                                    patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@PatchFile[current])))
+                                    current <- which(x@land@DynamicLandYears == max(x@land@DynamicLandYears[x@land@DynamicLandYears<=year]) )
+                                    patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@PatchFile[current])))
                                     if ( class(patch_curr) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
                                     else patch_r <- raster::addLayer(patch_r , patch_curr)
                                 }
                                 # rasters for col_time output
                                 year <- max(pop_df$Year)
-                                current <- which(s@land@DynamicLandYears == max(s@land@DynamicLandYears[s@land@DynamicLandYears<=year]) )
-                                patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@PatchFile[current])))
+                                current <- which(x@land@DynamicLandYears == max(x@land@DynamicLandYears[x@land@DynamicLandYears<=year]) )
+                                patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@PatchFile[current])))
                                 if ( class(patch_curr) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
                                 else patch_r <- raster::addLayer(patch_r , patch_curr)
 
-                                if(class(pop_df) != "try-error" & length(patch_r@layers)==(length(years)+1) ) res <- ColonisationStats(pop_df,patch_r,years)
+                                if(class(pop_df) == "data.frame" & length(patch_r@layers)==(length(years)+1) ) res <- ColonisationStats(pop_df,patch_r,years)
                             }
                         }else{
                             # for cell-based model, read only main habitat maps to use as raster template
-                            patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", s@land@LandscapeFile[1])))
+                            patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@LandscapeFile[1])))
                             if ( class(patch_r) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
-                            if(class(pop_df) != "try-error" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
+                            if(class(pop_df) == "data.frame" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
                         }
-                    }else {
-                        if(class(pop_df) != "try-error") res <- ColonisationStats(pop_df,NULL,years)
+                    }else { # no maps requested
+                        if(class(pop_df) == "data.frame") res <- ColonisationStats(pop_df,NULL,years)
                     }
-                    return(res)
+
+                    if(is.null(res)) warning("ColonisationStats(): Couldn't get population output or patch raster file.", call. = FALSE)
+                    else return(res)
+
                 }else {
                     warning("ColonisationStats(): Years must be of class numeric or integer.", call. = FALSE)}
             }else {
@@ -407,14 +416,14 @@ setMethod("plotAbundance", "data.frame", function(s, sd = FALSE, replicates = TR
     if (sd) {
         polygon(c(rep_sd$Year,rev(rep_sd$Year)), c(rep_means$NInds+rep_sd$NInds, rev(pmax(0,rep_means$NInds-rep_sd$NInds))), border=NA, col='grey80')
     }
-    # Plot abundance
-    lines(rep_means$Year, rep_means$NInds, type = "l", lwd = 3, col = "red")
     # Plot replicates
     if (replicates) {
         for (i in 0:max(s$Rep)) {
             lines(s$Year[s$Rep==i], s$NInds[s$Rep==i], type = "l", lwd = 0.5)
         }
     }
+    # Plot abundance
+    lines(rep_means$Year, rep_means$NInds, type = "l", lwd = 3, col = "red")
 })
 setMethod("plotAbundance", "RSparams", function(s, dirpath, ...) {
     if (class(dirpath)=="character"){
@@ -467,14 +476,14 @@ setMethod("plotOccupancy", "data.frame", function(s, sd = FALSE, replicates = TR
     if (sd) {
         polygon(c(rep_sd$Year,rev(rep_sd$Year)), c(rep_means$NOccup+rep_sd$NOccup, rev(pmax(0,rep_means$NOccup-rep_sd$NOccup))), border=NA, col='grey80')
     }
-    # Plot occupancy
-    lines(rep_means$Year, rep_means$NOccup, type = "l", lwd = 3, col = "blue")
     # plot replicates
     if (replicates) {
         for (i in 0:max(s$Rep)) {
             lines(s$Year[s$Rep==i], s$NOccup[s$Rep==i], type = "l", lwd = 0.5)
         }
     }
+    # Plot occupancy
+    lines(rep_means$Year, rep_means$NOccup, type = "l", lwd = 3, col = "blue")
 })
 setMethod("plotOccupancy", "RSparams", function(s, dirpath, ...) {
     if (class(dirpath)=="character"){
