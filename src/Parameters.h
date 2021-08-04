@@ -41,7 +41,7 @@ Methods in Ecology and Evolution, 5, 388-396. doi: 10.1111/2041-210X.12162
 
 Authors: Greta Bocedi & Steve Palmer, University of Aberdeen
 
-Last updated: 26 November 2020 by Greta Bocedi
+Last updated: 25 June 2021 by Steve Palmer
 
 ------------------------------------------------------------------------------*/
 
@@ -153,8 +153,8 @@ private:
 
 struct envStochParams {
 	bool stoch; bool local; bool inK; bool localExt;
-	double ac; double std; 
-	double locExtProb;
+	float ac; float std; 
+	float locExtProb;
 };
 
 class paramStoch {
@@ -171,9 +171,9 @@ private:
 	bool local;				// applied locally (if not, application is global)
 	bool inK;					// in carrying capacity (if not, in growth rate)
 	bool localExt;		// local extinction applied
-	double ac;					// temporal autocorrelation coefficient		
-	double std;				// amplitude of fluctuations: sampled from N(0,std)
-	double locExtProb;	// local extinction probability
+	float ac;					// temporal autocorrelation coefficient		
+	float std;				// amplitude of fluctuations: sampled from N(0,std)
+	float locExtProb;	// local extinction probability
 };
 
 //---------------------------------------------------------------------------

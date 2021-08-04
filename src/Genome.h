@@ -28,7 +28,7 @@ Implements the Genome class
 
 Author: Steve Palmer & Roslyn Henry, University of Aberdeen
 
-Last updated: 26 November 2020 by Greta Bocedi
+Last updated: 28 July 2021 by Greta Bocedi
 
 ------------------------------------------------------------------------------*/
 
@@ -83,9 +83,9 @@ public:
 		const Chromosome*,	// pointer to parent's chromosome
 		const short,				// position: 0 from mother, 1 from father
 		const short,				// no. of loci
-		const float,				// mutation probability
-		const float,				// crossover probability
-		const float,				// s.d. of mutation magnitude (genetic scale)
+		const double,				// mutation probability
+		const double,				// crossover probability
+		const double,				// s.d. of mutation magnitude (genetic scale)
 		const bool					// diploid
 	);
 
@@ -127,7 +127,7 @@ public:
 	);
 	void setNeutralLoci( // Set up neutral loci at initialisation
 		Species*,			// pointer to Species
-		const float		// s.d. of allelic variance
+		const double		// s.d. of allelic variance
 	);
 //	double copy(int,int);
 	double express(
@@ -157,9 +157,9 @@ public:
 		const Genome*,	// pointer to parent's genome
 		const short,		// position: 0 from mother, 1 from father
 		const short,		// chromasome number
-		const float,		// mutation probability
-		const float,		// crossover probability
-		const float			// s.d. of mutation magnitude (genetic scale)
+		const double,		// mutation probability
+		const double,		// crossover probability
+		const double			// s.d. of mutation magnitude (genetic scale)
 	);
 //	void setStaticData(genomeData);
 //	genomeData getStaticData(void);

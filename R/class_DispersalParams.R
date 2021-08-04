@@ -405,7 +405,7 @@ setMethod("plotProbs", "EmigrationParams", function(x, stage = NULL, sex = NULL,
         }
     }
     if (length(leg.txt)>0) {
-        legend("topright", leg.txt, col = 1:nrow(emig), lwd = 1.5)
+        legend("topleft", leg.txt, col = 1:nrow(emig), lwd = 1.5)
     }
 })
 

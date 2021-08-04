@@ -22,13 +22,9 @@
 
 #include "RSrandom.h"
 
-
-
-//--------------- 1.) Former version of RSrandom.cpp
-
-
-
 //--------------- 2.) New version of RSrandom.cpp
+
+//--------------- 3.) R package version of RSrandom.cpp
 
 	#if RSDEBUG
 	#include "Parameters.h"

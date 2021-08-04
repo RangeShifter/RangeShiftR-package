@@ -9,7 +9,7 @@ Authors@R: c(
 	person("Justin M.J.", "Travis", role = c("aut")),
 	person("Damaris", "Zurell", role = c("aut"))
 	)
-Date: 2021-01-11
+Date: 2021-08-04
 URL: https://rangeshifter.github.io/RangeshiftR-tutorials/
 Description: RangeShiftR provides individual-based simulations of spatial eco-evolutionary dynamics. It is based on the C++ software RangeShifter, making it flexible and fast. RangeShiftR models the processes of demography, dispersal and evolution in an inter-dependent way, offering substantial complexity in the corresponding modelling choices. It is entirely open-source and aims to facilitate the application of individual-based and mechanistic modelling to eco-evolutionary questions.
 License: GPL-3

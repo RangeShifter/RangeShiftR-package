@@ -127,7 +127,7 @@ intptr Cell::getPatch(void)
 return pPatch;
 }
 
-locn Cell::getLocn(void) { locn q{}; q.x = x; q.y = y; return q; }
+locn Cell::getLocn(void) { locn q; q.x = x; q.y = y; return q; }
 
 void Cell::setEnvDev(float d) { envDev = d; }
 
@@ -169,7 +169,7 @@ smsData = 0;
 }
 
 array3x3f Cell::getEffCosts(void) {
-array3x3f a{};
+array3x3f a;
 if (smsData == 0 || smsData->effcosts == 0) { // effective costs have not been calculated
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
@@ -225,7 +225,7 @@ else return false;
 bool DistCell::selected(void) { return initialise; }
 
 locn DistCell::getLocn(void) {
-	locn loc{}; loc.x = x; loc.y = y; return loc;
+	locn loc; loc.x = x; loc.y = y; return loc;
 }
 
 //---------------------------------------------------------------------------

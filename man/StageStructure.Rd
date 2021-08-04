@@ -101,13 +101,16 @@ Note that in the current implementation, reproductive attempts that result in ze
 
 A major difference between transition matrices and this individual-based model is that in the first, the three processes of reproduction, survival and development happen simultaneously while, in the second, they are explicitly modelled in sequence.
 The sequence of these events and the time of the dispersal phase in relation to them can change the actual dynamics and density-dependencies in both population growth and dispersal. At the beginning of each year, reproduction is always the first
-process to be modelled. After reproduction there are three choices:
+process to be modelled. However, there can be multiple reproductive seasons per year (default is one); in this case the year starts with a succession of all reproductive seasons. There are three choices for the scheduling of reproduction, survival, development and dispersal:
 \itemize{
-\item \code{SurvSched=0}: Survival and development of all stages (apart from stage 0) occur simultaneously with reproduction; dispersal; survival and development of stage 0; aging; end of the year.
-\item \code{SurvSched=1}: Dispersal; survival and successive development of all the stages; aging; end of the year.
-\item \code{SurvSched=2}: Only for species having multiple reproductive seasons in a year: dispersal and then survival and development of all stages happen at the end of every reproductive season (i.e. more than once per year); aging; end of the year.
+\item \code{SurvSched=0}: For each reproductive season: reproduction; survival and development of all stages (apart from stage 0); dispersal; survival and development of stage 0. Then: aging; end of the year.
+\item \code{SurvSched=1}: For each reproductive season: reproduction; dispersal; survival and successive development of all stages. Then: aging; end of the year.
+\item \code{SurvSched=2}: For each reproductive season: reproduction; dispersal. Then: survival and development of all stages; aging; end of the year. This option applies only for species having multiple reproductive seasons in a year, otherwise it is equivalent to \code{SurvSched=1}.
 }
-Option 1 gives results that are comparable with the deterministic solution of the matrix. The choice will depend on the biology of the species. If the main mortality happens overwinter, option 2 might be more appropriate.
+Option \code{SurvSched=0} gives results that are comparable with the deterministic solution of the matrix. The choice will depend on the biology of the species. If the main mortality happens overwinter, option \code{SurvSched=1} might be more appropriate.
+
+Note that \code{SurvSched=1} in combination with multiple reproductive seasons (\code{RepSeasons>1}) implies several evaluations of the fecundity and the survival and development probabilities, so that the transition matrix should be set accordingly.
+If the transition matrix contains the annual survival and development rates, \code{SurvSched=2} is the appropriate option (fecundity, however, is still given per reproductive event).
 
 \emph{Density dependence} can act on each of the three demographic phases (i.e. reproduction, survival and development) and is controlled by \code{FecDensDep,DevDensDep,SurvDensDep}.
 It is implemented as an exponential decay \insertCite{neubert2000}{RangeShiftR}:

@@ -51,7 +51,7 @@ double i, j;
 int Nx = X;
 int Ny = Y;
 
-double ran[5]{0.0,0.0,0.0,0.0,0.0}; // to store each time the 5 random numbers for the random displacement
+double ran[5]; // to store each time the 5 random numbers for the random displacement
 
 int Nno; // number of cells NON suitable as habitat
 

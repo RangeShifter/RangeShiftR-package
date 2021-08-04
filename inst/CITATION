@@ -7,12 +7,9 @@ citEntry(entry = "Article",
                    as.person("Stephen C. F. Palmer"),
                    as.person("Justin M.J. Travis"),
                    as.person("Damaris Zurell")),
-  url          = "https://www.biorxiv.org/content/10.1101/2020.11.17.384545v1",
-  journal      = "bioRxiv",
-  year         = "2020",
-  doi          = "10.1101/2020.11.17.384545",
-  note         = "Publisher: Cold Spring Harbor Laboratory
-                  Section: New Results",
+  journal      = "Ecography",
+  year         = "2021",
+  doi          = "10.1111/ecog.05689",
   textVersion  = NULL
 )
 

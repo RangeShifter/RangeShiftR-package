@@ -58,7 +58,7 @@ void Community::initialise(Species *pSpecies,int year)
 int nsubcomms,npatches,ndistcells,spratio,patchnum,rr = 0;
 locn distloc;
 patchData pch;
-patchLimits limits{};
+patchLimits limits;
 intptr ppatch,subcomm;
 std::vector <intptr> subcomms;
 std::vector <bool> selected;
@@ -246,7 +246,7 @@ case 2:	// initial individuals in specified patches/cells
 		indIx = 0; // reset index for initial individuals
 	}
 	else { // add any initial individuals for the current year
-		initInd iind{}; iind.year = 0;
+		initInd iind; iind.year = 0;
 		int ninds = paramsInit->numInitInds();
 		while (indIx < ninds && iind.year <= year) {
 			iind = paramsInit->getInitInd(indIx);
@@ -596,7 +596,7 @@ delete[] occSuit;
 // Determine range margins
 commStats Community::getStats(void)
 {
-commStats s{};
+commStats s;
 landParams ppLand = pLandscape->getLandParams();
 s.ninds = s.nnonjuvs = s.suitable = s.occupied = 0;
 s.minX = ppLand.maxX; s.minY = ppLand.maxY; s.maxX = s.maxY = 0;
@@ -872,18 +872,18 @@ outrange << "\t" << s.occupied << "\t" << occsuit;
 // RANGE MINIMA AND MAXIMA NEED TO BECOME A PROPERTY OF THE SPECIES
 if (s.ninds > 0) {
 	landOrigin origin = pLandscape->getOrigin();
-	outrange << "\t" << s.minX * ppLand.resol + origin.minEast
-		<< "\t" << (s.maxX+1) * ppLand.resol + origin.minEast
-		<< "\t" << s.minY * ppLand.resol + origin.minNorth
-		<< "\t" << (s.maxY+1) * ppLand.resol + origin.minNorth;
+	outrange << "\t" << (float)s.minX * (float)ppLand.resol + origin.minEast
+		<< "\t" << (float)(s.maxX+1) * (float)ppLand.resol + origin.minEast
+		<< "\t" << (float)s.minY * (float)ppLand.resol + origin.minNorth
+		<< "\t" << (float)(s.maxY+1) * (float)ppLand.resol + origin.minNorth;
 }
 else
 	outrange <<"\t0\t0\t0\t0";
 
 if (emig.indVar || trfr.indVar || sett.indVar) { // output trait means
-	traitsums ts{};
+	traitsums ts;   
 	traitsums scts; // sub-community traits
-	traitCanvas tcanv{}; 
+	traitCanvas tcanv; 
 	int ngenes,popsize;
 
 	tcanv.pcanvas[0] = NULL; 
@@ -949,7 +949,7 @@ if (emig.indVar || trfr.indVar || sett.indVar) { // output trait means
 				ngenes = 1;
 			}
 		}
-		double mnD0[2]{},mnAlpha[2]{},mnBeta[2]{},sdD0[2]{},sdAlpha[2]{},sdBeta[2]{};
+		double mnD0[2],mnAlpha[2],mnBeta[2],sdD0[2],sdAlpha[2],sdBeta[2];
 		for (int g = 0; g < ngenes; g++) {
 			mnD0[g] = mnAlpha[g] = mnBeta[g] = sdD0[g] = sdAlpha[g] = sdBeta[g] = 0.0;
 			// individuals may have been counted by sex if there was
@@ -1015,10 +1015,10 @@ if (emig.indVar || trfr.indVar || sett.indVar) { // output trait means
 				ngenes = 1;
 			}
 		}
-		double mnDist1[2]{},mnDist2[2]{},mnProp1[2]{},mnStepL[2]{},mnRho[2]{};
-		double sdDist1[2]{},sdDist2[2]{},sdProp1[2]{},sdStepL[2]{},sdRho[2]{};
-		double mnDP[2]{},mnGB[2]{},mnAlphaDB[2]{},mnBetaDB[2]{};
-		double sdDP[2]{},sdGB[2]{},sdAlphaDB[2]{},sdBetaDB[2]{};
+		double mnDist1[2],mnDist2[2],mnProp1[2],mnStepL[2],mnRho[2];
+		double sdDist1[2],sdDist2[2],sdProp1[2],sdStepL[2],sdRho[2];
+		double mnDP[2],mnGB[2],mnAlphaDB[2],mnBetaDB[2];
+		double sdDP[2],sdGB[2],sdAlphaDB[2],sdBetaDB[2];
 		for (int g = 0; g < ngenes; g++) {
 			mnDist1[g] = mnDist2[g] = mnProp1[g] = mnStepL[g] = mnRho[g] = 0.0;
 			sdDist1[g] = sdDist2[g] = sdProp1[g] = sdStepL[g] = sdRho[g] = 0.0;
@@ -1119,7 +1119,7 @@ if (emig.indVar || trfr.indVar || sett.indVar) { // output trait means
 			}
 		}
 		// CURRENTLY INDIVIDUAL VARIATION CANNOT BE SEX-DEPENDENT
-		double mnS0[2]{},mnAlpha[2]{},mnBeta[2]{},sdS0[2]{},sdAlpha[2]{},sdBeta[2]{};
+		double mnS0[2],mnAlpha[2],mnBeta[2],sdS0[2],sdAlpha[2],sdBeta[2];
 		for (int g = 0; g < ngenes; g++) {
 			mnS0[g] = mnAlpha[g] = mnBeta[g] = sdS0[g] = sdAlpha[g] = sdBeta[g] = 0.0;
 			// individuals may have been counted by sex if there was
@@ -1369,7 +1369,7 @@ if (v.viewTraits
 //{
 //	if (ts != 0) delete[] ts;
 //}
-if (ts != NULL) { delete[] ts; ts = 0; }
+if (ts != 0) { delete[] ts; ts = 0; }
 }
 
 // Write records to trait rows file
@@ -1685,6 +1685,7 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 						pSubComm = (SubCommunity*)subcomm;
 						pop = pSubComm->getPopStats();
 						pop_map_year(ppLand.dimY-1-y,x) = pop.nInds; // use indices like this because matrix gets transposed upon casting it into a raster on R-level
+						//pop_map_year(ppLand.dimY-1-y,x) = pop.nAdults;
 					}
 				}
 			}

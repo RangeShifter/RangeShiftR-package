@@ -130,7 +130,7 @@ return loc;
 // Return the co-ordinates of a specified initial distribution cell if it has been
 // selected - otherwise return negative co-ordinates
 locn InitDist::getSelectedCell(int ix) {
-locn loc{}; loc.x = loc.y = -666;
+locn loc; loc.x = loc.y = -666;
 if (ix < (int)cells.size()) {
 	if (cells[ix]->selected()) {
 		loc = cells[ix]->getLocn();
@@ -140,7 +140,7 @@ return loc;
 }
 
 locn InitDist::getDimensions(void) {
-locn d{}; d.x = maxX; d.y = maxY; return d;
+locn d; d.x = maxX; d.y = maxY; return d;
 }
 
 void InitDist::resetDistribution(void) {
@@ -352,7 +352,7 @@ patches.clear();
 //DebugGUI(("Landscape::resetLand(): this=" + Int2Str((int)this)
 //	+ " cells=" + Int2Str((int)cells)).c_str());
 #endif
-if (cells != NULL) {
+if (cells != 0) {
 	for(int y = dimY-1; y >= 0; y--){
 #if RSDEBUG
 //DebugGUI(("Landscape::resetLand(): y=" + Int2Str(y) + " cells[y]=" + Int2Str((int)cells[y])).c_str());
@@ -362,14 +362,13 @@ if (cells != NULL) {
 //DebugGUI(("Landscape::resetLand(): y=" + Int2Str(y) + " x=" + Int2Str(x)
 //	+ " cells[y][x]=" + Int2Str((int)cells[y][x])).c_str());
 #endif
-			if (cells[y][x] != NULL) delete cells[y][x];
+			if (cells[y][x] != 0) delete cells[y][x];
 		}
-		if (cells[y] != NULL) {
+		if (cells[y] != 0) {
 #if RSDEBUG
 //DebugGUI(("Landscape::resetLand(): deleting cells[y]=" + Int2Str((int)cells[y])).c_str());
 #endif
 			delete[] cells[y];
-//			delete cells[y];
 		}
 	}
 	delete[] cells;
@@ -418,7 +417,7 @@ if (batchMode && rasterType == 0) {
 
 landParams Landscape::getLandParams(void)
 {
-landParams ppp{};
+landParams ppp;
 ppp.generated = generated; ppp.patchModel = patchModel; ppp.spDist = spDist;
 ppp.dynamic = dynamic;
 ppp.landNum = landNum;
@@ -432,7 +431,7 @@ return ppp;
 }
 
 landData Landscape::getLandData(void) {
-landData dd{};
+landData dd;
 dd.resol = resol;
 dd.dimX = dimX; dd.dimY = dimY;
 dd.minX = minX; dd.minY = minY;
@@ -453,7 +452,7 @@ if (ppp.maxCells > 0) maxCells = ppp.maxCells;
 
 genLandParams Landscape::getGenLandParams(void)
 {
-genLandParams ppp{};
+genLandParams ppp;
 ppp.fractal = fractal; ppp.continuous = continuous;
 ppp.minPct = minPct; ppp.maxPct = maxPct; ppp.propSuit = propSuit; ppp.hurst = hurst;
 ppp.maxCells = maxCells;
@@ -479,7 +478,7 @@ if (p.gpix > 0.0) gpix = p.gpix;
 }
 
 landPix Landscape::getLandPix(void) {
-landPix p{};
+landPix p;
 p.pix = pix; p.gpix = gpix;
 return p;
 }
@@ -489,7 +488,7 @@ minEast = origin.minEast; minNorth = origin.minNorth;
 }
 
 landOrigin Landscape::getOrigin(void) {
-landOrigin origin{};
+landOrigin origin;
 origin.minEast = minEast; origin.minNorth = minNorth;
 return origin;
 }
@@ -607,7 +606,6 @@ or continuous (0 is the matrix, >0 is suitable habitat) */
 void Landscape::generatePatches(void)
 {
 int x,y,ncells;
-//float p,prop;
 double p;
 Patch *pPatch;
 Cell *pCell;
@@ -704,18 +702,15 @@ else { // random landscape
 		} while (hab > 0);
 #if RSDEBUG
 //DEBUGLOG << "Landscape::generatePatches() 00000: y=" << y	<< " x=" << x
-//	<< " i=" << i << " patchnum=" << patchnum
+//	<< " i=" << i << " hab=" << hab << " patchnum=" << patchnum
 //	<< endl;
 #endif
 		pPatch = newPatch(patchnum++);
 		pCell = findCell(x,y);
+		addCellToPatch(pCell,pPatch);
+		pCell->changeHabIndex(0,1);
 		if (continuous) {
-			addCellToPatch(pCell,pPatch);
-			pCell->setHabitat(minPct + pRandom->Random() * (maxPct - minPct));
-		}
-		else { // discrete
-			addCellToPatch(pCell,pPatch);
-			pCell->changeHabIndex(0,1);
+			pCell->setHabitat((float)(minPct + pRandom->Random() * (maxPct - minPct)));
 		}
 		i++;
 	} while (i < ncells);
@@ -726,7 +721,6 @@ else { // random landscape
 		for (int xx = 0; xx < dimX; xx++) {
 			pCell = findCell(xx,yy);
 			if (continuous) {
-//				if (pCell->getQuality() <= 0.0)
 				if (pCell->getHabitat(0) <= 0.0)
 				{
 					addCellToPatch(pCell,patches[0],(float)p);
@@ -805,7 +799,7 @@ case 0: // habitat codes
 				habK = 0.0;
 				int nhab = pCell->nHabitats();
 				for (int i = 0; i < nhab; i++) {
-					habK += (float)pSpecies->getHabK(pCell->getHabIndex(i));
+					habK += pSpecies->getHabK(pCell->getHabIndex(i));
 #if RSDEBUG
 //DEBUGLOG << "Landscape::allocatePatches(): x=" << x << " y=" << y
 //	<< " i=" << i
@@ -840,7 +834,7 @@ case 1: // habitat cover
 //				for (int i = 0; i < nHab; i++)
 				for (int i = 0; i < nhab; i++)
 				{
-					habK += (float)pSpecies->getHabK(i) * pCell->getHabitat(i) / 100.0f;
+					habK += pSpecies->getHabK(i) * pCell->getHabitat(i) / 100.0f;
 #if RSDEBUG
 //DEBUGLOG << "Landscape::allocatePatches(): x=" << x << " y=" << y
 //	<< " i=" << i
@@ -875,7 +869,7 @@ case 2: // habitat quality
 //				for (int i = 0; i < nHab; i++)
 				for (int i = 0; i < nhab; i++)
 				{
-					habK += (float)pSpecies->getHabK(0) * pCell->getHabitat(i) / 100.0f;
+					habK += pSpecies->getHabK(0) * pCell->getHabitat(i) / 100.0f;
 #if RSDEBUG
 //DEBUGLOG << "Landscape::allocatePatches(): x=" << x << " y=" << y
 //	<< " i=" << i
@@ -991,10 +985,10 @@ pPatch->addCell(pCell,loc.x,loc.y);
 }
 
 patchData Landscape::getPatchData(int ix) {
-patchData ppp{};
+patchData ppp;
 ppp.pPatch = patches[ix]; ppp.patchNum = patches[ix]->getPatchNum();
 ppp.nCells = patches[ix]->getNCells();
-locn randloc{}; randloc.x = -666; randloc.y = -666;
+locn randloc; randloc.x = -666; randloc.y = -666;
 Cell *pCell = patches[ix]->getRandomCell();
 if (pCell != 0) {
   randloc = pCell->getLocn();
@@ -1030,7 +1024,7 @@ void Landscape::updateCarryingCapacity(Species *pSpecies,int yr,short landIx) {
 envGradParams grad = paramsGrad->getGradient();
 bool gradK = false;
 if (grad.gradient && grad.gradType == 1) gradK = true; // gradient in carrying capacity
-patchLimits landlimits{};
+patchLimits landlimits;
 landlimits.xMin = minX; landlimits.xMax = maxX;
 landlimits.yMin = minY; landlimits.yMax = maxY;
 #if RSDEBUG
@@ -1145,8 +1139,8 @@ habIndexed = true;
 
 void Landscape::setEnvGradient(Species *pSpecies,bool initial) 
 {
-double dist_from_opt,dev;
-double habK;
+float dist_from_opt,dev;
+float habK;
 //int hab;
 double envval;
 // gradient parameters
@@ -1166,13 +1160,13 @@ for(int y = dimY-1; y >= 0; y--){
 			for (int i = 0; i < nhab; i++) {
 				switch (rasterType) {
 				case 0:
-					habK += (double)pSpecies->getHabK(cells[y][x]->getHabIndex(i));
+					habK += pSpecies->getHabK(cells[y][x]->getHabIndex(i));
 					break;
 				case 1:
-					habK += (double)pSpecies->getHabK(i) * (double)cells[y][x]->getHabitat(i) / 100.0;
+					habK += pSpecies->getHabK(i) * cells[y][x]->getHabitat(i) / 100.0f;
 					break;
 				case 2:
-					habK += (double)pSpecies->getHabK(0) * (double)cells[y][x]->getHabitat(i) / 100.0;
+					habK += pSpecies->getHabK(0) * cells[y][x]->getHabitat(i) / 100.0f;
 					break;
 				}
 			}
@@ -1185,7 +1179,7 @@ for(int y = dimY-1; y >= 0; y--){
 				if (initial) { // set local environmental deviation
 					cells[y][x]->setEnvDev((float)pRandom->Random()*(2.0f) - 1.0f);
 				}
-				dist_from_opt = fabs((double)grad.opt_y - (double)y);
+				dist_from_opt = (float)(fabs((double)grad.opt_y - (double)y));
 				dev = cells[y][x]->getEnvDev();
 				envval = 1.0 - dist_from_opt*grad.grad_inc + dev*grad.factor;
 #if RSDEBUG
@@ -1207,33 +1201,33 @@ for(int y = dimY-1; y >= 0; y--){
 void Landscape::setGlobalStoch(int nyears) {
 envStochParams env = paramsStoch->getStoch();
 if (epsGlobal != 0) delete[] epsGlobal;
-epsGlobal = new double[nyears];
-epsGlobal[0] = pRandom->Normal(0.0,env.std)*sqrt(1.0-(env.ac*env.ac));
+epsGlobal = new float[nyears];
+epsGlobal[0] = (float)(pRandom->Normal(0.0,env.std)*sqrt(1.0-(env.ac*env.ac)));
 for (int i = 1; i < nyears; i++){
-	epsGlobal[i] = env.ac*epsGlobal[i-1] + pRandom->Normal(0.0,env.std)*sqrt(1.0-(env.ac*env.ac));
+	epsGlobal[i] = (float)(env.ac*epsGlobal[i-1] + pRandom->Normal(0.0,env.std)*sqrt(1.0-(env.ac*env.ac)));
 }
 }
 
 float Landscape::getGlobalStoch(int yr) {
 if (epsGlobal != 0 && yr >= 0) {
-	return (float)epsGlobal[yr];
+	return epsGlobal[yr];
 }
 else return 0.0;
 }
 
 void Landscape::updateLocalStoch(void) {
 envStochParams env = paramsStoch->getStoch();
-double randpart;
+float randpart;
 for(int y = dimY-1; y >= 0; y--){
 	for (int x = 0; x < dimX; x++) {
 		if (cells[y][x] != 0) { // not a no-data cell
-			randpart = pRandom->Normal(0.0,env.std) * sqrt(1.0-(env.ac*env.ac));
+			randpart = (float)(pRandom->Normal(0.0,env.std) * sqrt(1.0-(env.ac*env.ac)));
 #if RSDEBUG
 //DEBUGLOG << "Landscape::updateLocalStoch(): y=" << y << " x=" << x
 //	<< " env.std= " << env.std << " env.ac= " << env.ac << " randpart= " << randpart
 //	<< endl;
 #endif
-			cells[y][x]->updateEps((float)env.ac,(float)randpart);
+			cells[y][x]->updateEps((float)env.ac,randpart);       
 		}
 	}
 }
@@ -1702,7 +1696,7 @@ void Landscape::recordCostChanges(int landIx) {
 DEBUGLOG << "Landscape::recordCostChanges(): landIx=" << landIx << endl;
 #endif
 if (costsChgMatrix == 0) return; // should not occur
-costChange chg{};
+costChange chg;
 
 for(int y = dimY-1; y >= 0; y--) {
 	for (int x = 0; x < dimX; x++) {
@@ -1761,7 +1755,7 @@ for(int y = dimY-1; y >= 0; y--) {
 int Landscape::numCostChanges(void) { return (int)costschanges.size(); }
 
 costChange Landscape::getCostChange(int i) {
-costChange c{}; c.chgnum = 99999999; c.x = c.y = c.oldcost = c.newcost = -1;
+costChange c; c.chgnum = 99999999; c.x = c.y = c.oldcost = c.newcost = -1;
 if (i >= 0 && i < (int)costschanges.size()) c = costschanges[i];
 return c;
 }
@@ -1804,7 +1798,7 @@ distns[0]->setDistribution(nInit);
 // Specified cell match one of the distribution cells to be initialised?
 bool Landscape::inInitialDist(Species *pSpecies,locn loc) {
 // convert landscape co-ordinates to distribution co-ordinates
-locn initloc{};
+locn initloc;
 initloc.x = loc.x * resol / spResol;
 initloc.y = loc.y * resol / spResol;
 // WILL HAVE TO GET CORRECT SPECIES WHEN THERE ARE MULTIPLE SPECIES ...
@@ -2417,7 +2411,7 @@ return maxcost;
 
 rasterdata CheckRasterFile(string fname)
 {
-rasterdata r{};
+rasterdata r;
 string header;
 int inint;
 ifstream infile;

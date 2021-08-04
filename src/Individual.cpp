@@ -63,6 +63,8 @@ if (movt) {
 	if (moveType == 1) { // SMS
 		// set up location data for SMS
 		smsData = new smsdata;
+		smsData->dp = smsData->gb = smsData->alphaDB = 1.0;
+		smsData->betaDB = 1; 
 		smsData->prev.x = loc.x; smsData->prev.y = loc.y; // previous location
 		smsData->goal.x = loc.x; smsData->goal.y = loc.y; // goal location - initialised for dispersal bias
 	}
@@ -88,7 +90,7 @@ pGenome = 0;
 //locn currloc = pCurrCell->getLocn();
 //DEBUGLOG << "Individual::Individual(): indId=" << indId
 //	<< " x=" << currloc.x << " y=" << currloc.y
-//	<< " sex=" << sex
+////	<< " smsData=" << smsData << " dp=" << smsData->dp
 //	<< endl;
 #endif
 }
@@ -501,7 +503,7 @@ int Individual::getSex(void) { return sex; }
 int Individual::getStatus(void) { return status; }
 
 indStats Individual::getStats(void) {
-indStats s{};
+indStats s;
 s.stage = stage; s.sex = sex; s.age = age; s.status = status; s.fallow = fallow;
 s.isDeveloping = isDeveloping;
 return s;
@@ -519,7 +521,7 @@ else { // return current location
 Patch* Individual::getNatalPatch(void) { return pNatalPatch; }
 
 void Individual::setYearSteps(int t) {
-if (path != 0 && t >= 0) {
+if (path != 0 && t >= 0) {                     
 	if (t >= 0) path->year = t;
 	else path->year = 666;
 }
@@ -531,7 +533,7 @@ if (path != 0 && t >= 0) {
 }
 
 pathSteps Individual::getSteps(void) {
-pathSteps s{};
+pathSteps s;
 if (path == 0) {
 	s.year = 0; s.total = 0; s.out = 0;
 }
@@ -542,7 +544,7 @@ return s;
 }
 
 settlePatch Individual::getSettPatch(void) {
-settlePatch s{};
+settlePatch s;
 if (path == 0) {
 	s.pSettPatch = 0; s.settleStatus = 0;
 }
@@ -559,7 +561,7 @@ if (path == 0) {
 	path->pathoutput = 1;
 }
 if (s.settleStatus >= 0 && s.settleStatus <= 2) path->settleStatus = s.settleStatus;
-path->pSettPatch = s.pSettPatch;
+path->pSettPatch = s.pSettPatch;             
 }
 
 // Set phenotypic emigration traits
@@ -570,7 +572,7 @@ void Individual::setEmigTraits(Species *pSpecies,short emiggenelocn,short nemigt
 //	<< " emiggenelocn=" << emiggenelocn << " nemigtraits=" << nemigtraits << " sexdep=" << sexdep
 //	<< endl;
 #endif
-emigTraits e{}; e.d0 = e.alpha = e.beta = 0.0;
+emigTraits e; e.d0 = e.alpha = e.beta = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
@@ -631,9 +633,9 @@ else {
 //	<< endl;
 #endif
 emigtraits = new emigTraits;
-emigtraits->d0 = e.d0*eparams.d0Scale + eparams.d0Mean;
-emigtraits->alpha = e.alpha*eparams.alphaScale + eparams.alphaMean;
-emigtraits->beta = e.beta*eparams.betaScale + eparams.betaMean;
+emigtraits->d0 = (float)(e.d0*eparams.d0Scale + eparams.d0Mean);
+emigtraits->alpha = (float)(e.alpha*eparams.alphaScale + eparams.alphaMean);
+emigtraits->beta = (float)(e.beta*eparams.betaScale + eparams.betaMean);
 #if RSDEBUG
 //DEBUGLOG << "Individual::setEmigTraits(): indId=" << indId
 //	<< " emigtraits->d0=" << emigtraits->d0
@@ -657,7 +659,7 @@ emigTraits Individual::getEmigTraits(void) {
 //DEBUGLOG << "Individual::getEmigTraits(): indId=" << indId
 //	<< endl;
 #endif
-emigTraits e{}; e.d0 = e.alpha = e.beta = 0.0;
+emigTraits e; e.d0 = e.alpha = e.beta = 0.0;
 if (emigtraits != 0) {
 	e.d0 = emigtraits->d0;
 	e.alpha = emigtraits->alpha;
@@ -680,7 +682,7 @@ void Individual::setKernTraits(Species *pSpecies,short kerngenelocn,short nkernt
 //	<< " kerngenelocn=" << kerngenelocn << " nkerntraits=" << nkerntraits << " sexdep=" << sexdep
 //	<< endl;
 #endif
-trfrKernTraits k{}; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
+trfrKernTraits k; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
@@ -736,9 +738,9 @@ else {
 	kparams = pSpecies->getKernParams(0,0);
 }
 kerntraits = new trfrKernTraits;
-kerntraits->meanDist1 = k.meanDist1*kparams.dist1Scale + kparams.dist1Mean;
-kerntraits->meanDist2 = k.meanDist2*kparams.dist2Scale + kparams.dist2Mean;
-kerntraits->probKern1 = k.probKern1*kparams.PKern1Scale + kparams.PKern1Mean;
+kerntraits->meanDist1 = (float)(k.meanDist1*kparams.dist1Scale + kparams.dist1Mean);
+kerntraits->meanDist2 = (float)(k.meanDist2*kparams.dist2Scale + kparams.dist2Mean);
+kerntraits->probKern1 = (float)(k.probKern1*kparams.PKern1Scale + kparams.PKern1Mean);
 #if RSDEBUG
 //DEBUGLOG << "Individual::setKernTraits(): indId=" << indId
 //	<< " kerntraits->meanDist1=" << kerntraits->meanDist1
@@ -769,7 +771,7 @@ trfrKernTraits Individual::getKernTraits(void) {
 //DEBUGLOG << "Individual::getKernTraits(): indId=" << indId
 //	<< endl;
 #endif
-trfrKernTraits k{}; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
+trfrKernTraits k; k.meanDist1 = k.meanDist2 = k.probKern1 = 0.0;
 if (kerntraits != 0) {
 	k.meanDist1 = kerntraits->meanDist1;
 	k.meanDist2 = kerntraits->meanDist2;
@@ -794,42 +796,42 @@ void Individual::setSMSTraits(Species *pSpecies,short SMSgenelocn,short nSMStrai
 //	<< endl;
 #endif
 trfrSMSTraits s = pSpecies->getSMSTraits();
-float dp,gb,alphaDB,betaDB;
+double dp,gb,alphaDB,betaDB;
 dp = gb = alphaDB = betaDB = 0.0;
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
-			dp = (float)pGenome->express(SMSgenelocn,0,0);
-			gb = (float)pGenome->express(SMSgenelocn+1,0,0);
+			dp = pGenome->express(SMSgenelocn,0,0);
+			gb = pGenome->express(SMSgenelocn+1,0,0);
 			if (nSMStraits == 4) {
-				alphaDB = (float)pGenome->express(SMSgenelocn+2,0,0);
-				betaDB  = (float)pGenome->express(SMSgenelocn+3,0,0);
+				alphaDB = pGenome->express(SMSgenelocn+2,0,0);
+				betaDB  = pGenome->express(SMSgenelocn+3,0,0);
 			}
 		}
 		else {
-			dp = (float)pGenome->express(SMSgenelocn,0,0);
-			gb = (float)pGenome->express(SMSgenelocn+1,0,0);
+			dp = pGenome->express(SMSgenelocn,0,0);
+			gb = pGenome->express(SMSgenelocn+1,0,0);
 			if (nSMStraits == 4) {
-				alphaDB = (float)pGenome->express(SMSgenelocn+2,0,0);
-				betaDB  = (float)pGenome->express(SMSgenelocn+3,0,0);
+				alphaDB = pGenome->express(SMSgenelocn+2,0,0);
+				betaDB  = pGenome->express(SMSgenelocn+3,0,0);
 			}
 		}
 	}
 	else {
 		if (sexdep) {
-			dp = (float)pGenome->express(pSpecies,SMSgenelocn);
-			gb = (float)pGenome->express(pSpecies,SMSgenelocn+1);
+			dp = pGenome->express(pSpecies,SMSgenelocn);
+			gb = pGenome->express(pSpecies,SMSgenelocn+1);
 			if (nSMStraits == 4) {
-				alphaDB = (float)pGenome->express(pSpecies,SMSgenelocn+2);
-				betaDB  = (float)pGenome->express(pSpecies,SMSgenelocn+3);
+				alphaDB = pGenome->express(pSpecies,SMSgenelocn+2);
+				betaDB  = pGenome->express(pSpecies,SMSgenelocn+3);
 			}
 		}
 		else {
-			dp = (float)pGenome->express(pSpecies,SMSgenelocn);
-			gb = (float)pGenome->express(pSpecies,SMSgenelocn+1);
+			dp = pGenome->express(pSpecies,SMSgenelocn);
+			gb = pGenome->express(pSpecies,SMSgenelocn+1);
 			if (nSMStraits == 4) {
-				alphaDB = (float)pGenome->express(pSpecies,SMSgenelocn+2);
-				betaDB  = (float)pGenome->express(pSpecies,SMSgenelocn+3);
+				alphaDB = pGenome->express(pSpecies,SMSgenelocn+2);
+				betaDB  = pGenome->express(pSpecies,SMSgenelocn+3);
 			}
 		}
 	}
@@ -848,10 +850,10 @@ if (sexdep) {
 else {
 	smsparams = pSpecies->getSMSParams(0,0);
 }
-smsData->dp = dp*smsparams.dpScale + smsparams.dpMean;
-smsData->gb = gb*smsparams.gbScale + smsparams.gbMean;
+smsData->dp = (float)(dp*smsparams.dpScale + smsparams.dpMean);        
+smsData->gb = (float)(gb*smsparams.gbScale + smsparams.gbMean);
 if (s.goalType == 2) {
-	smsData->alphaDB = alphaDB*smsparams.alphaDBScale + smsparams.alphaDBMean;
+	smsData->alphaDB = (float)(alphaDB*smsparams.alphaDBScale + smsparams.alphaDBMean);
 	smsData->betaDB  = (int)(betaDB*smsparams.betaDBScale + smsparams.betaDBMean + 0.5);
 }
 else {
@@ -880,10 +882,10 @@ return;
 // Get phenotypic transfer by SMS traits
 trfrSMSTraits Individual::getSMSTraits(void) {
 #if RSDEBUG
-//DEBUGLOG << "Individual::getSMSTraits(): indId=" << indId
+//DEBUGLOG << "Individual::getSMSTraits(): indId=" << indId << " smsData=" << smsData
 //	<< endl;
 #endif
-trfrSMSTraits s{}; s.dp = s.gb = s.alphaDB = 1.0; s.betaDB = 1;
+trfrSMSTraits s; s.dp = s.gb = s.alphaDB = 1.0; s.betaDB = 1;
 if (smsData != 0) {
 	s.dp = smsData->dp; s.gb = smsData->gb;
 	s.alphaDB = smsData->alphaDB; s.betaDB = smsData->betaDB;
@@ -905,7 +907,7 @@ void Individual::setCRWTraits(Species *pSpecies,short CRWgenelocn,short nCRWtrai
 //	<< " CRWgenelocn=" << CRWgenelocn << " nCRWtraits=" << nCRWtraits << " sexdep=" << sexdep
 //	<< endl;
 #endif
-trfrCRWTraits c{}; c.stepLength = c.rho = 0.0;
+trfrCRWTraits c; c.stepLength = c.rho = 0.0;          
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
@@ -941,8 +943,8 @@ if (sexdep) {
 else {
 	cparams = pSpecies->getCRWParams(0,0);
 }
-crw->stepL = c.stepLength*cparams.stepLScale + cparams.stepLgthMean;
-crw->rho   = c.rho*cparams.rhoScale + cparams.rhoMean;
+crw->stepL = (float)(c.stepLength*cparams.stepLScale + cparams.stepLgthMean);        
+crw->rho   = (float)(c.rho*cparams.rhoScale + cparams.rhoMean);
 #if RSDEBUG
 //DEBUGLOG << "Individual::setCRWTraits(): indId=" << indId
 //	<< " crw->stepL=" << crw->stepL	<< " crw->rho=" << crw->rho
@@ -965,7 +967,7 @@ trfrCRWTraits Individual::getCRWTraits(void) {
 //DEBUGLOG << "Individual::getCRWTraits(): indId=" << indId
 //	<< endl;
 #endif
-trfrCRWTraits c{}; c.stepLength = c.rho = 0.0;
+trfrCRWTraits c; c.stepLength = c.rho = 0.0;
 if (crw != 0) {
 	c.stepLength = crw->stepL;
 	c.rho = crw->rho;
@@ -989,7 +991,7 @@ void Individual::setSettTraits(Species *pSpecies,short settgenelocn,short nsettt
 //	<< endl;
 #endif
 //simParams sim = paramsSim->getSim();
-settleTraits s{}; s.s0 = s.alpha = s.beta = 0.0;
+settleTraits s; s.s0 = s.alpha = s.beta = 0.0;            
 if (pGenome != 0) {
 	if (pSpecies->has1ChromPerTrait()) {
 		if (sexdep) {
@@ -1037,9 +1039,9 @@ else {
 //	<< endl;
 #endif
 setttraits = new settleTraits;
-setttraits->s0    = s.s0*sparams.s0Scale + sparams.s0Mean;
-setttraits->alpha = s.alpha*sparams.alphaSScale + sparams.alphaSMean;
-setttraits->beta  = s.beta*sparams.betaSScale + sparams.betaSMean;
+setttraits->s0    = (float)(s.s0*sparams.s0Scale + sparams.s0Mean);
+setttraits->alpha = (float)(s.alpha*sparams.alphaSScale + sparams.alphaSMean);
+setttraits->beta  = (float)(s.beta*sparams.betaSScale + sparams.betaSMean);
 #if RSDEBUG
 //DEBUGLOG << "Individual::setSettTraits(): indId=" << indId
 //	<< " setttraits->s0=" << setttraits->s0
@@ -1063,7 +1065,7 @@ settleTraits Individual::getSettTraits(void) {
 //DEBUGLOG << "Individual::getSettTraits(): indId=" << indId
 //	<< endl;
 #endif
-settleTraits s{}; s.s0 = s.alpha = s.beta = 0.0;
+settleTraits s; s.s0 = s.alpha = s.beta = 0.0;
 if (setttraits != 0) {
 	s.s0    = setttraits->s0;
 	s.alpha = setttraits->alpha;
@@ -1121,8 +1123,8 @@ void Individual::moveto(Cell *newCell) {
 // check that location is indeed a neighbour of the current cell
 locn currloc = pCurrCell->getLocn();
 locn newloc = newCell->getLocn();
-double d = sqrt((((double)currloc.x- (double)newloc.x)*((double)currloc.x- (double)newloc.x)
-	+ ((double)currloc.y- (double)newloc.y)*((double)currloc.y- (double)newloc.y)));
+double d = sqrt(((double)currloc.x-(double)newloc.x)*((double)currloc.x-(double)newloc.x)
+	+ ((double)currloc.y-(double)newloc.y)*((double)currloc.y-(double)newloc.y));
 if (d >= 1.0 && d < 1.5) { // ok
 	pCurrCell = newCell; status = 5;
 }
@@ -1142,8 +1144,7 @@ int newX = 0,newY = 0;
 int dispersing = 1;
 double xrand,yrand,meandist,dist,r1,rndangle,nx,ny;
 float localK;
-trfrKernTraits kern{};
-//trfrKernParams kparams;
+trfrKernTraits kern;      
 Cell* pCell;
 Patch* pPatch;
 locn loc = pCurrCell->getLocn();
@@ -1159,7 +1160,6 @@ pPatch = NULL;
 
 if (trfr.indVar) { // get individual's kernel parameters
 	kern.meanDist1 = kern.meanDist2 = kern.probKern1 = 0.0;
-//	kparams = pSpecies->getKernParams(stage,sex);
 	if (pGenome != 0) {
 		kern.meanDist1 = kerntraits->meanDist1;
 		if (trfr.twinKern) 
@@ -1362,8 +1362,7 @@ if (status < 7) {
 	double dispmort;
 	trfrMortParams mort = pSpecies->getMortParams();
 	if (trfr.distMort) {
-//		dispmort = 1.0 / (1.0 + std::exp(-(dist - mort.mortBeta)*mort.mortAlpha));
-		dispmort = 1.0 / (1.0 + exp(-(dist - mort.mortBeta)*mort.mortAlpha));  // for LINUX_CLUSTER
+		dispmort = 1.0 / (1.0 + exp(-(dist - mort.mortBeta)*mort.mortAlpha));  
 	}
 	else {
 		dispmort = mort.fixedMort;
@@ -1684,7 +1683,7 @@ int newX = 0,newY = 0;
 Cell *pCell;
 Cell *pNewCell = NULL;
 double sum_nbrs = 0.0;
-movedata move{};
+movedata move;
 int cellcost,newcellcost;
 locn current;
 
@@ -1939,7 +1938,7 @@ if (sum_nbrs > 0.0) { // should always be the case, but safest to check...
 
 // set up cell selection probabilities
 //if (write_out) out<<"rnd = "<<rnd<<endl;
-double cumulative[9]{};
+double cumulative[9];
 int j = 0;
 cumulative[0] = nbr.cell[0][0];
 for (y2 = 0; y2 < 3; y2++) {
@@ -2013,7 +2012,7 @@ if (loopsteps >= 1000 || pNewCell == 0) {
 }
 else {
 	newcellcost = pNewCell->getCost();
-	move.cost = move.dist*0.5f*((float)cellcost + (float)newcellcost);
+	move.cost = move.dist*0.5f*((float)cellcost + (float)newcellcost);  
 	// make the selected move
 	if ((short)memory.size() == movt.memSize) {
 		memory.pop(); // remove oldest memory element
@@ -2029,7 +2028,7 @@ return move;
 array3x3d Individual::getSimDir(const int x, const int y, const float dp) 
 {
 
-array3x3d d{};
+array3x3d d;
 locn prev;
 double theta;
 int xx,yy;
@@ -2067,7 +2066,7 @@ else { // set up the matrix dependent on relationship of previous location to cu
 //    if (write_out) out<<"step 5"<<endl;
   }
 //  if (write_out) out<<"step 6"<<endl;
-  theta = atan2(((double)x- (double)prev.x),((double)y- (double)prev.y));
+	theta = atan2(((double)x-(double)prev.x),((double)y-(double)prev.y));
 //  if (write_out) out<<"prev.x,prev.y: "<<prev.x<<","<<prev.y<<" theta: "<<theta<<endl;
 	d = calcWeightings(dp,(float)theta);
 
@@ -2082,7 +2081,7 @@ array3x3d Individual::getGoalBias(const int x, const int y,
 		const int goaltype, const float gb)
 {
 
-array3x3d d{};
+array3x3d d;
 double theta;
 int xx,yy;
 
@@ -2116,7 +2115,7 @@ else {
 		return d;
 	}
 	else // goaltype == 2
-		theta = atan2(((double)x - (double)smsData->goal.x),((double)y - (double)smsData->goal.y));
+		theta = atan2(((double)x -(double)smsData->goal.x),((double)y-(double)smsData->goal.y));
 //  if (write_out) out<<"goalx,goaly: "<<goalx<<","<<goaly<<" theta: "<<theta<<endl;
 	d = calcWeightings(gb,(float)theta);
 }
@@ -2125,26 +2124,26 @@ return d;
 }
 
 // Calculate weightings for neighbouring cells
-array3x3d Individual::calcWeightings(const float base,const float theta) {
+array3x3d Individual::calcWeightings(const double base,const double theta) {
 
-array3x3d d{}; // 3x3 array indexed from SW corner by xx and yy
+array3x3d d; // 3x3 array indexed from SW corner by xx and yy
 int dx,dy,xx,yy;
 
 double i0 = 1.0; 					// direction of theta - lowest cost bias
-double i1 = (double)base;
-double i2 = (double)base * (double)base;
-double i3 = i2 * (double)base;
-double i4 = i3 * (double)base;		// opposite to theta - highest cost bias
+double i1 = base;
+double i2 = base * base;
+double i3 = i2 * base;
+double i4 = i3 * base;		// opposite to theta - highest cost bias
 
 if (fabs(theta) > 7.0 * PI / 8.0) { dx = 0; dy = -1; }
 else {
 	if (fabs(theta) > 5.0 * PI / 8.0) { dy = -1; if (theta > 0) dx = 1; else dx = -1; }
-  else {
-	if (fabs(theta) > 3.0 * PI / 8.0) { dy = 0; if (theta > 0) dx = 1; else dx = -1; }
-    else {
-	  if (fabs(theta) > PI / 8.0) { dy = 1; if (theta > 0) dx = 1; else dx = -1; }
-      else { dy = 1; dx = 0; }
-    }
+	else {
+		if (fabs(theta) > 3.0 * PI / 8.0) { dy = 0; if (theta > 0) dx = 1; else dx = -1; }
+		else {
+			if (fabs(theta) > PI / 8.0) { dy = 1; if (theta > 0) dx = 1; else dx = -1; }
+			else { dy = 1; dx = 0; }
+		}
   }
 }
 //  if (write_out) out<<"goalx,goaly: "<<goalx<<","<<goaly<<" dx,dy: "<<dx<<","<<dy
@@ -2166,7 +2165,7 @@ if (dx == 0 || dy ==0) { // theta points to a cardinal direction
   }
 }
 else { // theta points to an ordinal direction
-  d.cell[dx+1][-dy+1] = (float)i2; d.cell[-dx+1][dy+1] = (float)i2;
+	d.cell[dx+1][-dy+1] = (float)i2; d.cell[-dx+1][dy+1] = (float)i2;          
   xx = dx+1; if (xx > 1) xx -= 2; d.cell[xx+1][dy+1] = (float)i1;
   yy = dy+1; if (yy > 1) yy -= 2; d.cell[dx+1][yy+1] = (float)i1;
   d.cell[-xx+1][-dy+1] = (float)i3; d.cell[-dx+1][-yy+1] = (float)i3;
@@ -2181,9 +2180,9 @@ array3x3f Individual::getHabMatrix(Landscape *pLand,Species *pSpecies,
 	const bool absorbing)
 {
 
-array3x3f w{}; // array of effective costs to be returned
+array3x3f w; // array of effective costs to be returned
 int ncells,x4,y4;
-float weight,sumweights;
+double weight,sumweights;
 // NW and SE corners of effective cost array relative to the current cell (x,y):
 int xmin = 0,ymin = 0,xmax = 0,ymax = 0;
 int cost,nodatacost,h;
@@ -2288,15 +2287,15 @@ for (int x2=-1; x2<2; x2++) {   // index of relative move in x direction
 					}
 					if (prmethod==2) { // harmonic mean
             if (cost > 0) {
-              w.cell[x2+1][y2+1] += (1/(float)cost);
+							w.cell[x2+1][y2+1] += (1.0f/(float)cost);
               ncells++;
             }
           }
           if (prmethod==3) { // arithmetic mean weighted by inverse distance
             if (cost>0) {
               // NB distance is still given by (x3,y3)
-              weight = 1.0f /(float)sqrt((pow((double)x3,2)+pow((double)y3,2)));
-              w.cell[x2+1][y2+1] += weight*(float)cost;
+							weight = 1.0f /(double)sqrt((pow((double)x3,2)+pow((double)y3,2)));
+              w.cell[x2+1][y2+1] += (float)(weight*(double)cost);
               ncells++; sumweights += weight;
             }
           }
@@ -2314,7 +2313,7 @@ for (int x2=-1; x2<2; x2++) {   // index of relative move in x direction
 			  if (prmethod == 1) w.cell[x2+1][y2+1] /= ncells; // arithmetic mean
 			  if (prmethod == 2) w.cell[x2+1][y2+1] = ncells/w.cell[x2+1][y2+1]; // hyperbolic mean
 			  if (prmethod == 3 && sumweights > 0)
-          w.cell[x2+1][y2+1] /= sumweights; // weighted arithmetic mean
+          w.cell[x2+1][y2+1] /= (float)sumweights; // weighted arithmetic mean
       }
 //#if GO2TARGET
 //      if (targetseen > 0) // target is within PR - set to a very low score
@@ -2416,8 +2415,6 @@ void Individual::outMovePath(const int year)
 
 //---------------------------------------------------------------------------
 
-//#if RSWIN64
-
 double wrpcauchy (double location, double rho) {
 double result;
 
@@ -2440,8 +2437,6 @@ if (scale < 0) return location;
 
 return location + scale * tan(PI * pRandom->Random());
 }
-
-//#endif
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

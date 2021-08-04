@@ -96,7 +96,7 @@
 #' There are three options:
 #' \itemize{
 #'     \item \emph{At} \code{K_or_DensDep}. (\code{InitDens}\eqn{=0})\cr The cell/patch will be saturated at its respective \eqn{K} or \eqn{1/b}.
-#'     \item \emph{At half} \code{K_or_DensDep}. (\code{InitDens}\eqn{=1})\cr The cell/patch will be saturated at half its \eqn{K} or \eqn{1/b}.
+#'     \item \emph{At half} \code{K_or_DensDep}. (\code{InitDens}\eqn{=1})\cr The cell/patch will be initialised at half its \eqn{K} or \eqn{1/b}.
 #'     \item \emph{Set value} \code{IndsHaCell}. (\code{InitDens}\eqn{=2})\cr Set the number of individuals to be seeded in each cell or the density
 #' in each patch (in units of individuals per hectare).
 #' }
