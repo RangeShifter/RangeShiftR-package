@@ -1,25 +1,25 @@
 #---------------------------------------------------------------------------
-#	
+#
 #	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
-#	
+#
 #	This file is part of RangeShiftR.
-#	
+#
 #	RangeShiftR is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation, either version 3 of the License, or
 #	(at your option) any later version.
-#	
+#
 #	RangeShiftR is distributed in the hope that it will be useful,
 #	but WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #	GNU General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU General Public License
 #	along with RangeShiftR. If not, see <https://www.gnu.org/licenses/>.
-#	
+#
 #----------------------------------------------------------------------------
- 
- 
+
+
 
 #### PARAMETER MASTER CLASS ####
 
@@ -64,7 +64,7 @@ setValidity("RSparams", function(object) {
         }
     }
     if (object@simul@EnvStochType==1) {
-        if (object@control@landtype==1 || object@control@landtype==2) {
+        if (object@control@landtype==0 || object@control@landtype==2) {
             msg <- c(msg, "Environmental stochasticity in carrying capacity (EnvStochType=1) is implemented for artificial landscapes only!")
         }
     }
@@ -83,7 +83,7 @@ setValidity("RSparams", function(object) {
     }
     #LAND
     validObject(object@land)
-    if (any(object@control@landtype==c(0,1))){
+    if (any(object@control@landtype==c(0,2))){
         if (any(object@land@DynamicLandYears>object@simul@Years)) {
             warning("ImportedLandscape(): Dynamic landscape contains years that exceed the simulated years, so that some land changes will not apply.", call. = FALSE)
         }
@@ -643,7 +643,7 @@ setValidity("RSparams", function(object) {
                     }
                     #// NB alpha and beta may take any value
                 }
-                #else {}  // no more colums required other than stage and sex if applicable
+                #else {}  // no more columns required other than stage and sex if applicable
             }
         }
         else {      # DispersalKernel
@@ -673,8 +673,13 @@ setValidity("RSparams", function(object) {
             }
         }
     }
+
     #GENETICS
     validObject(object@gene)
+    if(any(object@dispersal@Emigration@IndVar,object@dispersal@Transfer@IndVar,object@dispersal@Settlement@IndVar)) anyIndVar <- TRUE
+    else anyIndVar <- FALSE
+    # if( ...(object@gene) & !anyIndVar) # TODO: check if genetics module is set but no variable traits -> give warning in this case
+
     #INITIALISATION
     validObject(object@init)
     if (object@control@landtype == 9) { # artificial land
@@ -758,7 +763,8 @@ setMethod("show", "RSparams", function(object){
     cat("\n")
     print(object@dispersal)
     cat("\n")
-    if(any(object@dispersal@Emigration@IndVar,object@dispersal@Transfer@IndVar,object@dispersal@Settlement@IndVar)){
+    if(any(object@dispersal@Emigration@IndVar,object@dispersal@Transfer@IndVar,object@dispersal@Settlement@IndVar)
+       || object@gene@Architecture == 1 ){
         print(object@gene)
         cat("\n")
     }

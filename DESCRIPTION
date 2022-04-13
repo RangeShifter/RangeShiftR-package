@@ -19,7 +19,7 @@ Imports: Rcpp (>= 1.0.0), raster (>= 3.0.0), Rdpack (>= 0.7), methods
 RdMacros: Rdpack
 LinkingTo: Rcpp
 Encoding: UTF-8
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Collate: 
     'Rfunctions.R'
     'plotProbs.R'

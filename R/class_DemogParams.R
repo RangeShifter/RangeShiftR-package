@@ -415,21 +415,21 @@ setMethod("show", "StagesParams", function(object){
         cat("   Density-dependence in:\n")
     }
     if (object@FecDensDep) {
-        cat("    Fecundity\n")
+        cat("    - Fecundity\n")
         if (object@FecStageWts) {
             cat("    with stage-dependent density depedence with weights:\n")
             print(object@FecStageWtsMatrix)
         }
     }
     if (object@DevDensDep) {
-        cat("    Development, with coefficient = ", paste(object@DevDensCoeff) , "\n")
+        cat("    - Development, with coefficient = ", paste(object@DevDensCoeff) , "\n")
         if (object@DevStageWts) {
             cat("                 and stage-dependence with weights: \n")
             print(object@DevStageWtsMatrix)
         }
     }
     if (object@SurvDensDep) {
-        cat("    Survival,    with coefficient =", paste(object@SurvDensCoeff) , "\n")
+        cat("    - Survival,    with coefficient =", paste(object@SurvDensCoeff) , "\n")
         if (object@SurvStageWts) {
             cat("                 and stage-dependence with weights: \n")
             print(object@SurvStageWtsMatrix)

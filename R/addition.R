@@ -28,7 +28,6 @@
 # -----
 
 
-#' @export
 setGeneric("+")
 
 setMethod("+", signature(e1 = "RSparams", e2 = "SimulationParams"), function(e1, e2) {

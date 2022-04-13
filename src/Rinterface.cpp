@@ -3048,6 +3048,9 @@ int ReadArchFileR(wifstream& archFile)
 	for (int i = 0; i < nchromosomes; i++) {
 		nloci = -999;
 		archFile >> nloci;
+		if (archFile.eof()){ // iOS problem: if at end of file: problems clearing the status flags later; therefore: clear it now (eof-flag will also be cleared)
+		    archFile.clear();
+		    }
 		if (nloci < 1) locerrors++;
 		else chromsize[i] = nloci;
 	}
@@ -3067,7 +3070,7 @@ int ReadArchFileR(wifstream& archFile)
 	bool locusError = false;
 	paramname = L"XXXyyyZZZ";
 //batchlog << "paramname=" << paramname << endl;
-	archFile >> paramname;
+	if (!archFile.eof()) archFile >> paramname; // only read another parameter if not end of file (if clear() was called before, it will try reading in another character, but won't succeed -> not going into while-loop
 //batchlog << "paramname=" << paramname << endl;
 	while (paramname != L"XXXyyyZZZ") {
 		archFile >> traitnum;
@@ -3096,7 +3099,10 @@ int ReadArchFileR(wifstream& archFile)
 		}
 		fileNtraits++;
 		paramname = L"XXXyyyZZZ";
-		archFile >> paramname;
+		if (archFile.eof()){ // iOS problem: if at end of file: problems clearing the status flags later; therefore: clear it now (eof-flag will also be cleared)
+		    archFile.clear();
+		}
+		if (!archFile.eof()) archFile >> paramname; // only read another parameter if not end of file (if clear() was called before, it will try reading in another character, but won't succeed go out of while loop
 //	batchlog << "paramname=" << paramname << " (end of loop)" << endl;
 	}
 //batchlog << "paramname=" << paramname << " (after loop)" << endl;

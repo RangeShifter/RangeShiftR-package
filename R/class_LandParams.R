@@ -483,21 +483,26 @@ setValidity("ImportedLandscape", function(object) {
             }
         }
     }
-    if (object@SpDistFile!="NULL") {
-        if (is.na(object@SpDistResolution) || length(object@SpDistResolution)!=1) {
-            msg <- c(msg, "Resolution of Species distribution must be set and of length 1!")
-        }
-        else {
-            if (object@SpDistResolution < 1) {
-                msg <- c(msg, "Resolution of landscape must be positive.")
+    if(length(object@SpDistFile) != 1){
+        msg <- c(msg, "Only one Species distribution file may be given.")
+    }
+    else{
+        if (object@SpDistFile!="NULL") {
+            if (is.na(object@SpDistResolution) || length(object@SpDistResolution)!=1) {
+                msg <- c(msg, "Resolution of Species distribution must be set and of length 1!")
             }
             else {
-                if (object@SpDistResolution < object@Resolution) {
-                    msg <- c(msg, "Resolution of Species distribution may not be less than Landscape Resolution.")
+                if (object@SpDistResolution < 1) {
+                    msg <- c(msg, "Resolution of landscape must be positive.")
                 }
                 else {
-                    if (object@SpDistResolution %% object@Resolution) {
-                        msg <- c(msg, "SpDistResolution must be an integer multiple of Resolution.")
+                    if (object@SpDistResolution < object@Resolution) {
+                        msg <- c(msg, "Resolution of Species distribution may not be less than Landscape Resolution.")
+                    }
+                    else {
+                        if (object@SpDistResolution %% object@Resolution) {
+                            msg <- c(msg, "SpDistResolution must be an integer multiple of Resolution.")
+                        }
                     }
                 }
             }

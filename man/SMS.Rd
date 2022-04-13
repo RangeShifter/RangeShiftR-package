@@ -63,7 +63,7 @@ SMS is a stochastic individual-based movement model where organisms move through
 cost surfaces as the least cost path (LCP) method, but it relaxes two of its main assumptions: Firstly, individuals are not assumed to be
 omniscient, but move according to what they can perceive of the landscape within their perceptual range (\code{PR}). Secondly, individuals
 do not know a priori their final destination, which is a reasonable assumption for dispersing individuals. For a complete description of the
-method, see the Datails below or refer to \insertCite{palmer2011introducing;textual}{RangeShiftR}.
+method, see the Details below or refer to \insertCite{palmer2011introducing;textual}{RangeShiftR}.
 }
 \details{
 SMS is a stochastic individual-based model where organisms move through grid-based, heterogeneous landscapes. The model uses similar cost
@@ -79,7 +79,7 @@ Individuals take single cell steps basing their decisions on three parameters: t
 the method used to evaluate the landscape within their perceptual range (\code{PRMethod}), and their directional persistence (\code{DP}), which corresponds to
 their tendency to follow a correlated random walk. At each step, the individual evaluates the surrounding habitat in order to determine
 the effective cost of taking a particular step to each of the eight neighbouring cells. The effective cost is a mean of the cost of the
-neighbouring cell and the surrounding cells beyond it within the \code{PR}, and is calculated by one of three possible methods:
+neighbouring cell and the surrounding cells beyond it within the \code{PR}, and is calculated by one of three possible methods:\cr
 - \emph{Arithmetic mean}\cr
 - \emph{Harmonic mean} - The reciprocal of the arithmetic mean of the reciprocals of the observations (cell costs). This method increases the
 detectability of low cost cells but performs less well than the arithmetic mean in detecting high cost cells. Therefore, the choice between

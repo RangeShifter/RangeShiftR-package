@@ -1659,8 +1659,8 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 
 	landParams ppLand = pLandscape->getLandParams();
 	Rcpp::IntegerMatrix pop_map_year(ppLand.dimY,ppLand.dimX);
-	Patch *pPatch = 0;
-	int patchNum = 0;
+	intptr patch = 0;
+	Patch* pPatch = 0;
 	intptr subcomm = 0;
 	SubCommunity *pSubComm = 0;
 	popStats pop;
@@ -1673,11 +1673,12 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 			if (pCell == 0) { // no-data cell
 				pop_map_year(ppLand.dimY-1-y,x) = NA_INTEGER;
 			} else {
-				pPatch = (Patch*)pCell->getPatch();
-				patchNum = pPatch->getPatchNum();
-				if (patchNum == 0) { // matrix
+				patch = pCell->getPatch();
+				if (patch == 0) { // matrix cell
 					pop_map_year(ppLand.dimY-1-y,x) = 0;
-				} else {
+				}
+				else{
+					pPatch = (Patch*)patch;
 					subcomm = pPatch->getSubComm();
 					if (subcomm == 0) { // check if sub-community exists
 						pop_map_year(ppLand.dimY-1-y,x) = 0;
