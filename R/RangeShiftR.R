@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------
 #
-#	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
+#	Copyright (C) 2020-2022 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
 #
 #	This file is part of RangeShiftR.
 #
@@ -49,14 +49,16 @@
 NULL
 
 
+# Show start-up message upon loading the package
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("RangeshiftR version 1.0.3 (04.08.2021)\n",
-                          "Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n",
+    packageStartupMessage("RangeshiftR version 1.0.4 (10.05.2022)\n",
+                          "Copyright (C) 2020-2022 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n",
                           "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY.\n",
                           "You are welcome to redistribute it and/or modify it under certain conditions;\n",
                           "type 'RangeShiftR_license()' for details.\n")
 }
 
+# Unload dynamic library when unloading the package
 .onUnload <- function (libpath) {
     library.dynam.unload("RangeShiftR", libpath)
 }
@@ -67,8 +69,8 @@ NULL
 #' @export
 RangeShiftR_license <- function ()
 {
-    cat("\nRangeshiftR version 1.0.3 (04.08.2021)\n")
-    cat("Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n")
+    cat("\nRangeshiftR version 1.0.4 (10.05.2022)\n")
+    cat("Copyright (C) 2020-2022 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell\n\n")
     cat("This program is free software: you can redistribute it and/or modify\n")
     cat("it under the terms of the GNU General Public License as published by\n")
     cat("the Free Software Foundation, either version 3 of the License, or\n")

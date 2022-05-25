@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------
 #
-#	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
+#	Copyright (C) 2020-2022 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
 #
 #	This file is part of RangeShiftR.
 #
@@ -417,7 +417,7 @@ Simulation <- setClass("SimulationParams", slots = c(Simulation = "integer_OR_nu
 )
 setValidity('SimulationParams', function(object){
     msg <- NULL
-    if (is.na(object@Simulation || length(object@Simulation)!=1 )){
+    if (anyNA(object@Simulation || length(object@Simulation)!=1 )){
         msg <- c(msg, 'ID Number of current simulation must be set and of length 1!')
     }
     else {
@@ -425,7 +425,7 @@ setValidity('SimulationParams', function(object){
             msg <- c(msg, 'Simulation ID Number must be positive or 0.')
         }
     }
-    if (is.na(object@Replicates || length(object@Replicates)!=1 )){
+    if (anyNA(object@Replicates || length(object@Replicates)!=1 )){
         msg <- c(msg, 'Number of replicates must be set and of length 1!')
     }
     else {
@@ -433,7 +433,7 @@ setValidity('SimulationParams', function(object){
             msg <- c(msg, 'Number of replicates must be positive.')
         }
     }
-    if (is.na(object@Years) || length(object@Years)!=1 ){
+    if (anyNA(object@Years) || length(object@Years)!=1 ){
         msg <- c(msg,'Number of years must be set and of length 1!')
     }
     else {
@@ -441,10 +441,10 @@ setValidity('SimulationParams', function(object){
             msg <- c(msg, 'Number of year must be positive.')
         }
     }
-    if (is.na(object@Absorbing) || length(object@Absorbing)!=1 ){
+    if (anyNA(object@Absorbing) || length(object@Absorbing)!=1 ){
         msg <- c(msg, 'Absorbing must be set!')
     }
-    if (is.na(object@Gradient) || length(object@Gradient)!=1 ){
+    if (anyNA(object@Gradient) || length(object@Gradient)!=1 ){
         msg <- c(msg, 'Gradient option must be set!')
     }
     else{
@@ -453,7 +453,7 @@ setValidity('SimulationParams', function(object){
         }
         else{
             if (object@Gradient){   # Gradient = {1,2,3}
-                if (is.na(object@GradSteep) || length(object@GradSteep)!=1 ){
+                if (anyNA(object@GradSteep) || length(object@GradSteep)!=1 ){
                     msg <- c(msg, 'GradSteep is required if Gradient is > 0.')
                 }
                 else {
@@ -461,7 +461,7 @@ setValidity('SimulationParams', function(object){
                         msg <- c(msg, 'GradSteep has to be >= 0.')
                     }
                 }
-                if (is.na(object@Optimum) || length(object@Optimum)!=1 ){
+                if (anyNA(object@Optimum) || length(object@Optimum)!=1 ){
                     msg <-  c(msg, 'Optimum is required if Gradient is > 0.')
                 }
                 else {
@@ -469,7 +469,7 @@ setValidity('SimulationParams', function(object){
                         msg <- c(msg, 'Optimum has to be >= 0.')
                     }
                 }
-                if (is.na(object@f) || length(object@f)!=1){
+                if (anyNA(object@f) || length(object@f)!=1){
                     msg <- c(msg, 'Local scaling factor f is required if Gradient is > 0.')
                 }
                 else {
@@ -478,7 +478,7 @@ setValidity('SimulationParams', function(object){
                     }
                 }
                 if (object@Gradient == 3){
-                    if (is.na(object@ExtinctOptim) || length(object@ExtinctOptim)!=1){
+                    if (anyNA(object@ExtinctOptim) || length(object@ExtinctOptim)!=1){
                         msg <- c(msg, 'ExtinctOptim must be set.')
                     }
                     else{
@@ -487,12 +487,12 @@ setValidity('SimulationParams', function(object){
                         }
                     }
                 }
-                if (is.na(object@Shifting) || length(object@Shifting)!=1 ){
+                if (anyNA(object@Shifting) || length(object@Shifting)!=1 ){
                     msg <- c(msg, 'Shifting must be set.')
                 }
                 else{
                     if (object@Shifting){
-                        if (is.na(object@ShiftRate) || length(object@ShiftRate)!=1 ) {
+                        if (anyNA(object@ShiftRate) || length(object@ShiftRate)!=1 ) {
                             msg <- c(msg, 'ShiftRate must be set.')
                         }
                         else{
@@ -500,7 +500,7 @@ setValidity('SimulationParams', function(object){
                                 msg <- c(msg, 'ShiftRate has to be > 0, if Shifting is = TRUE.')
                             }
                         }
-                        if (is.na(object@ShiftStart)|| length(object@ShiftStart)!=1 ){
+                        if (anyNA(object@ShiftStart) || length(object@ShiftStart)!=1 ){
                             msg <- c(msg, 'ShiftStart must be set.')
                         }
                         else{
@@ -508,7 +508,7 @@ setValidity('SimulationParams', function(object){
                                 msg <- c(msg, 'ShiftStart has to be > 0, if Shifting is = TRUE.')
                             }
                         }
-                        if (is.na(object@ShiftEnd)|| length(object@ShiftEnd)!=1 ){
+                        if (anyNA(object@ShiftEnd)|| length(object@ShiftEnd)!=1 ){
                             msg <- c(msg, 'ShiftEnd must be set.')
                         }
                         else{
@@ -524,7 +524,7 @@ setValidity('SimulationParams', function(object){
                 }
             }
             else { # no gradient
-                if (is.na(object@Shifting) || length(object@Shifting)!=1 ){
+                if (anyNA(object@Shifting) || length(object@Shifting)!=1 ){
                     msg <- c(msg, 'Shifting must be set.')
                 }
                 else{
@@ -536,7 +536,7 @@ setValidity('SimulationParams', function(object){
             }
         }
     }
-    if (is.na(object@LocalExt || length(object@LocalExt)!=1)){
+    if (anyNA(object@LocalExt || length(object@LocalExt)!=1)){
         msg <- c(msg, 'LocalExt must be set!')
     }
     else{
@@ -545,7 +545,7 @@ setValidity('SimulationParams', function(object){
                 msg <- c(msg, 'LocalExt has to be FALSE if Gradient = 3 (i.e. environmental gradient in extinction probability)')
             }
             else {
-                if (is.na(object@LocalExtProb) || length(object@LocalExtProb)!=1 ){
+                if (anyNA(object@LocalExtProb) || length(object@LocalExtProb)!=1 ){
                     msg <- c(msg, 'LocalExtProb has to be set.')
                 }
                 else{
@@ -556,16 +556,16 @@ setValidity('SimulationParams', function(object){
             }
         }
     }
-    if (is.na(object@EnvStoch) || length(object@EnvStoch)!=1){
+    if (anyNA(object@EnvStoch) || length(object@EnvStoch)!=1){
         msg <- c(msg, 'Environmental stochasticity has to be set.')
     }
     else{
-        if (object@EnvStoch!=0 & object@EnvStoch!=1 & object@EnvStoch!=2) {
+        if (! object@EnvStoch %in% (0:2) ) {
             msg <- c(msg, 'Environmental stochasticity option (EnvStoch) has to be 0, 1 or 2.')
         }
         else{
             if (object@EnvStoch){ #EnvStoch = 1 or 2
-                if (is.na(object@ac) || length(object@ac)!=1 ){
+                if (anyNA(object@ac) || length(object@ac)!=1 ){
                     msg <- c(msg, 'Autocorrelation coefficient (ac) has to be set if environmental stochasticity is set.')
                 }
                 else {
@@ -573,7 +573,7 @@ setValidity('SimulationParams', function(object){
                         msg <- c(msg, 'Autocorrelation coefficient (ac) must be in the half-open interval [0,1).')
                     }
                 }
-                if (is.na(object@std) || length(object@std)!=1 ){
+                if (anyNA(object@std) || length(object@std)!=1 ){
                     msg <- c(msg, 'std has to be set if environmental stochasticity is set.')
                 }
                 else {
@@ -581,7 +581,7 @@ setValidity('SimulationParams', function(object){
                         msg <- c(msg, 'std must be in the half-open interval (0,1].')
                     }
                 }
-                if (is.na(object@EnvStochType) || length(object@EnvStochType)!=1 ){
+                if (anyNA(object@EnvStochType) || length(object@EnvStochType)!=1 ){
                     msg <- c(msg, 'Type of environmental stochasticity (EnvStochType) must be set.')
                 }
                 else {
@@ -590,7 +590,7 @@ setValidity('SimulationParams', function(object){
                     }
                     else{
                         if (object@EnvStochType == 0){
-                            if (is.na(object@minR) || length(object@minR)!=1){
+                            if (anyNA(object@minR) || length(object@minR)!=1){
                                 msg <- c(msg, 'Minimum growth rate (minR) has to be set.')
                             }
                             else {
@@ -598,7 +598,7 @@ setValidity('SimulationParams', function(object){
                                     msg <- c(msg, 'Minimum growth rate (minR) must be positive.')
                                 }
                                 else {
-                                    if (is.na(object@maxR) || length(object@maxR)!=1){
+                                    if (anyNA(object@maxR) || length(object@maxR)!=1){
                                         msg <- c(msg, 'Maximum growth rate (maxR) has to be set.')
                                     }
                                     else {
@@ -610,7 +610,7 @@ setValidity('SimulationParams', function(object){
                             }
                         }
                         if (object@EnvStochType == 1){
-                            if (is.na(object@minK) || length(object@minK)!=1){
+                            if (anyNA(object@minK) || length(object@minK)!=1){
                                 msg <- c(msg, 'Minimum growth rate (minK) has to be set.')
                             }
                             else {
@@ -618,7 +618,7 @@ setValidity('SimulationParams', function(object){
                                     msg <- c(msg, 'Minimum growth rate (minK) must be positive.')
                                 }
                                 else {
-                                    if (is.na(object@maxK) || length(object@maxK)!=1){
+                                    if (anyNA(object@maxK) || length(object@maxK)!=1){
                                         msg <- c(msg, 'Maximum growth rate (maxK) has to be set.')
                                     }
                                     else {
@@ -635,7 +635,7 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Range
-    if (is.na(object@OutIntRange) || length(object@OutIntRange)!=1 ){
+    if (anyNA(object@OutIntRange) || length(object@OutIntRange)!=1 ){
         msg <- c(msg, 'Output interval of range (OutIntRange) has to be set.')
     }
     else{
@@ -644,7 +644,7 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Occupancy
-    if (is.na(object@OutIntOcc) || length(object@OutIntOcc)!=1 ){
+    if (anyNA(object@OutIntOcc) || length(object@OutIntOcc)!=1 ){
         msg <- c(msg, 'Output interval of occupancy (OutIntOcc) has to be set.')
     }
     else{
@@ -660,12 +660,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Population
-    if (is.na(object@OutIntPop) || length(object@OutIntPop)!=1 ){
+    if (anyNA(object@OutIntPop) || length(object@OutIntPop)!=1 ){
         msg <- c(msg, 'Output interval of population (OutIntPop) has to be set.')
     }
     else {
         if (object@OutIntPop > 0){
-            if (is.na(object@OutStartPop) || length(object@OutStartPop)!=1 ){
+            if (anyNA(object@OutStartPop) || length(object@OutStartPop)!=1 ){
                 msg <- c(msg, 'Start year of population output (OutStartPop) has to be set.')
             }
             else{
@@ -681,12 +681,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Individuals
-    if (is.na(object@OutIntInd) || length(object@OutIntInd)!=1 ){
+    if (anyNA(object@OutIntInd) || length(object@OutIntInd)!=1 ){
         msg <- c(msg, 'Output interval of individuals (OutIntInd) has to be set.')
     }
     else {
         if (object@OutIntInd > 0){
-            if (is.na(object@OutStartInd) || length(object@OutStartInd)!=1 ){
+            if (anyNA(object@OutStartInd) || length(object@OutStartInd)!=1 ){
                 msg <- c(msg, 'Start year of individuals output (OutStartInd) has to be set.')
             }
             else{
@@ -702,12 +702,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Genetics
-    if (is.na(object@OutIntGenetic) || length(object@OutIntGenetic)!=1 ){
+    if (anyNA(object@OutIntGenetic) || length(object@OutIntGenetic)!=1 ){
         msg <- c(msg, 'Output interval of genetics (OutIntGenetic) has to be set.')
     }
     else {
         if (object@OutIntGenetic > 0){
-            if (is.na(object@OutStartGenetic) || length(object@OutStartGenetic)!=1 ){
+            if (anyNA(object@OutStartGenetic) || length(object@OutStartGenetic)!=1 ){
                 msg <- c(msg, 'Start year of genetics output (OutStartGenetic) has to be set.')
             }
             else{
@@ -715,7 +715,7 @@ setValidity('SimulationParams', function(object){
                     msg <- c(msg, 'Invalid value of output parameter OutStartGenetic: Value has to be positive and less than simulated Years')
                 }
             }
-            if (is.na(object@OutGenType) || length(object@OutGenType)!=1 ){
+            if (anyNA(object@OutGenType) || length(object@OutGenType)!=1 ){
                 msg <- c(msg, 'Type of genetics output (OutGenType) has to be specified.')
             }
             else{
@@ -723,7 +723,7 @@ setValidity('SimulationParams', function(object){
                     msg <- c(msg, 'OutGenType has to be 0 (juveniles only), 1 (all individuals) or 2 (adults only).')
                 }
             }
-            if (is.na(object@OutGenCrossTab) || length(object@OutGenCrossTab)!=1 ){
+            if (anyNA(object@OutGenCrossTab) || length(object@OutGenCrossTab)!=1 ){
                 msg <- c(msg, 'OutGenCrossTab has to be set')
             }
         }
@@ -734,12 +734,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # TraitCell
-    if (is.na(object@OutIntTraitCell) || length(object@OutIntTraitCell)!=1 ){
+    if (anyNA(object@OutIntTraitCell) || length(object@OutIntTraitCell)!=1 ){
         msg <- c(msg, 'Output interval of traits per cell (OutIntTraitCell) has to be set.')
     }
     else {
         if (object@OutIntTraitCell > 0){
-            if (is.na(object@OutStartTraitCell) || length(object@OutStartTraitCell)!=1){
+            if (anyNA(object@OutStartTraitCell) || length(object@OutStartTraitCell)!=1){
                 msg <- c(msg, 'Start year of traits (per cell) output (OutStartTraitCell) has to be set.')
             }
             else {
@@ -755,12 +755,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # TraitRow
-    if (is.na(object@OutIntTraitRow) || length(object@OutIntTraitRow)!=1 ){
+    if (anyNA(object@OutIntTraitRow) || length(object@OutIntTraitRow)!=1 ){
         msg <- c(msg, 'Output interval of traits per row (OutIntTraitRow) has to be set.')
     }
     else {
         if (object@OutIntTraitRow > 0){
-            if (is.na(object@OutStartTraitRow) || length(object@OutStartTraitRow)!=1){
+            if (anyNA(object@OutStartTraitRow) || length(object@OutStartTraitRow)!=1){
                 msg <- c(msg, 'Start year of traits (per row) output (OutStartTraitRow) has to be set.')
             }
             else {
@@ -776,12 +776,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Connectivity matrix
-    if (is.na(object@OutIntConn || length(object@OutIntConn)!=1 )){
+    if (anyNA(object@OutIntConn || length(object@OutIntConn)!=1 )){
         msg <- c(msg, 'Output interval of connectivity matrix (OutIntConn) has to be set.')
     }
     else {
         if (object@OutIntConn > 0){
-            if (is.na(object@OutStartConn) || length(object@OutStartConn)!=1 ){
+            if (anyNA(object@OutStartConn) || length(object@OutStartConn)!=1 ){
                 msg <- c(msg, 'Start year of connectivity matrix output (OutStartConn) has to be set.')
             }
             else {
@@ -797,12 +797,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Paths record
-    if (is.na(object@OutIntPaths || length(object@OutIntPaths)!=1 )){
+    if (anyNA(object@OutIntPaths || length(object@OutIntPaths)!=1 )){
         msg <- c(msg, 'Output interval of SMS paths (OutIntPaths) has to be set.')
     }
     else {
         if (object@OutIntPaths > 0){
-            if (is.na(object@OutStartPaths) || length(object@OutStartPaths)!=1 ){
+            if (anyNA(object@OutStartPaths) || length(object@OutStartPaths)!=1 ){
                 msg <- c(msg, 'Start year of SMS paths output (OutStartPaths) has to be set.')
             }
             else {
@@ -818,12 +818,12 @@ setValidity('SimulationParams', function(object){
         }
     }
     # Maps
-    if (is.na(object@SaveMaps) || length(object@SaveMaps)!=1 ){
+    if (anyNA(object@SaveMaps) || length(object@SaveMaps)!=1 ){
         msg <- c(msg, 'SaveMaps has to be set')
     }
     else {
         if (object@SaveMaps){ # TRUE
-            if (is.na(object@MapsInterval) || length(object@MapsInterval)!=1 ){
+            if (anyNA(object@MapsInterval) || length(object@MapsInterval)!=1 ){
                 msg <- c(msg, 'MapsInterval has to be set.')
             }
             else{
@@ -831,19 +831,19 @@ setValidity('SimulationParams', function(object){
                     msg <- c(msg, 'MapsInterval must be positive.')
                 }
             }
-            if (is.na(object@DrawLoadedSp) || length(object@DrawLoadedSp)!=1 ){
+            if (anyNA(object@DrawLoadedSp) || length(object@DrawLoadedSp)!=1 ){
                 msg <- c(msg, 'DrawLoadedSp has to be set.')
             }
         }
     }
-    if (is.na(object@SMSHeatMap) || length(object@SMSHeatMap)!=1 ){
+    if (anyNA(object@SMSHeatMap) || length(object@SMSHeatMap)!=1 ){
         msg <- c(msg, 'SMSHeatMap has to be set')
     }
     # R Output
-    if (is.na(object@ReturnPopRaster) || length(object@ReturnPopRaster)!=1 ){
+    if (anyNA(object@ReturnPopRaster) || length(object@ReturnPopRaster)!=1 ){
         msg <- c(msg, 'ReturnPopRaster has to be set')
     }
-    if (is.na(object@CreatePopFile) || length(object@CreatePopFile)!=1 ){
+    if (anyNA(object@CreatePopFile) || length(object@CreatePopFile)!=1 ){
         msg <- c(msg, 'CreatePopFile has to be set')
     }
     if (is.null(msg)) TRUE else msg

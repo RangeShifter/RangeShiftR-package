@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------
 #
-#	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
+#	Copyright (C) 2020-2022 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
 #
 #	This file is part of RangeShiftR.
 #
@@ -204,7 +204,7 @@ StageStructure <- setClass("StagesParams", slots = c(Stages = "integer_OR_numeri
     # check forbidden transitions in TransMatrix (e.g. between non-successive stages or between sexes)
 setValidity("StagesParams", function(object) {
     msg <- NULL
-    if (is.na(object@Stages) || length(object@Stages)!=1) {
+    if (anyNA(object@Stages) || length(object@Stages)!=1) {
         msg <- c(msg, "Number of Stages must be set and of length 1!")
     }
     else {
@@ -223,7 +223,7 @@ setValidity("StagesParams", function(object) {
             msg <- c(msg, "All elements in the first row of the transition matrix (i.e. the fecundities) must be positive!")
         }
     }
-    if (is.na(object@MaxAge) || length(object@MaxAge)!=1) {
+    if (anyNA(object@MaxAge) || length(object@MaxAge)!=1) {
         msg <- c(msg, "MaxAge must be set and of length 1!")
     }
     else {
@@ -242,7 +242,7 @@ setValidity("StagesParams", function(object) {
             msg <- c(msg, "MinAge must be smaller than MaxAge for all stages and sexes!")
         }
     }
-    if (is.na(object@RepSeasons) || length(object@RepSeasons)!=1) {
+    if (anyNA(object@RepSeasons) || length(object@RepSeasons)!=1) {
         msg <- c(msg, "RepSeasons must be set and of length 1!")
     }
     else {
@@ -250,7 +250,7 @@ setValidity("StagesParams", function(object) {
             msg <- c(msg, "RepSeasons must be at least 1!")
         }
     }
-    if (is.na(object@RepInterval) || length(object@RepInterval)!=1) {
+    if (anyNA(object@RepInterval) || length(object@RepInterval)!=1) {
         msg <- c(msg, "RepInterval must be set and of length 1!")
     }
     else {
@@ -258,7 +258,7 @@ setValidity("StagesParams", function(object) {
             msg <- c(msg, "RepInterval must be positive!")
         }
     }
-    if (is.na(object@PRep) || length(object@PRep)!=1) {
+    if (anyNA(object@PRep) || length(object@PRep)!=1) {
         msg <- c(msg, "PRep must be set and of length 1!")
     }
     else {
@@ -266,20 +266,20 @@ setValidity("StagesParams", function(object) {
             msg <- c(msg, "PRep must in the half-open interval (0;1]!")
         }
     }
-    if (is.na(object@SurvSched) || length(object@SurvSched)!=1) {
+    if (anyNA(object@SurvSched) || length(object@SurvSched)!=1) {
         msg <- c(msg, "SurvSched must be set and of length 1!")
     }
     else {
-        if (object@SurvSched != 0 && object@SurvSched != 1 && object@SurvSched != 2) {
+        if (! object@SurvSched %in% (0:2) ) {
             msg <- c(msg, "SurvSched must be 0, 1 or 2!")
         }
     }
-    if (is.na(object@FecDensDep) || length(object@FecDensDep)!=1) {
+    if (anyNA(object@FecDensDep) || length(object@FecDensDep)!=1) {
         msg <- c(msg, "FecDensDep must be set and of length 1!")
     }
     else{
         if(object@FecDensDep) {
-            if (is.na(object@FecStageWts) || length(object@FecStageWts)!=1) {
+            if (anyNA(object@FecStageWts) || length(object@FecStageWts)!=1) {
                 msg <- c(msg, "FecStageWts must be set and of length 1!")
             }
             else{
@@ -296,12 +296,12 @@ setValidity("StagesParams", function(object) {
             }
         }
     }
-    if (is.na(object@DevDensDep) || length(object@DevDensDep)!=1) {
+    if (anyNA(object@DevDensDep) || length(object@DevDensDep)!=1) {
         msg <- c(msg, "DevDensDep must be set and of length 1!")
     }
     else{
         if(object@DevDensDep) {
-            if (is.na(object@DevDensCoeff) || length(object@DevDensCoeff)!=1) {
+            if (anyNA(object@DevDensCoeff) || length(object@DevDensCoeff)!=1) {
                 msg <- c(msg, "DevDensCoeff must be set and of length 1!")
             }
             else {
@@ -309,7 +309,7 @@ setValidity("StagesParams", function(object) {
                     msg <- c(msg, "DevDensCoeff must be greater than zero!")
                 }
             }
-            if (is.na(object@DevStageWts) || length(object@DevStageWts)!=1) {
+            if (anyNA(object@DevStageWts) || length(object@DevStageWts)!=1) {
                 msg <- c(msg, "DevStageWts must be set and of length 1!")
             }
             else{
@@ -326,12 +326,12 @@ setValidity("StagesParams", function(object) {
             }
         }
     }
-    if (is.na(object@SurvDensDep) || length(object@SurvDensDep)!=1) {
+    if (anyNA(object@SurvDensDep) || length(object@SurvDensDep)!=1) {
         msg <- c(msg, "SurvDensDep must be set and of length 1!")
     }
     else{
         if(object@SurvDensDep){
-            if (is.na(object@SurvDensCoeff) || length(object@SurvDensCoeff)!=1) {
+            if (anyNA(object@SurvDensCoeff) || length(object@SurvDensCoeff)!=1) {
                 msg <- c(msg, "SurvDensCoeff must be set and of length 1!")
             }
             else {
@@ -339,7 +339,7 @@ setValidity("StagesParams", function(object) {
                     msg <- c(msg, "SurvDensCoeff must be greater than zero!")
                 }
             }
-            if (is.na(object@SurvStageWts) || length(object@SurvStageWts)!=1) {
+            if (anyNA(object@SurvStageWts) || length(object@SurvStageWts)!=1) {
                 msg <- c(msg, "SurvStageWts must be set and of length 1!")
             }
             else{
@@ -356,7 +356,7 @@ setValidity("StagesParams", function(object) {
             }
         }
     }
-    if (is.na(object@PostDestructn) || length(object@PostDestructn)!=1) {
+    if (anyNA(object@PostDestructn) || length(object@PostDestructn)!=1) {
         msg <- c(msg, "PostDestructn must be set and of length 1!")
     }
     if (is.null(msg)) TRUE else msg}
@@ -597,16 +597,16 @@ Demography <- setClass("DemogParams", slots = c(Rmax = "integer_OR_numeric",
 )
 setValidity("DemogParams", function(object) {
     msg <- NULL
-    if (is.na(object@ReproductionType) || length(object@ReproductionType)!=1) {
+    if (anyNA(object@ReproductionType) || length(object@ReproductionType)!=1) {
         msg <- c(msg, "ReproductionType must be set and of length 1!")
     }
     else {
-        if (object@ReproductionType != 0 && object@ReproductionType != 1 && object@ReproductionType != 2) {
+        if (! object@ReproductionType %in% (0:2) ) {
             msg <- c(msg, "ReproductionType must be 0, 1 or 2!")
         }
         else{
             if (object@ReproductionType) {
-                if (is.na(object@PropMales) || length(object@PropMales)!=1) {
+                if (anyNA(object@PropMales) || length(object@PropMales)!=1) {
                     msg <- c(msg, "Proportion of males must be set and of length 1!")
                 }
                 else {
@@ -616,7 +616,7 @@ setValidity("DemogParams", function(object) {
                 }
             }
             if (object@ReproductionType==2) {
-                if (is.na(object@Harem) || length(object@Harem)!=1) {
+                if (anyNA(object@Harem) || length(object@Harem)!=1) {
                     msg <- c(msg, "Maximum harem size must be set and of length 1!")
                 }
                 else {
@@ -633,7 +633,7 @@ setValidity("DemogParams", function(object) {
             msg <- c(msg, "StageStruct must either be FALSE or an object of class \"StagesParams\" !")
         }
         else {                                   # StageStruct=FALSE
-            if (is.na(object@Rmax) || length(object@Rmax)!=1) {
+            if (anyNA(object@Rmax) || length(object@Rmax)!=1) {
                 msg <- c(msg, "Maximum growth rate Rmax must be set for a non-structured population!")
             }
             else {
@@ -641,7 +641,7 @@ setValidity("DemogParams", function(object) {
                     msg <- c(msg, "Maximum growth rate Rmax must be positive!")
                 }
             }
-            if (is.na(object@bc) || length(object@bc)!=1) {
+            if (anyNA(object@bc) || length(object@bc)!=1) {
                 msg <- c(msg, "Competition coefficient bc must be set for a non-structured population!")
             }
             else {
@@ -699,7 +699,7 @@ setValidity("DemogParams", function(object) {
                         msg <- c(msg, "Minimum Age vector must have dimensions 2*\'Stages\'-1 !")
                     }
                     else{
-                        if (any(object@StageStruct@MinAge[1:3]!=0) ) {
+                        if (any(object@StageStruct@MinAge[1:2]!=0) ) {
                             msg <- c(msg, "MinAge of stages 0 and 1 must be zero!")
                         }
                         if (any(object@StageStruct@MinAge<0)) {
@@ -765,7 +765,7 @@ setValidity("DemogParams", function(object) {
                         msg <- c(msg, "Minimum Age vector must have dimensions \'Stages\' !")
                     }
                     else{
-                        if (object@StageStruct@MinAge[1]!=0 || object@StageStruct@MinAge[2]!=0) {
+                        if (any(object@StageStruct@MinAge[1:2]!=0) ) {
                             msg <- c(msg, "MinAge of stages 0 and 1 must be zero!")
                         }
                         if (any(object@StageStruct@MinAge<0)) {

@@ -1,25 +1,25 @@
 #---------------------------------------------------------------------------
-#	
-#	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
-#	
+#
+#	Copyright (C) 2020-2022 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
+#
 #	This file is part of RangeShiftR.
-#	
+#
 #	RangeShiftR is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation, either version 3 of the License, or
 #	(at your option) any later version.
-#	
+#
 #	RangeShiftR is distributed in the hope that it will be useful,
 #	but WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #	GNU General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU General Public License
 #	along with RangeShiftR. If not, see <https://www.gnu.org/licenses/>.
-#	
+#
 #----------------------------------------------------------------------------
- 
- 
+
+
 
 ### CLASS GENETICSPARAMS
 
@@ -207,13 +207,13 @@ Genetics <- setClass("GeneticsParams", slots = c(Architecture = "integer_OR_nume
 )
 setValidity('GeneticsParams', function(object){
     msg <- NULL
-    if(is.na(object@Architecture) || length(object@Architecture)!=1) {
+    if(anyNA(object@Architecture) || length(object@Architecture)!=1) {
         msg <- c(msg, "Architecture must be set!")
     }
     else {
         if(object@Architecture %in% c(0,1)) {
             if(object@Architecture == 0) {
-                if(is.na(object@NLoci) || length(object@NLoci)!=1) {
+                if(anyNA(object@NLoci) || length(object@NLoci)!=1) {
                     msg <- c(msg, "NLoci must be set if Architecture = 0 (one chromosome per trait)!")
                 }
                 else {
@@ -231,7 +231,7 @@ setValidity('GeneticsParams', function(object){
             msg <- c(msg, "Architecture must be either 0 or 1!")
         }
     }
-    if(is.na(object@ProbMutn) || length(object@ProbMutn)!=1) {
+    if(anyNA(object@ProbMutn) || length(object@ProbMutn)!=1) {
         msg <- c(msg, "ProbMutn must be set!")
     }
     else {
@@ -239,7 +239,7 @@ setValidity('GeneticsParams', function(object){
             msg <- c(msg, "ProbMutn must be within the closed interval [0,1]!")
         }
     }
-    if(is.na(object@ProbCross) || length(object@ProbCross)!=1) {
+    if(anyNA(object@ProbCross) || length(object@ProbCross)!=1) {
         msg <- c(msg, "ProbCross must be set!")
     }
     else {
@@ -247,7 +247,7 @@ setValidity('GeneticsParams', function(object){
             msg <- c(msg, "ProbCross must be within the closed interval [0,1]!")
         }
     }
-    if(is.na(object@AlleleSD) || length(object@AlleleSD)!=1) {
+    if(anyNA(object@AlleleSD) || length(object@AlleleSD)!=1) {
         msg <- c(msg, "AlleleSD must be set!")
     }
     else {
@@ -255,7 +255,7 @@ setValidity('GeneticsParams', function(object){
             msg <- c(msg, "AlleleSD must be strictly positive!")
         }
     }
-    if(is.na(object@MutationSD) || length(object@MutationSD)!=1) {
+    if(anyNA(object@MutationSD) || length(object@MutationSD)!=1) {
         msg <- c(msg, "MutationSD must be set!")
     }
     else {

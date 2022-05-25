@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------------
 #
-#	Copyright (C) 2020-2021 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
+#	Copyright (C) 2020-2022 Anne-Kathleen Malchow, Greta Bocedi, Stephen C.F. Palmer, Justin M.J. Travis, Damaris Zurell
 #
 #	This file is part of RangeShiftR.
 #
@@ -166,7 +166,7 @@ setValidity("RSparams", function(object) {
                 msg <- c(msg, "First column of emigration probability traits matrix (EmigProb) must contain the stage numbers (but non-integer number(s) found)!")
             }
             else {
-                if(any(object@dispersal@Emigration@EmigProb[,1]<0 || object@dispersal@Emigration@EmigProb[,1]>object@control@stages)){
+                if(any(object@dispersal@Emigration@EmigProb[,1]<0 | object@dispersal@Emigration@EmigProb[,1]>object@control@stages)){
                     msg <- c(msg, "First column of emigration probability traits matrix (EmigProb) must contain the stage numbers (found <0 or >#stages)!")
                 }
                 else{
@@ -206,7 +206,7 @@ setValidity("RSparams", function(object) {
     if (dim_ok) {
         # check value columns of EmigProb
         if (object@dispersal@Emigration@IndVar) {
-            if(any(object@dispersal@Emigration@EmigProb[,(offset+1):(offset+2)]<=0 || object@dispersal@Emigration@EmigProb[,(offset+1):(offset+2)]>1)){
+            if(any(object@dispersal@Emigration@EmigProb[,(offset+1):(offset+2)]<=0 | object@dispersal@Emigration@EmigProb[,(offset+1):(offset+2)]>1)){
                 msg <- c(msg, paste0("Columns ", (offset+1), " and ", (offset+2), " of emigration traits matrix (EmigProb) must contain mean(D0) and sd(D0), with values in the half-open inerval (0,1] !"))
             }
             else {
@@ -230,13 +230,13 @@ setValidity("RSparams", function(object) {
         }
         else { # !IndVar
             if (object@dispersal@Emigration@DensDep) {
-                if(any(object@dispersal@Emigration@EmigProb[,(offset+1)]<0 || object@dispersal@Emigration@EmigProb[,(offset+1)]>1)){
+                if(any(object@dispersal@Emigration@EmigProb[,(offset+1)]<0 | object@dispersal@Emigration@EmigProb[,(offset+1)]>1)){
                     msg <- c(msg, paste0("Column ", (offset+1), " of emigration traits matrix (EmigProb) must contain the maximum emigration probability D0, with values in the closed inerval [0,1] !"))
                 }
                 #// NB alpha and beta may take any value
             }
             else {
-                if(any(object@dispersal@Emigration@EmigProb[,(offset+1)]<0 || object@dispersal@Emigration@EmigProb[,(offset+1)]>1)){
+                if(any(object@dispersal@Emigration@EmigProb[,(offset+1)]<0 | object@dispersal@Emigration@EmigProb[,(offset+1)]>1)){
                     msg <- c(msg, paste0("Column ", (offset+1), " of emigration traits matrix (EmigProb) must contain the constant emigration probability d, with values in the closed inerval [0,1] !"))
                 }
             }
@@ -300,7 +300,7 @@ setValidity("RSparams", function(object) {
                         msg <- c(msg, "First column of dispersal kernel traits (Distances) matrix must contain the stage numbers (but non-integer number(s) found)!")
                     }
                     else {
-                        if(any(object@dispersal@Transfer@Distances[,1]<0 || object@dispersal@Transfer@Distances[,1]>object@control@stages)){
+                        if(any(object@dispersal@Transfer@Distances[,1]<0 | object@dispersal@Transfer@Distances[,1]>object@control@stages)){
                             msg <- c(msg, "First column of dispersal kernel traits (Distances) matrix must contain the stage numbers (found <0 or >#stages)!")
                         }
                         else{
@@ -369,7 +369,7 @@ setValidity("RSparams", function(object) {
                                 msg <- c(msg, paste0("Column ", (offset+4), " of dispersal kernel traits (Distances) matrix must contain sd(δ2), with values less than or equal to TraitScaleFactor μ(δ2)!"))
                             }
                         }
-                        if(any(object@dispersal@Transfer@Distances[,(offset+5)]<=0.0 || object@dispersal@Transfer@Distances[,(offset+5)]>=1.0)){
+                        if(any(object@dispersal@Transfer@Distances[,(offset+5)]<=0.0 | object@dispersal@Transfer@Distances[,(offset+5)]>=1.0)){
                             msg <- c(msg, paste0("Column ", (offset+5), " of dispersal kernel traits (Distances) matrix must contain the mean of the probability of using Kernel 1, mean(p), with values in the open interval (0,1) !"))
                         }
                         if(any(object@dispersal@Transfer@Distances[,(offset+6)]<=0.0)){
@@ -400,7 +400,7 @@ setValidity("RSparams", function(object) {
                         if(any(object@dispersal@Transfer@Distances[,(offset+1):(offset+2)]<resol)){
                             msg <- c(msg, paste0("Columns ", (offset+1), " and ", (offset+2), " of dispersal kernel traits (Distances) matrix must contain the two mean distance δ1 and δ2, with values >= ", (resol), " (=landscape resolution (unless UseFullKernel=TRUE)) !"))
                         }
-                        if(any(object@dispersal@Transfer@Distances[,(offset+3)]<=0 || object@dispersal@Transfer@Distances[,(offset+3)]>=1)) {
+                        if(any(object@dispersal@Transfer@Distances[,(offset+3)]<=0 | object@dispersal@Transfer@Distances[,(offset+3)]>=1)) {
                             msg <- c(msg, paste0("Column ", (offset+3), " of dispersal kernel traits (Distances) matrix must contain the probability p of using kernel 1, with values in the open interval (0,1) !"))
                         }
                     }
@@ -570,7 +570,7 @@ setValidity("RSparams", function(object) {
                 msg <- c(msg, "First column of Settlement traits matrix (Settle) must contain the stage numbers (but non-integer number(s) found)!")
             }
             else {
-                if(any(object@dispersal@Settlement@Settle[,1]<0 || object@dispersal@Settlement@Settle[,1]>object@control@stages)){
+                if(any(object@dispersal@Settlement@Settle[,1]<0 | object@dispersal@Settlement@Settle[,1]>object@control@stages)){
                     msg <- c(msg, "First column of Settlement traits matrix (Settle) must contain the stage numbers (found <0 or >#stages)!")
                 }
                 else{
@@ -612,7 +612,7 @@ setValidity("RSparams", function(object) {
         if (object@control@transfer) {          #if Movemodel:
             if (object@dispersal@Settlement@IndVar) {
                 if (object@dispersal@Settlement@DensDep) {
-                    if(any(object@dispersal@Settlement@Settle[,(offset+1):(offset+2)]<=0 || object@dispersal@Settlement@Settle[,(offset+1):(offset+2)]>1)){
+                    if(any(object@dispersal@Settlement@Settle[,(offset+1):(offset+2)]<=0 | object@dispersal@Settlement@Settle[,(offset+1):(offset+2)]>1)){
                         msg <- c(msg, paste0("Columns ", (offset+1), " and ", (offset+2), " of settlement traits matrix (Settle) must contain mean(S0) and sd(S0), with values in the half-open inerval (0,1] !"))
                     }
                     else {
@@ -638,7 +638,7 @@ setValidity("RSparams", function(object) {
             }
             else { # !IndVar
                 if (object@dispersal@Settlement@DensDep) {
-                    if(any(object@dispersal@Settlement@Settle[,(offset+1)]<=0 || object@dispersal@Settlement@Settle[,(offset+1)]>1)){
+                    if(any(object@dispersal@Settlement@Settle[,(offset+1)]<=0 | object@dispersal@Settlement@Settle[,(offset+1)]>1)){
                         msg <- c(msg, paste0("Column ", (offset+1), " of settlement traits matrix (Settle) must contain the maximum settlement probability S0, with values in the half-open inerval (0,1] !"))
                     }
                     #// NB alpha and beta may take any value
@@ -728,7 +728,7 @@ setValidity("RSparams", function(object) {
                     msg <- c(msg, 'Initialise(): PropStages must have a length equal to number of stages!')
                 }
                 else{
-                    if(any(object@init@PropStages < 0.0) || any(object@init@PropStages > 1.0)) {
+                    if(any(object@init@PropStages < 0.0) | any(object@init@PropStages > 1.0)) {
                         msg <- c(msg, 'Initialise(): All elements of PropStages must be in the closed interval [0,1]!')
                     }
                     else{
@@ -746,7 +746,7 @@ setValidity("RSparams", function(object) {
         }
     }
     else{
-        if (length(object@init@PropStages)>1 || !any(object@init@PropStages[1] == c(0,-9))) {
+        if (length(object@init@PropStages)>1 || !(object@init@PropStages[1] %in% c(0,-9))) {
             msg <- c(msg, 'PropStages is not used for a population without stage structure.')
         }
     }
