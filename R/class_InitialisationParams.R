@@ -229,55 +229,64 @@ setValidity('InitialisationParams', function(object){
                 }
                 min.set = FALSE
                 max.set = FALSE
-                if (length(object@minX) != 1){
-                    msg <- c(msg, 'Minimum X coordinate (minX) must be of length 1!')
+                if (length(object@minX) > 1){
+                    msg <- c(msg, 'Minimum X coordinate (minX) must be of length 1 or missing!')
                 }
                 else{
-                    if (object@minX < 0 && object@minX != -9){
-                        msg <- c(msg, 'Minimum X coordinate (minX) has to be greater or equal 0!')
+                    if (length(object@minX) == 1){
+                        if (object@minX < 0 && object@minX != -9L){
+                            msg <- c(msg, 'Minimum X coordinate (minX) has to be greater or equal 0!')
+                        }
+                        else min.set = ifelse(object@minX==-9L,FALSE,TRUE)
                     }
-                    else min.set = TRUE
                 }
-                if (length(object@maxX) != 1){
-                    msg <- c(msg, 'Maximum X coordinate (maxX) must be of length 1!')
+                if (length(object@maxX) > 1){
+                    msg <- c(msg, 'Maximum X coordinate (maxX) must be of length 1 or missing!')
                 }
                 else{
-                    if (object@maxX < 0 && object@maxX != -9){
-                        msg <- c(msg, 'Maximum X coordinate (maxX) has to be greater or equal 0!')
+                    if (length(object@maxX) == 1){
+                        if (object@maxX < 0 && object@maxX != -9L){
+                            msg <- c(msg, 'Maximum X coordinate (maxX) has to be greater or equal 0!')
+                        }
+                        else max.set = ifelse(object@maxX==-9L,FALSE,TRUE)
                     }
-                    else max.set = TRUE
                 }
-                if(min.set && max.set && object@minX > 0){
+                if(min.set && max.set){
                     Xextend = object@maxX - object@minX
-                    if (object@maxX <= object@minX){
+                    if (Xextend <= 0){
                         msg <- c(msg, 'maxX has to be larger than minX!')
                         Xextend = FALSE
                     }
                 }
                 else {Xextend = FALSE}
+
                 min.set = FALSE
                 max.set = FALSE
-                if (length(object@minY) != 1){
-                    msg <- c(msg, 'Minimum Y coordinate (minY) must be of length 1!')
+                if (length(object@minY) > 1){
+                    msg <- c(msg, 'Minimum Y coordinate (minY) must be of length 1 or missing!')
                 }
                 else{
-                    if (object@minY < 0 && object@minY != -9){
-                        msg <- c(msg, 'Minimum Y coordinate (minY) has to be greater or equal 0!')
+                    if (length(object@minY) == 1){
+                        if (object@minY < 0 && object@minY != -9L){
+                            msg <- c(msg, 'Minimum Y coordinate (minY) has to be greater or equal 0!')
+                        }
+                        else min.set = ifelse(object@minY==-9L,FALSE,TRUE)
                     }
-                    else min.set = TRUE
                 }
-                if (length(object@maxY) != 1){
-                    msg <- c(msg, 'Maximum Y coordinate (maxY) must be of length 1!')
+                if (length(object@maxY) > 1){
+                    msg <- c(msg, 'Maximum Y coordinate (maxY) must be of length 1 or missing!')
                 }
                 else{
-                    if (object@maxY < 0 && object@maxY != -9){
-                        msg <- c(msg, 'Maximum Y coordinate (maxY) has to be greater or equal 0!')
+                    if (length(object@maxY) == 1){
+                        if (object@maxY < 0 && object@maxY != -9L){
+                            msg <- c(msg, 'Maximum Y coordinate (maxY) has to be greater or equal 0!')
+                        }
+                        else max.set = ifelse(object@maxY==-9L,FALSE,TRUE)
                     }
-                    else max.set = TRUE
                 }
-                if(min.set && max.set && object@minY > 0){
+                if(min.set && max.set){
                     Yextend = object@maxY - object@minY
-                    if (object@maxY <= object@minY){
+                    if (Yextend <= 0){
                         msg <- c(msg, 'maxY has to be larger than minY!')
                         Yextend = FALSE
                     }

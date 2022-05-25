@@ -328,7 +328,7 @@ setMethod("show", "EmigrationParams", function(object){
     print(object@EmigProb)
     if (object@IndVar) {
         cat("   TraitScaleFactor =", object@TraitScaleFactor, "\n")
-        if (!is.na(object@EmigStage) && length(object@EmigStage)!=0) {
+        if (!anyNA(object@EmigStage) && length(object@EmigStage)!=0) {
             cat("   EmigStage =", object@EmigStage, "\n")
         }
     }

@@ -110,7 +110,7 @@ setValidity("RSparams", function(object) {
             rows = object@control@stages
             offset = 1
             if (object@dispersal@Emigration@IndVar) {
-                if (is.na(object@dispersal@Emigration@EmigStage) || length(object@dispersal@Emigration@EmigStage)!=1) {
+                if (anyNA(object@dispersal@Emigration@EmigStage) || length(object@dispersal@Emigration@EmigStage)!=1) {
                     msg <- c(msg, "Emigration(): EmigStage (exactly 1) must be set!")
                 }
                 else {
@@ -178,7 +178,7 @@ setValidity("RSparams", function(object) {
         }
         # check sex column of EmigProb
         if (object@dispersal@Emigration@SexDep) {
-            if(any(object@dispersal@Emigration@EmigProb[,offset]!=0 && object@dispersal@Emigration@EmigProb[,offset]!=1)){
+            if(any( !object@dispersal@Emigration@EmigProb[,offset] %in% c(0,1) )){
                 msg <- c(msg, paste0(offset,". column of emigration probability traits matrix (EmigProb) must contain the sex numbers (0 for female, 1 for male)!"))
             }
             else {
@@ -312,7 +312,7 @@ setValidity("RSparams", function(object) {
                 }
                 if (object@dispersal@Transfer@SexDep) {
                     # check sex column of Distances matrix
-                    if(any(object@dispersal@Transfer@Distances[,offset]!=0 && object@dispersal@Transfer@Distances[,offset]!=1)){
+                    if(any( !object@dispersal@Transfer@Distances[,offset] %in% c(0,1) )){
                         msg <- c(msg, paste0(offset,". column of dispersal kernel traits (Distances) matrix must contain the sex numbers (0 for female, 1 for male)!"))
                     }
                     else {
@@ -711,7 +711,7 @@ setValidity("RSparams", function(object) {
         }
     }
     if (object@control@stagestruct) {
-        if (is.na(object@init@InitAge) || length(object@init@InitAge) == 0){
+        if (anyNA(object@init@InitAge) || length(object@init@InitAge) == 0){
             msg <- c(msg, 'Initialise(): InitAge must be set!')
         }
         else {
@@ -720,7 +720,7 @@ setValidity("RSparams", function(object) {
             }
         }
         if (object@init@InitType != 2) {
-            if ( is.na(object@init@PropStages) || length(object@init@PropStages) == 0 ){
+            if ( anyNA(object@init@PropStages) || length(object@init@PropStages) == 0 ){
                 msg <- c(msg, 'Initialise(): PropStages must be set!')
             }
             else {
