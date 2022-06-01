@@ -26,9 +26,9 @@
 # from RS 'Initialisation' file
 
 #' @encoding UTF-8
-#' Set Initialisation Parameters
+#' @title Set Initialisation Parameters
 #'
-#' Initialisation rules define the way in which initial individuals are placed in the landscape at the start of the simulation.
+#' @description Initialisation rules define the way in which initial individuals are placed in the landscape at the start of the simulation.
 #' There are three initialisation types:\cr
 #' Free initialisation according to the habitat map (\code{InitType}\eqn{= 0}),
 #' initialisation from a loaded species distribution map (\code{InitType} \eqn{= 1}),

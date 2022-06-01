@@ -26,7 +26,7 @@
 # from RS 'Genetics' file
 
 #' @encoding UTF-8
-#' Set Genetics parameters
+#' @title Set Genetics parameters
 #'
 #' @description Set genetics parameters and architecture.\cr
 #'

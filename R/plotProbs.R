@@ -29,9 +29,9 @@
 # -----
 
 #' @encoding UTF-8
-#' Plot parameterised probabilities
+#' @title Plot parameterised probabilities
 #'
-#' Visualise the dependencies or distributions of probabilities of the various processes that are defined by the different parameter modules,
+#' @description Visualise the dependencies or distributions of probabilities of the various processes that are defined by the different parameter modules,
 #' like e.g. fecundity or mortality.
 #'
 #' @param x a RangeShiftR parameter object

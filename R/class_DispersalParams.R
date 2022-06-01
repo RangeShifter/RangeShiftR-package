@@ -29,9 +29,9 @@
 # from RS 'Emigration' file
 
 #' @encoding UTF-8
-#' Set Emigration Parameters
+#' @title Set Emigration Parameters
 #'
-#' Emigration - the first phase of dispersal - is modelled as the probability that an individual leaves its natal patch during the present year (or season).
+#' @description Emigration - the first phase of dispersal - is modelled as the probability that an individual leaves its natal patch during the present year (or season).
 #' It is constant by default, but can be set to be density-dependent (\code{DensDep}) and/or to vary for each individual (\code{IndVar}). In case of a stage-structured/sexual
 #' population model, the emigration probabilities can also vary with stage/sex (\code{StageDep/SexDep}). If inter-individual variability is
 #' enabled, the emigration traits can also be allowed to evolve (also set \code{TraitScaleFactor}).
@@ -417,9 +417,9 @@ setMethod("plotProbs", "EmigrationParams", function(x, stage = NULL, sex = NULL,
 # vitual class acting as superclass for: 'DispersalKernel', 'StochMove', 'CorrRW'
 
 #' @encoding UTF-8
-#' Set a Transfer method
+#' @title Set a Transfer method
 #'
-#' Transfer (or transience) is the second phase of dispersal. It consists of the movement of an individual departing from its natal patch towards
+#' @description Transfer (or transience) is the second phase of dispersal. It consists of the movement of an individual departing from its natal patch towards
 #' a potential new patch, ending with settlement or mortality. This movement can be modelled by one of three alternative processes:\cr
 #' - Dispersal kernel: use \code{\link[RangeShiftR]{DispersalKernel}}\cr
 #' - Stochastic movement simulator (SMS): use \code{\link[RangeShiftR]{SMS}}\cr
@@ -454,9 +454,9 @@ setMethod("show", "TransferParams", function(object){
 ## Transfer-class DISPERSALKERNEL
 
 #' @encoding UTF-8
-#' Set up a Dispersal Kernel
+#' @title Set up a Dispersal Kernel
 #'
-#' A method to describe \code{\link[RangeShiftR]{Transfer}}: Dispersal kernels are statistical distributions that are largely used to describe dispersal distances. The main assumption behind them
+#' @description A method to describe \code{\link[RangeShiftR]{Transfer}}: Dispersal kernels are statistical distributions that are largely used to describe dispersal distances. The main assumption behind them
 #' is that the principal determinant of the probability of an individual dispersing to a particular site is the distance from the starting location.\cr
 #' As for the other dispersal phases, movement abilities and strategies are under multiple selective pressures and can evolve separately.
 #' As a result, the realised dispersal kernels will themselves evolve.
@@ -940,9 +940,9 @@ setMethod("plotProbs", "DispersalKernel", function(x, mortality = FALSE, combine
 ## Transfer-class STOCHMOVE
 
 #' @encoding UTF-8
-#' Set up a Stochastic Movement Simulator
+#' @title Set up a Stochastic Movement Simulator
 #'
-#' A method to describe \code{\link[RangeShiftR]{Transfer}}:
+#' @description A method to describe \code{\link[RangeShiftR]{Transfer}}:
 #' SMS is a stochastic individual-based movement model where organisms move through grid-based, heterogeneous landscapes. The model uses similar
 #' cost surfaces as the least cost path (LCP) method, but it relaxes two of its main assumptions: Firstly, individuals are not assumed to be
 #' omniscient, but move according to what they can perceive of the landscape within their perceptual range (\code{PR}). Secondly, individuals
@@ -1424,9 +1424,9 @@ setMethod("plotProbs", "StochMove", function(x, xmax = NULL, ymax = NULL){
 ## Transfer-class CORRRW
 
 #' @encoding UTF-8
-#' Set up a Correlated Random Walk
+#' @title Set up a Correlated Random Walk
 #'
-#' A method to describe \code{\link[RangeShiftR]{Transfer}}:
+#' @description A method to describe \code{\link[RangeShiftR]{Transfer}}:
 #' A simple correlated random walk without any bias; implemented in continuous space on the top of the landscape grid.
 #'
 #' @usage CorrRW(StepLength = 1, Rho = 0.5,
@@ -1617,9 +1617,9 @@ setMethod("show", "CorrRW", function(object){
 # from RS 'Settlement' file
 
 #' @encoding UTF-8
-#' Set Settlement Parameters
+#' @title Set Settlement Parameters
 #'
-#' Settlement, or immigration, is the last phase of dispersal, when the organism stops in a new cell or patch of breeding habitat. The
+#' @description Settlement, or immigration, is the last phase of dispersal, when the organism stops in a new cell or patch of breeding habitat. The
 #' available settlement conditions vary depending on the used \code{\link[RangeShiftR]{Transfer}} type. In any case, dispersing individuals
 #' are not allowed to settle in their natal cell or patch and can only settle in suitable habitat.\cr
 #' \emph{RangeShiftR} incorporates some basic settlement rules that can be stage- or sex-specific or both (set \code{StageDep}, \code{SexDep}).
@@ -2030,9 +2030,9 @@ setMethod("plotProbs", "SettlementParams", function(x, stage = NULL, sex = NULL,
 # Superclass holding the sub-classes 'EmigrationParams', 'TransferParams' and 'SettlementParams'
 
 #' @encoding UTF-8
-#' Set Dispersal Parameters
+#' @title Set Dispersal Parameters
 #'
-#' Dispersal is defined as movement leading to spatial gene flow. It typically involves three phases, which are all modelled explicitly:
+#' @description Dispersal is defined as movement leading to spatial gene flow. It typically involves three phases, which are all modelled explicitly:
 #' \code{\link[RangeShiftR]{Emigration}}, \code{\link[RangeShiftR]{Transfer}} and \code{\link[RangeShiftR]{Settlement}}.\cr
 #' The specific parameters of each phase are set through their respective functions. For more details, see their documentation.\cr
 #' \cr

@@ -23,7 +23,6 @@
 
 #### PARAMETER MASTER CLASS ####
 
-#' @encoding UTF-8
 #' @include class_ControlParams.R
 #' @include class_SimulationParams.R
 #' @include class_LandParams.R

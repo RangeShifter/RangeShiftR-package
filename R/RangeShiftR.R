@@ -66,7 +66,7 @@ NULL
 
 
 #' @encoding UTF-8
-#' Display RangeShiftR license information
+#' @title Display RangeShiftR license information
 #'
 #' @export
 RangeShiftR_license <- function ()

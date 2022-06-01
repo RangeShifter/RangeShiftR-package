@@ -29,9 +29,9 @@
 # from RS 'StageStruct' file
 
 #' @encoding UTF-8
-#' Define a Stage-structure
+#' @title Define a Stage-structure
 #'
-#' Set all demographic parameters for a stage-structured population. All elements of the transition matrix, i.e. Fecundity, Development, and Survival can be subjected to a density-dependent scaling.
+#' @description Set all demographic parameters for a stage-structured population. All elements of the transition matrix, i.e. Fecundity, Development, and Survival can be subjected to a density-dependent scaling.
 #' In this case, the base probabilities given via the transition matrix will be reduced exponentially with the strength of density dependence \eqn{b(i,t)} times abundance \eqn{N(i,t)}, in patch \eqn{i} at time \eqn{t}.
 #' Additionally, the effect of the abundances of each stage/sex on these parameters can be weighted. For more information, see the details.
 #'
@@ -517,9 +517,9 @@ setMethod("plotProbs", "StagesParams", function(x, stage = NULL, sex = NULL, xma
 setClassUnion("StagesSlot", c("logical", "StagesParams"))
 
 #' @encoding UTF-8
-#' Set Demographic Parameters
+#' @title Set Demographic Parameters
 #'
-#' For a simple non-structured population, set its basic demographic parameters here, i.e. the maximum growth rate (\code{Rmax}) and the competition coefficient (\code{bc}).
+#' @description For a simple non-structured population, set its basic demographic parameters here, i.e. the maximum growth rate (\code{Rmax}) and the competition coefficient (\code{bc}).
 #' For a stage-structured population, define its corresponding parameters via \code{\link[RangeShiftR]{StageStructure}} and add it to Demography.\cr
 #' \cr
 #' Choose the Reproduction model that determines if sexes are considered implicitly or explicitly and if a mating system is used. If applicable, set the corresponding parameters, i.e. the proportion of males (\code{PropMales}) and the maximum harem size (\code{Harem}).

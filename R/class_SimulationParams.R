@@ -26,7 +26,7 @@
 # from RS 'Parameter' file
 
 #' @encoding UTF-8
-#' Set Simulation parameters
+#' @title Set Simulation parameters
 #'
 #' @description Set basic simulation parameters and control output types.\cr
 #' Furthermore, optionally define a (\code{Shifting}) Environmental \code{Gradient}, Environmental Stochasticity (\code{EnvStoch}) and/or Local extinction (\code{LocalExt}).

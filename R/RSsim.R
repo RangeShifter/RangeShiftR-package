@@ -29,9 +29,9 @@
 
 
 #' @encoding UTF-8
-#' Define a RangeShiftR parameter master object
+#' @title Define a RangeShiftR parameter master object
 #'
-#' Set up a parameter master that can be used in \code{\link[RangeShiftR]{RunRS}}() to run a simulation.\cr
+#' @description Set up a parameter master that can be used in \code{\link[RangeShiftR]{RunRS}}() to run a simulation.\cr
 #' All parameter modules can be added to an existing parameter master via the "+"-functions. However, note that the entire respective module will be overwritten.\cr
 #'
 #' @usage RSsim(batchnum = 1L,
