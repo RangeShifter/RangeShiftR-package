@@ -25,6 +25,7 @@
 
 # from RS 'Parameter' file
 
+#' @encoding UTF-8
 #' Set Simulation parameters
 #'
 #' @description Set basic simulation parameters and control output types.\cr

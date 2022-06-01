@@ -25,6 +25,7 @@
 
 # from RS 'Initialisation' file
 
+#' @encoding UTF-8
 #' Set Initialisation Parameters
 #'
 #' Initialisation rules define the way in which initial individuals are placed in the landscape at the start of the simulation.

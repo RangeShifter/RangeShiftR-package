@@ -56,6 +56,7 @@ densdep <- function(x, A0 = 1.0, alpha = 1.0, beta = 0.0) {
 #-- validation function
 #----------------------
 
+#' @encoding UTF-8
 #' Validate a given RS parameter object
 #'
 #' @export

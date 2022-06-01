@@ -20,6 +20,7 @@
 #----------------------------------------------------------------------------
 
 
+#' @encoding UTF-8
 #' @details
 #' \code{RangeShiftR} provides flexible and fast simulations of spatial eco-evolutionary dynamics.
 #' It implements the individual-based simulation software \emph{RangeShifter},
@@ -64,6 +65,7 @@ NULL
 }
 
 
+#' @encoding UTF-8
 #' Display RangeShiftR license information
 #'
 #' @export

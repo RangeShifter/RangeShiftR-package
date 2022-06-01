@@ -52,6 +52,7 @@ setMethod("initialize", "LandParams", function(.Object, ...) {
 
 ### CLASS ARTIFICIALLANDSCAPE
 
+#' @encoding UTF-8
 #' Create an Artificial Landscape
 #'
 #' An artificial landscape can be generated with a random or fractal spatial structure, and may be using binary or continuous habitat values to characterise each cell.
@@ -289,6 +290,7 @@ setMethod("show", "ArtificialLandscape", function(object){
 
 ### CLASS IMPORTEDLANDSCAPE
 
+#' @encoding UTF-8
 #' Import a Landscape from file
 #'
 #' @description Provide the filename(s) (\code{LandscapeFile}) of the map(s) to be imported, their

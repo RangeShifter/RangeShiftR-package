@@ -31,6 +31,7 @@
 ### READING OUTPUT FILES
 
 
+#' @encoding UTF-8
 #' Read 'range' file
 #'
 #' Read the RangeShiftR output file 'range' into a data.frame, if it was generated.
@@ -50,6 +51,7 @@ setMethod("readRange", c(s="RSparams", dirpath="character"), function(s,dirpath)
 })
 
 
+#' @encoding UTF-8
 #' Read 'pop' file
 #'
 #' Read the RangeShiftR output file 'pop' into a data.frame, if it was generated.
@@ -81,6 +83,7 @@ setMethod("readPop", c(s="RSparams", dirpath="character"), function(s,dirpath,ce
 ### PROCESS OUTPUT
 
 
+#' @encoding UTF-8
 #' ColonisationStats
 #'
 #' This function produces patch statistics and maps on occupancy probability and mean time to colonisation.
@@ -378,6 +381,7 @@ setMethod("ColonisationStats", "RSparams", function(x, y = getwd(), years = nume
 ### PLOTTING
 
 
+#' @encoding UTF-8
 #' Plot Abundance
 #'
 #' Uses the RangeShiftR output data 'range' to generate abundance time series.
@@ -437,6 +441,7 @@ setMethod("plotAbundance", "RSparams", function(s, dirpath, ...) {
 })
 
 
+#' @encoding UTF-8
 #' Plot Occupancy
 #'
 #' Uses the RangeShiftR output data 'range' to generate occupancy time series.
@@ -501,6 +506,7 @@ setMethod("plotOccupancy", "RSparams", function(s, dirpath, ...) {
 
 #--- SMS PathLenghts
 
+#' @encoding UTF-8
 #' Get the distribution of SMS Path Lengths
 #'
 #' Reads the RangeShiftR output files 'MovePaths' (if they were generated) to get the distribution of lengths of SMS
@@ -808,6 +814,7 @@ get_eq_pop <- function(b, demog, N_0 = NULL, t_max = 1000, t_rec = 1, delta = .1
 
 ## ---- Frontend Plot function -----
 
+#' @encoding UTF-8
 #' Calculates the equilibrium density and stage distribution for a localised (i.e. non-spatial) closed population
 #'
 #' Uses the \emph{RangeShiftR} Demography module to create the corresponding matrix model and runs it until equilibrium is reached.

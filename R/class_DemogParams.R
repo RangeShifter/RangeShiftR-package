@@ -28,6 +28,7 @@
 
 # from RS 'StageStruct' file
 
+#' @encoding UTF-8
 #' Define a Stage-structure
 #'
 #' Set all demographic parameters for a stage-structured population. All elements of the transition matrix, i.e. Fecundity, Development, and Survival can be subjected to a density-dependent scaling.
@@ -515,6 +516,7 @@ setMethod("plotProbs", "StagesParams", function(x, stage = NULL, sex = NULL, xma
 # define this ClassUnion so that the 'stages' slot in the parameter master class 'RSparams' can be FALSE for option 'population with non-overlapping generations'
 setClassUnion("StagesSlot", c("logical", "StagesParams"))
 
+#' @encoding UTF-8
 #' Set Demographic Parameters
 #'
 #' For a simple non-structured population, set its basic demographic parameters here, i.e. the maximum growth rate (\code{Rmax}) and the competition coefficient (\code{bc}).

@@ -27,6 +27,8 @@
 #
 # -----
 
+
+#' @encoding UTF-8
 #' Define a RangeShiftR parameter master object
 #'
 #' Set up a parameter master that can be used in \code{\link[RangeShiftR]{RunRS}}() to run a simulation.\cr

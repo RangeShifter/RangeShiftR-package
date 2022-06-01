@@ -28,6 +28,7 @@
 
 # from RS 'Emigration' file
 
+#' @encoding UTF-8
 #' Set Emigration Parameters
 #'
 #' Emigration - the first phase of dispersal - is modelled as the probability that an individual leaves its natal patch during the present year (or season).
@@ -415,6 +416,7 @@ setMethod("plotProbs", "EmigrationParams", function(x, stage = NULL, sex = NULL,
 # from RS 'Transfer' file
 # vitual class acting as superclass for: 'DispersalKernel', 'StochMove', 'CorrRW'
 
+#' @encoding UTF-8
 #' Set a Transfer method
 #'
 #' Transfer (or transience) is the second phase of dispersal. It consists of the movement of an individual departing from its natal patch towards
@@ -451,6 +453,7 @@ setMethod("show", "TransferParams", function(object){
 
 ## Transfer-class DISPERSALKERNEL
 
+#' @encoding UTF-8
 #' Set up a Dispersal Kernel
 #'
 #' A method to describe \code{\link[RangeShiftR]{Transfer}}: Dispersal kernels are statistical distributions that are largely used to describe dispersal distances. The main assumption behind them
@@ -936,6 +939,7 @@ setMethod("plotProbs", "DispersalKernel", function(x, mortality = FALSE, combine
 
 ## Transfer-class STOCHMOVE
 
+#' @encoding UTF-8
 #' Set up a Stochastic Movement Simulator
 #'
 #' A method to describe \code{\link[RangeShiftR]{Transfer}}:
@@ -1419,6 +1423,7 @@ setMethod("plotProbs", "StochMove", function(x, xmax = NULL, ymax = NULL){
 
 ## Transfer-class CORRRW
 
+#' @encoding UTF-8
 #' Set up a Correlated Random Walk
 #'
 #' A method to describe \code{\link[RangeShiftR]{Transfer}}:
@@ -1611,6 +1616,7 @@ setMethod("show", "CorrRW", function(object){
 
 # from RS 'Settlement' file
 
+#' @encoding UTF-8
 #' Set Settlement Parameters
 #'
 #' Settlement, or immigration, is the last phase of dispersal, when the organism stops in a new cell or patch of breeding habitat. The
@@ -2023,6 +2029,7 @@ setMethod("plotProbs", "SettlementParams", function(x, stage = NULL, sex = NULL,
 
 # Superclass holding the sub-classes 'EmigrationParams', 'TransferParams' and 'SettlementParams'
 
+#' @encoding UTF-8
 #' Set Dispersal Parameters
 #'
 #' Dispersal is defined as movement leading to spatial gene flow. It typically involves three phases, which are all modelled explicitly:

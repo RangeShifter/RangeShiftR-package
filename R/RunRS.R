@@ -26,6 +26,7 @@
 #
 # -----
 
+#' @encoding UTF-8
 #' Run the Simulation
 #'
 #' @param RSparams A parameter master object (class 'RSparams'), contains all parameters to specify the simulation settings.
