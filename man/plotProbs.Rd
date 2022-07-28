@@ -33,6 +33,18 @@ Available methods and their options:
     \item \code{combinekernels=FALSE} - ...plotting both kernels separately (default)
     \item \code{combinekernels= TRUE} - ...combining both kernels, i.e. \ifelse{html}{ \out{p(d; &delta;<sub>1</sub>,&delta;<sub>2</sub>) = p<sub>I</sub> p(d;&delta;<sub>1</sub>) + (1-p<sub>I</sub>) p(d;&delta;<sub>1</sub>) } }{\deqn{ p(d; δ_1,δ_2) = p_I p(d;δ_1) + (1-p_I) p(d;δ_2)} }
   }
-  \item \code{\link[RangeShiftR]{StageStructure}}: plot fecundity as well as survival and development probabilities
+  \item \code{\link[RangeShiftR]{StageStructure}}: plot fecundity as well as survival and development probabilities.
+
+  Survival and development are calculated based on the transition matrix. Consider e.g. a 3 stage matrix with a transition matrix of
+
+  \tabular{ccccc}{0 \tab | \tab 0 \tab | \tab \ifelse{html}{\out{&phi;<sub>2</sub>}}{\eqn{φ_2}} \cr
+  \eqn{1.0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> (1-&gamma;<sub>1-2</sub>)}}{\eqn{σ_1 (1 − γ_(1-2))}} \tab | \tab \eqn{0} \cr
+  \eqn{0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> &gamma;<sub>1-2</sub>}}{\eqn{σ_1 γ_(1-2)}} \tab | \tab \ifelse{html}{\out{&sigma;<sub>2</sub>}}{\eqn{σ_2}} \cr}
+
+  The survival probability is calculated as the sum of the probability to stay in the same stage and the probability to reach the next stage.
+  E.g. for stage 1:  \ifelse{html}{\out{&sigma;<sub>1</sub> = sum( &sigma;<sub>1</sub> (1-&gamma;<sub>1-2</sub>),  &sigma;<sub>1</sub> &gamma;<sub>1-2</sub>}}{\eqn{σ_1 = sum(σ_1 (1 − γ_(1-2)), σ_1 γ_(1-2))}}
+
+  The development probability of stage 1 to stage 2 is the ratio of the probability to reach stage 2 and the previously calculated survival probability.
+  E.g. for stage 1: \ifelse{html}{\out{&gamma;<sub>1-2</sub> = &sigma;<sub>1</sub> &gamma;<sub>1-2</sub> / &sigma;<sub>1</sub>}}{\eqn{γ_(1-2) = σ_1 / (σ_1 γ_(1-2) )}}
 }
 }

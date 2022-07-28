@@ -61,13 +61,13 @@ while Bernoulli trials \eqn{Bern}(\ifelse{html}{\out{&sigma;<sub>i</sub>}}{\eqn{
 and - if it survives - if it develops to the next stage or not.
 
 An example transition matrix for a 3-staged only-female or simple sexual (\code{ReproductionType={0,1}}) population model:
-\tabular{ccccc}{0 \tab | \tab \ifelse{html}{\out{&phi;<sub>1</sub>}}{\eqn{φ_1}} \tab | \tab \ifelse{html}{\out{&phi;<sub>2</sub>}}{\eqn{φ_2}} \cr
+\tabular{ccccc}{0 \tab | \tab 0 \tab | \tab \ifelse{html}{\out{&phi;<sub>2</sub>}}{\eqn{φ_2}} \cr
 \eqn{1.0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> (1-&gamma;<sub>1-2</sub>)}}{\eqn{σ_1 (1 − γ_(1-2))}} \tab | \tab \eqn{0} \cr
 \eqn{0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> &gamma;<sub>1-2</sub>}}{\eqn{σ_1 γ_(1-2)}} \tab | \tab \ifelse{html}{\out{&sigma;<sub>2</sub>}}{\eqn{σ_2}} \cr}
 
-In a female-only model (\code{ReproductionType=0}), φ represents the number of female offspring per female and reproductive event. \cr
+In a female-only model (\code{ReproductionType=0}), \ifelse{html}{\out{&phi;}}{\eqn{φ}} represents the number of female offspring per female and reproductive event. \cr
 Note that for an implicit (simple) sexual model (\code{ReproductionType=1}), the demographic parameters are not sex-specific. However, individuals are defined by their sex, which is acknowledged for example in the dispersal
-process and transmission of alleles. The fecundities φ refer to the number of all offspring (males and females) per female and reproductive event.
+process and transmission of alleles. The fecundities \ifelse{html}{\out{&phi;}}{\eqn{φ}}  refer to the number of all offspring (males and females) per female and reproductive event.
 
 In case of an explicit (complex) sexual model (\code{ReproductionType=2}), in contrast, each stage must be represented by two columns and rows to distinguish male and female demographic parameters.
 Note, however, that in any case the juvenile stage has only one row; it contains the fecundities. Male fecundities should have one of two possible values: set \ifelse{html}{\out{&phi;<sub>m</sub>}}{\eqn{φ_m}} \eqn{=1.0} for reproductive males or \ifelse{html}{\out{&phi;<sub>m</sub>}}{\eqn{φ_m}} \eqn{=0.0} for non-reproductive males.\cr
@@ -81,7 +81,7 @@ The mating system is explicitly modelled and a female’s probability of reprodu
 
 A common mistake in building a transition matrix is made when offspring produced at year \eqn{t} develop to the next stage in the same year \insertCite{@ @caswell2001 pg. 60-62}{RangeShiftR}. To avoid this problem without losing the offspring stage, and hence the chance for simulating post-natal dispersal,
 we require an additional explicit juvenile stage (stage 0). Juveniles have to develop to stage 1 in the same year they are born. Hence the minimum number of stages of a stage-structured model is always \eqn{2}. It is important to note that juvenile mortality can be accounted for in
-two ways. Either, as in the examples above, it is included in adult fecundity φ (by appropriately reducing its value), and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is equal to \eqn{1.0}. This is how it is typically accounted for in matrix models. Or, alternatively,
+two ways. Either, as in the examples above, it is included in adult fecundity \ifelse{html}{\out{&phi;}}{\eqn{φ}} (by appropriately reducing its value), and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is equal to \eqn{1.0}. This is how it is typically accounted for in matrix models. Or, alternatively,
 φ is equal to the true maximum fecundity and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is less than \eqn{1.0}.
 Only the first approach allows straightforward direct comparison with standard analytical matrix models.
 
