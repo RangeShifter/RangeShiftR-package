@@ -1,6 +1,6 @@
 # RangeShiftR // Spatial demography <img src="man/figures/RSRlogo.png" align="right" height = 150/>
 
-## !! This is a developement version of RangeShiftR !!
+## !! This is a development version of RangeShiftR !!
 
 It contains a new feature that allows all demographic rates to vary spatially and temporally.
 
