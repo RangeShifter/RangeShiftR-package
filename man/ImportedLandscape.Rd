@@ -5,17 +5,22 @@
 \alias{ImportedLandscape}
 \title{Import a Landscape from file}
 \usage{
-ImportedLandscape(LandscapeFile, Resolution = 100, HabPercent = FALSE,
-                  Nhabitats, K_or_DensDep = 10,
-                  PatchFile = "NULL",
-                  CostsFile = "NULL",
+ImportedLandscape(LandscapeFile,
+                  Resolution = 100, OriginCoords = c(0,0),
+                  HabPercent = FALSE, Nhabitats,
+                  K_or_DensDep = 10,
+                  PatchFile = list(),
+                  CostsFile = list(),
                   DynamicLandYears = 0,
-                  SpDistFile = "NULL", SpDistResolution)
+                  SpDistFile = list(), SpDistResolution,
+                  demogScaleLayers, nrDemogScaleLayers)
 }
 \arguments{
-\item{LandscapeFile}{Filename(s) of the landscape habitat map(s) which shall be imported from the Inputs-folder. See the Details for information on the required format.}
+\item{LandscapeFile}{List of matrices of the landscape habitat raster(s); contains each cells' habitat suitability or land cover index.}
 
 \item{Resolution}{Cell size in meters, defaults to \eqn{100}. (integer)}
+
+\item{OriginCoords}{X- and Y-coordinates of the map origin given in meters as a vector of length 2.}
 
 \item{HabPercent}{If \code{FALSE} (default), unique integer habitat codes are expected in the imported map to characterise the habitat of each cell. This requires to set \code{Nhabitats}. \cr
 If \code{TRUE}, continuous values are expected, ranging from \eqn{0.0} to \eqn{100.0}, that represent percentages of habitat cover or quality.\cr
@@ -31,24 +36,32 @@ The expected format:\cr
 If \code{HabPercent=FALSE}: a vector of length \code{Nhabitats}, specifying the respective \code{K_or_DensDep} for every habitat code.\cr
 If \code{HabPercent=TRUE}: \code{K_or_DensDep} is interpreted as the maximum \code{K_or_DensDep} reached in cells with \eqn{100}\% habitat. All other cells hold the respective fraction of \eqn{K_or_DensDep}.}
 
-\item{PatchFile}{Filename(s) of the patch map(s) which shall be imported, default is \code{NULL}.}
+\item{PatchFile}{List of matrices of the patch raster(s); contains each cells' patch index.}
 
-\item{CostsFile}{Filename(s) of the SMS cost map(s) which shall be imported, default is \code{NULL}.}
+\item{CostsFile}{List of matrices of the SMS cost raster(s); contains each cells' SMS cost.}
 
 \item{DynamicLandYears}{Integer vector indicating the years of landscape changes. For a non-dynamic landscape its only entry is \eqn{0} (default).
 For a dynamic landscape, \code{DynamicLandYears} lists the years in which the corresponding habitat maps in \code{LandscapeFile} and - if applicable - their respective patch and/or costs
-maps (in \code{PatchFile},\code{CostsFile}) are loaded and used in the simulation. More details below.}
+maps (in \code{PatchFile},\code{CostsFile}) are used in the simulation. More details below.}
 
-\item{SpDistFile}{Filename of the species initial distribution map which shall be imported (*.txt). Default is \code{NULL}.}
+\item{SpDistFile}{List of one matrix containing the species' initial distribution raster.}
 
 \item{SpDistResolution}{Required if \code{SpDistFile} is given: Cell size of the distribution map in meters. (integer) Must be an integer multiple of the landscape resolution.}
+
+\item{demogScaleLayers}{List of arrays that describe additional landscape layers which can be used to locally scale certain demographic rates and thus allow them to vary spatially.
+The list must contain equally sized 3D-arrays, one for each element in \code{DynamicLandYears}, which are interpreted as stacked layers.
+The arrays' first two dimensions correspond to the x- and y-dimensions of the maps in \code{LandscapeFile} and must match in resolution and offset;
+the third dimension indexes the various layers (of which there are \code{nrDemogScaleLayers}).
+Can only be used in combination with habitat quality maps, i.e. when \code{HabPercent=TRUE}. Contain percentage values ranging from \eqn{0.0} to \eqn{100.0}.}
+
+\item{nrDemogScaleLayers}{number of additional landscape layers for spatial demographic scaling}
 }
 \value{
 A parameter object of class ImportedLandscape
 }
 \description{
-Provide the filename(s) (\code{LandscapeFile}) of the map(s) to be imported, their
-resolution and, if applicable, the number of habitat codes (\code{Nhabitats})
+Provide the matrices of the map(s) to be imported, their resolution,
+origin coordinates and, if applicable, the number of habitat codes (\code{Nhabitats})
 as well as their respective demographic density dependence (\code{K_or_DensDep}).
 
 For a dynamic landscape, the year in which each landscape is loaded has to be provided.
@@ -59,15 +72,7 @@ Other, optional input maps are:\cr
 - a distribution map to define an initial species distribution.
 }
 \details{
-\emph{RangeShiftR} requires every input map to be a text file in ESRI ASCII raster format, which has the following six header lines:
-\tabular{ll}{\code{ncols} \tab Number of columns \cr
-\code{nrows} \tab Number of rows \cr
-\code{xllcorner} \tab x-coordinate (longitude) of the lower-left corner \cr
-\code{yllcorner} \tab y-coordinate (latitude) of the lower-left corner \cr
-\code{cellsize} \tab Resolution (in meters) \cr
-\code{NODATA_value} \tab Value for cells having missing data (usually -9999) }
-
-The rest of the file is a grid containing a value for each cell, one line per row. \code{RangeShiftR} can read-in two different types of habitat maps:\cr
+The \code{LandscapeFile} can be of one of two different types:\cr
 \itemize{
     \item \emph{Raster with habitat codes} (\code{HabPercent=FALSE})\cr In this option each habitat or land-cover type has a unique integer code. Each cell in the file contains a single habitat code and \eqn{100} percent coverage is assumed for the cell. The landscape is therefore composed of discrete habitat cells. The codes are required to be sequential integers starting from \eqn{1} and ranging to \code{Nhabitats}.\cr
     \item \emph{Raster with habitat quality} (\code{HabPercent=TRUE})\cr Each cell in the landscape is assigned a continuous percentage value between \eqn{0.0} and \eqn{100.0} of the maximum \code{K_or_DensDep}. There are no explicit habitat or land-cover types. This allows integrating different methods for calculating the habitat suitability for a given species. For example, qualities can result from
@@ -75,21 +80,34 @@ The rest of the file is a grid containing a value for each cell, one line per ro
  Therefore, the quality should be scaled accordingly in case of a curvilinear relationship.
  }
 
+\code{OriginCoords} is the map origin given as a vector of length 2 where the first entry is the x-coordinate (longitude) of the lower-left corner and
+the second entry is the y-coordinate (latitude) of the lower-left corner.\cr
+
 \emph{Patch map} \cr
-The simulation can be run as a \emph{patch-based model} on the same habitat map described above. An additional file must be provided through \code{PatchFile}: a raster map of the same landscape, where
+The simulation can be run as a \emph{patch-based model} on the same habitat map described above. An additional matrix must be provided through \code{PatchFile}: a raster map of the same landscape, where
 each cell contains the ID number of the patch to which it belongs. Each patch must have a unique positive integer ID. The ID of every cell that does not belong to a patch (i.e. non-habitat/matrix) must be zero.
 Note that a single patch is the unit at which the density dependence in the population dynamics acts. Therefore, a patch can be discontinuous, i.e. it can contain cells that do not belong to the patch if they
 are assumed not to affect the dynamics, or on the other hand, patch cells that are not physically contiguous to the rest of the patch cells.
 
 \emph{Costs layer} \cr
 Only used if the simulation is run with \code{\link[RangeShiftR]{SMS}} as its transfer module and the landscapes resistance to movement is given via a costs raster map (see argument \code{Costs} in \code{SMS()}).
-In this case, the specified map has to match the landscape raster in extent, coordinates and resolution, and each cell contains a cost value, with the minimal possible cost being \eqn{1}.
-Importing a cost layer is the only option when the landscape comprises habitat coverage or quality.
+In this case, the specified raster has to match the landscape raster in extent, coordinates and resolution, and each cell contains a cost value, with the minimal possible cost being \eqn{1}.
+Using a cost layer is the only option when the landscape comprises habitat coverage or quality.
 
 \emph{Initial distribution} \cr
-A \emph{species distribution map} can be overlaid on top of the habitat map and can be used to define an initial distribution. The map is provided through \code{SpDistFile} must be in raster format and be aligned with the landscape map, i.e. the coordinates of the lower-left corner must be the same. The extent of the map does not have to be necessarily
-the same as the landscape. The resolution can be the same or coarser, provided that it is a multiple of the landscape resolution. For example, if the landscape cell size is \eqn{250m}, the species distribution can be at the resolution of \eqn{250m}, \eqn{500m}, \eqn{750m}, \eqn{1000m} etc.
+A \emph{species distribution map} can be overlaid on top of the habitat map and can be used to define an initial distribution. The raster matrix is provided through \code{SpDistFile} must be aligned with the landscape
+map, i.e. the coordinates of the lower-left corner must be the same. The resolution can be the same or coarser, provided that it is a multiple of the landscape resolution. For example, if the landscape cell size is
+\eqn{250m}, the species distribution can be at the resolution of \eqn{250m}, \eqn{500m}, \eqn{750m}, \eqn{1000m} etc.
 Each cell of the species distribution map must contain either \eqn{0} (species absent or not recorded) or \eqn{1} (species present).
+
+\emph{Demographic scaling layers} \cr
+A number of additional landscape layers can be provided in \code{demogScaleLayers} to locally scale certain demographic rates and thus allow them to vary spatially.
+This can only be used in combination with habitat quality maps, i.e. when \code{HabPercent=TRUE}, and with a stage-structured population model.
+The additional layers contain percentage values ranging from \eqn{0.0} to \eqn{100.0}. Chosen demographic rates for a specified stage and sex can be mapped to one of these scaling layers using the
+parameters \code{FecLayer}, \code{DevLayer}, and \code{SurvLayer} in \code{\link[RangeShiftR]{StageStructure}}. If a demographic rate varies spatially, its value in the transition matrix \code{TransMatrix})
+is now interpreted as a maximum value, while the realised local value in each cell or patch is determined as this maximum value scaled by the percentage given in the respective mapped scaling layer.
+For a patch-based landscape, the scaling percentage of a patch is given by the average percentage of its constituent cells.
+Potential density-dependence mediated by the strength 1/b still takes effect also for spatially-varying demographic rates. The respective base values φ_0, σ_0 or γ_0 are then replaced by their locally scaled values.
 
 \emph{Dynamic landscapes} \cr
 An imported landscape may be dynamic, i.e. the attributes of cells (either habitat class or quality index) and its patch number (if the model is patch-based) may be changed at specified years during the course of
@@ -109,8 +127,8 @@ is the new patch number).
    \item Instead of a single original patch, define two (or more) distinct but adjacent patches in the original landscape, so that they each retain their own populations when they become separated by the landscape change.
 }
 
-A dynamic landscape can be specified using the slots \code{LandscapeFile} (, \code{PatchFile}, \code{CostsFile}) and \code{DynamicLandYears}. \code{LandscapeFile} (and \code{PatchFile}, \code{CostsFile}) take a character vector with the filenames of the maps
-to be loaded. All provided maps must agree in resolution, extent and origin. \code{DynamicLandYears} is a number vector that contains the years, in which these landscapes shall be loaded; it must have the same ordering so
+A dynamic landscape can be specified using the slots \code{LandscapeFile} (, \code{PatchFile}, \code{CostsFile}) and \code{DynamicLandYears}. \code{LandscapeFile} (and \code{PatchFile}, \code{CostsFile}) take a list with the matrices representing the raster maps
+to be used. All provided maps must agree in resolution, extent and origin. \code{DynamicLandYears} is a number vector that contains the years, in which these landscapes shall be loaded; it must have the same ordering so
 that years and maps can be matched. If a specific map is used multiple times, it must be listed each time nevertheless.
 }
 \author{

@@ -71,9 +71,30 @@ Last updated: 28 July 2021 by Greta Bocedi
 #ifndef LandscapeH
 #define LandscapeH
 
+#include "Version.h"
+
 #include <algorithm>
 #include <fstream>
 #include <vector>
+
+/*
+#include <locale>
+#include <codecvt>
+#include <Rcpp.h>
+#include <armadillo>
+*/
+#if RS_RCPP
+#include <locale>
+#if !RSWIN64
+#include <codecvt>
+#endif //!RSWIN64
+#if !R_CMD
+#include <Rcpp.h>
+#if SPATIALDEMOG
+#include <armadillo>
+#endif //SPATIALDEMOG
+#endif //!R_CMD
+#endif //RS_RCPP
 
 using namespace std;
 
@@ -82,13 +103,18 @@ using namespace std;
 #include "Cell.h"
 #include "Species.h"
 #include "FractalGenerator.h"
-#include <locale>
-#if !RSWIN64
-#include <codecvt>
-#endif
-#include <Rcpp.h>
+
+#if RS_CONTAIN
+#include "Control.h"
+#endif // RS_CONTAIN 
 
 //---------------------------------------------------------------------------
+
+
+struct landOrigin {
+	double minEast; double minNorth;
+};
+
 
 // Initial species distribution
 
@@ -97,7 +123,13 @@ public:
 	InitDist(Species*);
 	~InitDist();
 	int readDistribution(
+#if RS_THREADSAFE
+		Rcpp::NumericMatrix,
+		landOrigin,
+		int
+#else
 		string // name of species distribution file
+#endif
 	);
 	void setDistribution(
 		int	// no. of distribution cells to be initialised (0 for all cells)
@@ -144,6 +176,12 @@ private:
 struct landParams {       
 	bool patchModel; bool spDist; bool generated;
 	bool dynamic;
+#if RS_CONTAIN
+	bool dmgLoaded;
+#endif // RS_CONTAIN 
+#if SPATIALDEMOG
+	bool spatialdemog;
+#endif // SPATIALDEMOG 
 	int landNum; int resol; int spResol; int nHab; int nHabMax;
 	int dimX,dimY,minX,minY,maxX,maxY;
 	short rasterType;
@@ -158,9 +196,6 @@ struct genLandParams {
 struct landPix {
 	int pix; float gpix;
 };
-struct landOrigin {
-	double minEast; double minNorth;
-};
 struct rasterHdr {
 	bool ok;
 	int errors,ncols,nrows,cellsize;
@@ -170,7 +205,9 @@ struct rasterdata {
 	bool ok;
 	int errors,ncols,nrows,cellsize;
 	double xllcorner,yllcorner;
+#if RS_RCPP
 	bool utf;
+#endif
 };
 struct patchData {
 	Patch *pPatch; int patchNum,nCells; int x,y;
@@ -184,6 +221,14 @@ struct patchChange {
 struct costChange {
 	int chgnum,x,y,oldcost,newcost;
 };
+
+#if SEASONAL
+//#if PARTMIGRN
+struct extEvent { // extreme event
+	int year,season,patchID,x,y; float probMort;
+};
+//#endif // PARTMIGRN 
+#endif // SEASONAL
 
 class Landscape{
 public:
@@ -232,6 +277,21 @@ public:
 	void setCellArray(void);
 	void addPatchNum(int);
 	void generatePatches(void); 		// create an artificial landscape
+#if SEASONAL
+	void allocatePatches( // create patches for a cell-based landscape
+		Species*,		// pointer to Species
+		short				// no. of seasons
+	);	
+	Patch* newPatch(
+		int,		// patch sequential no. (id no. is set to equal sequential no.)
+		short		// no. of seasons
+	);
+	Patch* newPatch(
+		int,	  // patch sequential no.
+		int,		// patch id no.
+		short		// no. of seasons
+	);
+#else
 	void allocatePatches(Species*);	// create patches for a cell-based landscape
 	Patch* newPatch(
 		int		// patch sequential no. (id no. is set to equal sequential no.)
@@ -240,6 +300,7 @@ public:
 		int,  // patch sequential no.
 		int		// patch id no.
 	);
+#endif // SEASONAL
 	void resetPatches(void);
 	void addNewCellToLand(
 		int,    // x co-ordinate
@@ -277,6 +338,40 @@ public:
 		int,    // y co-ordinate
 		float   // habitat quality value
 	);
+#if RS_CONTAIN
+	void setDamage(
+//		Patch*, // pointer to Patch
+		int,    // x co-ordinate
+		int,    // y co-ordinate
+		intptr,	// pointer (cast as integer) to the Patch in which cell lies (if any)
+		int			// damage index 
+	);
+	void updateDamage(
+		int,    // x co-ordinate
+		int,    // y co-ordinate
+		intptr	// pointer (cast as integer) to the Patch in which cell lies (if any)
+	);
+	void updateDamageIndices(void);
+	void setAlpha(double);
+	double getAlpha(void);
+	void resetDamageLocns(void);
+//	void updateDamageLocns(Species*);
+	double totalDamage(
+		bool		// transfer by SMS?
+	);
+	void viewDamage(	// Update the damage graph on the screen
+										// NULL for the batch version
+		int,		// year
+		double,	// mean damage
+		double,	// standard error of damage
+		bool		// show standard error?
+	);
+	void createTotDamage(int nrows,int reps);
+	void updateTotDamage(unsigned short row,unsigned short rep,float damage); 
+	void deleteTotDamage(int nrows);
+	void outTotDamage(bool view);
+//	void resetPrevDamage(void);
+#endif // RS_CONTAIN 
 	patchData getPatchData(
 		int		// index no. of Patch in patches vector
 	);
@@ -299,13 +394,27 @@ public:
 	);
 	int patchCount(void);
 	void updateHabitatIndices(void);
+#if SEASONAL
+	void setEnvGradient(
+		Species*,	// pointer to Species
+		short,		// no. of seasons
+		bool      // TRUE for initial instance that gradient is set
+	);
+#else
 	void setEnvGradient(
 		Species*, // pointer to Species
 		bool      // TRUE for initial instance that gradient is set
 	);
+#endif // SEASONAL 
 	void setGlobalStoch(
 		int		// no. of years
 	);
+#if BUTTERFLYDISP
+	void readGlobalStoch(
+		int,		// no. of years
+		string	// filename
+	);
+#endif // BUTTERFLYDISP 
 	float getGlobalStoch(
 		int		// year
 	);
@@ -324,6 +433,18 @@ public:
 		short	// change number
 	);
 	void deleteLandChanges(void);
+#if RS_THREADSAFE
+	int readLandChange(
+		int,		// change number
+		Rcpp::NumericMatrix,// habitat raster
+		Rcpp::NumericMatrix,// patch raster
+		Rcpp::NumericMatrix	// cost raster
+#if SPATIALDEMOG
+		,Rcpp::NumericVector// array of demographic scaling layers
+#endif
+	);
+#else
+#if RS_RCPP && !R_CMD
 	int readLandChange(
 	    int,		// change file number
 		bool,		// change SMS costs?
@@ -334,6 +455,13 @@ public:
 		int,		// pchnodata
 		int			// costnodata
 	);
+#else
+	int readLandChange(
+		int,	// change file number
+		bool	// change SMS costs?
+	);
+#endif
+#endif // RS_THREADSAFE
 	void createPatchChgMatrix(void);
 	void recordPatchChanges(int);
 	void deletePatchChgMatrix(void);
@@ -348,12 +476,29 @@ public:
 	costChange getCostChange(
 		int	// cost change number
 	);
+#if SPATIALDEMOG
+	void updateDemoScalings(short);
+#endif // SPATIALDEMOG 
+
+#if SPATIALMORT
+	// functions to handle spatial mortality
+
+	int readMortalityFiles(
+		string,	// mortality file name period 0
+		string	// mortality file name period 1
+	);
+#endif // SPATIALMORT 
 
 	// functions to handle species distributions
 
 	int newDistribution(
 		Species*,	// pointer to Species
+#if RS_THREADSAFE
+		Rcpp::NumericMatrix,
+		int
+#else
 		string		// name of initial distribution file
+#endif
 	);
 	void setDistribution(
 		Species*, // pointer to Species
@@ -420,14 +565,84 @@ public:
 	bool outConnectHeaders( // Write connectivity file headers
 		int		// option - set to -999 to close the connectivity file
 	);
+#if RS_RCPP
 	void outPathsHeaders(int, int);
+#endif
+#if SEASONAL
+	void outConnect(
+		int,	// replicate no.
+		int,  // year
+		short // season
+	);
+#else
 	void outConnect(
 		int,	// replicate no.
 		int   // year
 	);
+#endif // SEASONAL 
 
 	// functions to handle input and output
 
+#if RS_THREADSAFE
+	int readLandscape(
+		int, 				// no. of seasonss
+		Rcpp::NumericMatrix,// habitat raster
+		Rcpp::NumericMatrix,// patch raster
+		Rcpp::NumericMatrix	// cost raster
+#if SPATIALDEMOG
+		,Rcpp::NumericVector // array of demographic scaling layers
+#endif
+	);
+#else //RS_THREADSAFE
+#if RS_CONTAIN
+#if SEASONAL
+	int readLandscape(
+		int,		// no. of seasonss
+		int,		// fileNum == 0 for (first) habitat file and optional patch file
+						// fileNum > 0  for subsequent habitat files under the %cover option
+		string,	// habitat file name
+		string,	// patch file name
+		string,	// cost file name (may be NULL)
+		string	// damage file name (may be NULL)
+	);
+#else
+	int readLandscape(
+		int,		// fileNum == 0 for (first) habitat file and optional patch file
+						// fileNum > 0  for subsequent habitat files under the %cover option
+		string,	// habitat file name
+		string,	// patch file name
+		string,	// cost file name (may be NULL)
+		string	// damage file name (may be NULL)
+	);
+#endif // SEASONAL 
+	bool outSummDmgHeaders( // Open summary damage file and write header record
+		int				// Landscape number (-999 to close the file)
+	);
+	void outSummDmg( // Write record to summary damage file
+		int,			// replicate
+		int,			// year
+		bool,			// transfer by SMS?
+		bool			// view damage on screen
+	);
+	bool outDamageHeaders( // Open damage file and write header record
+		int				// Landscape number (-999 to close the file)
+	);
+	void outDamage( // Write record to damage file
+		int,			// replicate
+		int,			// year
+		bool			// transfer by SMS?
+	);
+#else
+#if SEASONAL
+	int readLandscape(
+		int,		// no. of seasonss
+		int,		// fileNum == 0 for (first) habitat file and optional patch file
+						// fileNum > 0  for subsequent habitat files under the %cover option
+		string,	// habitat file name
+		string,	// patch file name
+		string	// cost file name (may be NULL)
+	);
+#else
 	int readLandscape(
 		int,		// fileNum == 0 for (first) habitat file and optional patch file
 						// fileNum > 0  for subsequent habitat files under the %cover option
@@ -435,6 +650,9 @@ public:
 		string,	// patch file name
 		string	// cost file name (may be NULL)
 	);
+#endif // SEASONAL
+#endif // RS_CONTAIN
+#endif // RS_THREADSAFE
 	void listPatches(void);
 	int readCosts(
 		string	// costs file name
@@ -453,7 +671,25 @@ public:
 	);
 
 	void resetVisits(void);
+#if VCL
+	void saveVisits(int,int); // save SMS path visits map to .bmp file
+#endif
 	void outVisits(int,int);	// save SMS path visits map to raster text file
+
+#if RS_ABC
+// Returns connectivity (no. of successful dispersers) for given start and end patches
+int outABCconnect(int,int);
+#endif
+
+#if SEASONAL
+//#if PARTMIGRN
+	// extreme events
+	void addExtEvent(extEvent);
+	extEvent getExtEvent(int);
+	void resetExtEvents(void);
+	int numExtEvents(void);
+//#endif // PARTMIGRN 
+#endif // SEASONAL
 
 private:
 	bool generated;				// artificially generated?
@@ -463,6 +699,12 @@ private:
 	bool continuous;			//
 	bool dynamic;					// landscape changes during simulation
 	bool habIndexed;			// habitat codes have been converted to index numbers
+#if RS_CONTAIN
+	bool dmgLoaded;				// economic / environmental damage values have been input
+#endif // RS_CONTAIN 
+#if SPATIALDEMOG
+	bool spatialdemog;			// are there spatially varying demographic rates?
+#endif // SPATIALDEMOG 
 	short rasterType;			// 0 = habitat codes 1 = % cover 2 = quality 9 = artificial landscape
 	int landNum;					// landscape number
 	int resol;						// cell size (m)
@@ -480,6 +722,9 @@ private:
 	float gpix;						// image display ratio for gradient map
 	double minEast;				// ) real world min co-ordinates
 	double minNorth;			// ) read from habitat raster
+#if RS_CONTAIN
+	double alpha;					// economic / environmental damage distance decay coefficient
+#endif // RS_CONTAIN 
 
 	// list of cells in the landscape
 	// cells MUST be loaded in the sequence ascending x within descending y
@@ -521,6 +766,18 @@ private:
 	int ***patchChgMatrix;
 	int ***costsChgMatrix;
 
+#if SEASONAL
+//#if PARTMIGRN
+	// extreme events
+	std::vector <extEvent> extevents;
+//#endif // PARTMIGRN 
+#endif // SEASONAL 
+
+#if RS_CONTAIN
+	std::vector <DamageLocn*> dmglocns;
+	float **totDamage;	// total damage record to view on screen
+#endif // RS_CONTAIN 
+	
 };
 
 // NOTE: the following function is not a behaviour of Landscape, as it is run by the
@@ -538,11 +795,17 @@ extern ofstream DEBUGLOG;
 extern void DebugGUI(string);
 #endif
 
+#if VCL
+extern void MemoLine(UnicodeString);
+#else
 extern void MemoLine(string);
+#endif
 
+#if RS_RCPP
 extern rasterdata landraster,patchraster,spdistraster,costsraster;
 extern void EOFerrorR(string);
 extern void StreamErrorR(string);
+#endif
 
 //---------------------------------------------------------------------------
 #endif

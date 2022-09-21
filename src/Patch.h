@@ -72,6 +72,13 @@ using namespace std;
 #include "Parameters.h"
 #include "Cell.h"
 #include "Species.h"
+#if RS_CONTAIN
+#include "Control.h"
+#endif // RS_CONTAIN
+
+#if VCL
+#include <VCLTee.Chart.hpp>
+#endif
 
 //---------------------------------------------------------------------------
 
@@ -84,10 +91,18 @@ struct patchPopn {
 
 class Patch{
 public:
+#if SEASONAL
+	Patch(
+		int,	 // internal sequential number
+		int,	 // patch id number
+		short	 // no. of seasons
+	);
+#else
 	Patch(
 		int,	 // internal sequential number
 		int		 // patch id number
 	);
+#endif // SEASON
 	~Patch();
 	int getSeqNum(void);
 	int getPatchNum(void);
@@ -141,9 +156,47 @@ public:
 		short,				// landscape change index (always zero if not dynamic)
 		bool					// TRUE if there is a gradient in carrying capacity across the Landscape
 	);
+#if RS_CONTAIN
+	void resetDamageIndex(void);
+	void updateDamageIndex(
+		int,					// x co-ordinate of damage cell
+		int,					// y co-ordinate of damage cell
+		int,					// damage value
+		double				// distance decay coefficient
+	);		
+	double getDamageIndex(void);
+//	void resetDamageLocns(void);
+//	void setDamage(
+//		int,    // x co-ordinate
+//		int,    // y co-ordinate
+//		int			// damage index 
+//	);
+//	double totalDamage(void);
+	void setDamageLocns(bool);
+	bool hasDamageLocns(void);
+//	void setPrevDamage(double);
+	double getPrevDamage(void);       
+#endif // RS_CONTAIN 
+#if SEASONAL
+	float getK(
+		int						// season
+	);
+	bool suitableInAllSeasons(void);
+#else
 	float getK(void);
+#endif // SEASONAL 
+#if SPATIALDEMOG
+	void setDemoScaling(std::vector <float>);
+	std::vector <float> getDemoScaling(void);
+	void setPatchDemoScaling(short, patchLimits); // calculate demog. scalings of patch from its cells //TODO arguments
+#endif // SPATIALDEMOG
+#if VCL
+	// for GUI version, draw the Patch on the screen
+	void drawCells(TCanvas*,float,int,rgb);
+#else
 	// dummy function for batch version
 	void drawCells(float,int,rgb);
+#endif // VCL
 
 	private:
 	int patchSeqNum;// sequential patch number - patch 0 is reserved for the inter-patch matrix
@@ -153,14 +206,33 @@ public:
 	int x,y;				// centroid co-ordinates (approx.)
 	intptr subCommPtr; // pointer (cast as integer) to sub-community associated with the patch
 	// NOTE: FOR MULTI-SPECIES MODEL, PATCH WILL NEED TO STORE K FOR EACH SPECIES
+#if RS_CONTAIN
+	double damageIndex;	// index of the patch's proximity to potential damage locations
+//	double prevDamage;	// actual damage within the patch during the previous season / year 		
+#endif // RS_CONTAIN
+#if SEASONAL
+	std::vector <float> localK;			// seasonal patch carrying capacity (individuals) 
+#else
 	float localK;		// patch carrying capacity (individuals)
+#endif // SEASONAL 
+#if SPATIALDEMOG
+	std::vector <float> localDemoScaling;
+#endif // SPATIALDEMOG
 	bool changed;
+#if RS_CONTAIN
+	bool damageLocns; // are there any locations of damage within the patch
+#endif // RS_CONTAIN
 // NOTE: THE FOLLOWING ARRAY WILL NEED TO BE MADE SPECIES-SPECIFIC...
 	short nTemp[NSEXES];						// no. of potential settlers in each sex
+
 
 	std::vector <Cell*> cells;
 	std::vector <patchPopn> popns;
 
+#if RS_CONTAIN
+//	std::vector <DamageLocn*> dmglocns;
+#endif // RS_CONTAIN
+	
 };
 
 //---------------------------------------------------------------------------
@@ -171,5 +243,9 @@ extern RSrandom *pRandom;
 #if RSDEBUG
 extern ofstream DEBUGLOG;
 #endif
+
+#if SPATIALDEMOG
+extern short nDSlayer;
+#endif // SPATIALDEMOG
 
 #endif

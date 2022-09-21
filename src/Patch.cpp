@@ -21,27 +21,58 @@
  
  
 //---------------------------------------------------------------------------
+#if RS_EMBARCADERO
+#pragma hdrstop
+#endif
 
 #include "Patch.h"
 //---------------------------------------------------------------------------
+#if RS_EMBARCADERO
+#pragma package(smart_init)
+#endif
 
 //---------------------------------------------------------------------------
 
+#if SEASONAL
+Patch::Patch(int seqnum,int num,short nseasons) 
+#else
 Patch::Patch(int seqnum,int num) 
+#endif // SEASONAL
 {
 patchSeqNum = seqnum; patchNum = num; nCells = 0;
 xMin = yMin = 999999999; xMax = yMax = 0; x = y = 0;
 subCommPtr = 0;
+#if RS_CONTAIN
+damageIndex = 0.0;
+//prevDamage = 0.0;		
+damageLocns = false;
+#endif // RS_CONTAIN 
+#if SEASONAL
+for (int i = 0; i < nseasons; i++) localK.push_back(0.0);
+#else
 localK = 0.0;
+#endif // SEASONAL 
 for (int sex = 0; sex < NSEXES; sex++) {
 	nTemp[sex] = 0;
 }
+#if SPATIALDEMOG
+//for (int i = 0; i < nDSlayer; i++) localDemoScaling.push_back(1.0);
+localDemoScaling.assign(nDSlayer,1.0);
+#endif
+
 changed = false;
 }
 
 Patch::~Patch() {
 cells.clear();
 popns.clear();
+#if SEASONAL
+localK.clear();
+#endif // SEASONAL 
+#if SPATIALDEMOG
+localDemoScaling.clear();
+#endif // SPATIALDEMOG
+
 }
 
 int Patch::getSeqNum(void) { return patchSeqNum; }
@@ -132,8 +163,22 @@ int xsum,ysum;
 short hx;
 float k,q,envval;
 
+#if SEASONAL
+int nseasons = (int)localK.size();
+int *nsuitable = new int[nseasons];
+for (int s = 0; s < nseasons; s++) {
+	localK[s] = 0.0;
+	nsuitable[s] = 0;
+}
+#if RSDEBUG
+//DEBUGLOG << "Patch::setCarryingCapacity(): patchNum=" << patchNum
+//	<< " nseasons=" << nseasons 
+//	<< endl;
+#endif
+#else
 localK = 0.0; // no. of suitable cells (unadjusted K > 0) in the patch
 int nsuitable = 0;
+#endif // SEASONAL 
 double mean;
 
 #if RSDEBUG
@@ -145,9 +190,11 @@ double mean;
 if (xMin > landlimits.xMax || xMax < landlimits.xMin
 ||  yMin > landlimits.yMax || yMax < landlimits.yMin) {
 	// patch lies wholely outwith current landscape limits
+#if !SEASONAL
 	// NB the next statement is unnecessary, as localK has been set to zero above
 	//    retained only for consistency in standard variant
 	localK = 0.0;
+#endif // !SEASONAL 
 #if RSDEBUG
 //DEBUGLOG << "Patch::setCarryingCapacity(): patchNum=" << patchNum
 //	<< " localK=" << localK
@@ -172,6 +219,43 @@ for (int i = 0; i < ncells; i++) {
 			envval += epsGlobal;
     }
 	}
+#if SEASONAL
+	for (int s = 0; s < nseasons; s++) {
+		switch (rasterType) {
+		case 0: // habitat codes
+			hx = cells[i]->getHabIndex(landIx);
+			k = pSpecies->getHabK(hx,s);
+			if (k > 0.0) {
+				(nsuitable[s])++;
+				localK[s] += envval * k;
+			}
+#if RSDEBUG
+//DEBUGLOG << "Patch::setCarryingCapacity(): patchNum=" << patchNum
+//	<< " i=" << i << " s=" << s << " hx=" << hx << " k=" << k << " localK[s]=" << localK[s]
+//	<< endl;
+#endif
+			break;
+		case 1: // cover %
+			k = 0.0;
+			for (int j = 0; j < nHab; j++) { // loop through cover layers
+				q = cells[i]->getHabitat(j);
+				k += q * pSpecies->getHabK(j,s) / 100.0;
+			}
+			if (k > 0.0) {
+				(nsuitable[s])++;
+				localK[s] += envval * k;
+			}
+			break;
+		case 2: // habitat quality
+			q = cells[i]->getHabitat(landIx);
+			if (q > 0.0) {
+				(nsuitable[s])++;
+				localK[s] += envval * pSpecies->getHabK(0,s) * q / 100.0;
+			}
+			break;
+		}
+	}
+#else
 	switch (rasterType) {
 	case 0: // habitat codes
 		hx = cells[i]->getHabIndex(landIx);
@@ -200,6 +284,7 @@ for (int i = 0; i < ncells; i++) {
 		}
 		break;
 	}
+#endif // SEASONAL 
 #if RSDEBUG
 //DEBUGLOG << "Patch::setCarryingCapacity(): patchNum=" << patchNum
 //	<< " i=" << i << " hx=" << hx << " q=" << q << " k=" << k << " localK=" << localK
@@ -224,6 +309,19 @@ if (env.stoch && env.inK) { // environmental stochasticity in K
 	// apply min and max limits to K over the whole patch
 	// NB limits have been stored as N/cell rather than N/ha
 	float limit;
+#if SEASONAL
+	for (int s = 0; s < nseasons; s++) {
+		limit = pSpecies->getMinMax(0) * (float)(nsuitable[s]);
+		if (localK[s] < limit) localK[s] = limit;
+#if RSDEBUG
+//DEBUGLOG << "Patch::setCarryingCapacity(): patchNum=" << patchNum
+//	<< " limit=" << limit << " localK=" << localK
+//	<< endl;
+#endif
+		limit = pSpecies->getMinMax(1) * (float)(nsuitable[s]);
+		if (localK[s] > limit) localK[s] = limit;		
+	}
+#else
 	limit = pSpecies->getMinMax(0) * (float)nsuitable;
 	if (localK < limit) localK = limit;
 #if RSDEBUG
@@ -233,6 +331,7 @@ if (env.stoch && env.inK) { // environmental stochasticity in K
 #endif
 	limit = pSpecies->getMinMax(1) * (float)nsuitable;
 	if (localK > limit) localK = limit;
+#endif // SEASONAL 
 #if RSDEBUG
 //DEBUGLOG << "Patch::setCarryingCapacity(): patchNum=" << patchNum
 //	<< " limit=" << limit << " localK=" << localK
@@ -246,8 +345,135 @@ if (env.stoch && env.inK) { // environmental stochasticity in K
 #endif
 }
 
+#if RS_CONTAIN
 
+void Patch::resetDamageIndex(void) { damageIndex = 0.0; }
+
+void Patch::updateDamageIndex(int dmgX,int dmgY,int damage,double alpha) {
+// the damage index for the patch is based on Hanski's index, i.e. it is the sum
+// of damage values of each cell in the landscape weighted by a negative exponential
+// function of distance between the cell and the patch (approx.) centroid
+
+// if the location of the damage is within the patch, then take the distance to
+// be zero - otherwise use Euclidean distance from centroid
+
+bool inpatch = false;
+int ncells = (int)cells.size();
+locn loc;
+double dist = 0.0;
+for (int i = 0; i < ncells; i++) {
+	loc = cells[i]->getLocn();
+	if (loc.x == dmgX && loc.y == dmgY) { inpatch = true; i = ncells+1; break; }
+}
+if (!inpatch) dist = sqrt((double)((dmgX-loc.x)*(dmgX-loc.x) + (dmgY-loc.y)*(dmgY-loc.y)));
+damageIndex += (double)damage * exp(-1.0*alpha*dist);
+
+}	
+
+double Patch::getDamageIndex(void) { return damageIndex; }
+/*
+void Patch::resetDamageLocns(void) {
+int ndlocns = (int)dmglocns.size();
+for (int i = 0; i < ndlocns; i++)
+	if (dmglocns[i] != NULL) dmglocns[i]->resetDamageLocn();
+}
+
+void Patch::setDamage(int xx,int yy,int dmg) {
+dmglocns.push_back(new DamageLocn(x,y,dmg));
+}
+
+double Patch::totalDamage(void) {
+double totdmg = 0.0;
+int ndlocns = (int)dmglocns.size();
+for (int i = 0; i < ndlocns; i++)
+	if (dmglocns[i] != NULL) totdmg += dmglocns[i]->getDamageIndex();
+return totdmg;
+}
+*/
+void Patch::setDamageLocns(bool d) { damageLocns = d; }
+bool Patch::hasDamageLocns(void) { return damageLocns; }
+
+//void Patch::setPrevDamage(double dmg) { if (dmg >= 0.0) prevDamage = dmg; }
+//double Patch::getPrevDamage(void) { return prevDamage; }      
+double Patch::getPrevDamage(void) {
+double damage = 0.0;
+DamageLocn *pDamage; 
+int ncells = (int)cells.size();
+for (int i = 0; i < ncells; i++) {
+	pDamage = cells[i]->getDamage();
+	if (pDamage != 0) {
+		damage += pDamage->getDamageIndex(false);
+	}
+}
+return damage; 
+}      
+	
+#endif // RS_CONTAIN 
+
+
+#if SEASONAL
+float Patch::getK(int season) { 
+if (season >= 0 && season < (int)localK.size()) return localK[season];
+else return 0.0; 
+}
+bool Patch::suitableInAllSeasons(void) {
+int nseasons = (int)localK.size();
+bool ok = true;
+for (int i = 0; i < nseasons; i++) {
+	if (localK[i] <= 0.0) ok = false;
+}
+return ok;
+}
+#else
 float Patch::getK(void) { return localK; }
+#endif // SEASONAL
+
+#if SPATIALDEMOG
+void Patch::setDemoScaling(std::vector <float> ds) {
+
+	std::for_each(ds.begin(), ds.end(), [](float& perc){ if(perc < 0.0 || perc > 1.0) perc=1; });
+
+	localDemoScaling.assign(ds.begin(), ds.end());
+
+	return;
+}
+
+std::vector <float> Patch::getDemoScaling(void) { return localDemoScaling; }
+
+void Patch::setPatchDemoScaling(short landIx, patchLimits landlimits) { 
+
+	// if patch wholly outside current landscape boundaries
+	if (xMin > landlimits.xMax || xMax < landlimits.xMin
+	||  yMin > landlimits.yMax || yMax < landlimits.yMin) {
+		localDemoScaling.assign(nDSlayer,0.0); // set all local scales to zero
+		return;
+	}
+	
+	// loop through constituent cells of the patch
+	int ncells = (int)cells.size();
+	std::vector<float> patchDS(nDSlayer, 0.0);
+	std::vector<float> cellDS(nDSlayer, 0.0);
+
+	for (int i = 0; i < ncells; i++) {
+		cellDS = cells[i]->getDemoScaling(landIx); // is that ok?
+
+		//add cell value to patch value 
+		for (int ly = 0; ly < nDSlayer; ly++) {
+			patchDS[ly] += cellDS[ly];
+		}
+	}
+	
+	// take mean over cells and divide by 100 to scale to range [0,1]
+	for (int ly = 0; ly < nDSlayer; ly++) {
+		patchDS[ly] = patchDS[ly] / ncells / 100.0f;
+	}
+	
+	// set values
+	setDemoScaling(patchDS);
+
+	return;
+}
+#endif //SPATIALDEMOG
 
 // Return co-ordinates of a specified cell
 locn Patch::getCellLocn(int ix) {

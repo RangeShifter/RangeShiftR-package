@@ -322,8 +322,12 @@ setMethod("ColonisationStats", "RSparams", function(x, y = getwd(), years = nume
                             # non-dynamic landscape
                             if(length(x@land@LandscapeFile)==1){
 
-                                patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@PatchFile)))
-                                if( class(patch_r) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file ", x@land@PatchFile , call. = FALSE)
+                                patch_r <- raster(x@land@PatchFile[[1]],
+                                                  xmn = x@land@OriginCoords[1],
+                                                  xmx = x@land@OriginCoords[1] + x@land@Resolution * ncol(x@land@PatchFile[[1]]),
+                                                  ymn = x@land@OriginCoords[2],
+                                                  ymx = x@land@OriginCoords[2] + x@land@Resolution * nrow(x@land@PatchFile[[1]])
+                                                  )
 
                                 if( class(pop_df) == "data.frame" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
 
@@ -334,23 +338,35 @@ setMethod("ColonisationStats", "RSparams", function(x, y = getwd(), years = nume
                                 # rasters for occ_prob output
                                 for(year in years){
                                     current <- which(x@land@DynamicLandYears == max(x@land@DynamicLandYears[x@land@DynamicLandYears<=year]) )
-                                    patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@PatchFile[current])))
-                                    if ( class(patch_curr) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
-                                    else patch_r <- raster::addLayer(patch_r , patch_curr)
+                                    patch_curr <- raster(x@land@PatchFile[[current]],
+                                                        xmn = x@land@OriginCoords[1],
+                                                        xmx = x@land@OriginCoords[1] + x@land@Resolution * ncol(x@land@PatchFile[[1]]),
+                                                        ymn = x@land@OriginCoords[2],
+                                                        ymx = x@land@OriginCoords[2] + x@land@Resolution * nrow(x@land@PatchFile[[1]])
+                                                        )
+                                    patch_r <- raster::addLayer(patch_r , patch_curr)
                                 }
                                 # rasters for col_time output
                                 year <- max(pop_df$Year)
                                 current <- which(x@land@DynamicLandYears == max(x@land@DynamicLandYears[x@land@DynamicLandYears<=year]) )
-                                patch_curr <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@PatchFile[current])))
-                                if ( class(patch_curr) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
-                                else patch_r <- raster::addLayer(patch_r , patch_curr)
+                                patch_curr <- raster(x@land@PatchFile[[current]],
+                                                    xmn = x@land@OriginCoords[1],
+                                                    xmx = x@land@OriginCoords[1] + x@land@Resolution * ncol(x@land@PatchFile[[1]]),
+                                                    ymn = x@land@OriginCoords[2],
+                                                    ymx = x@land@OriginCoords[2] + x@land@Resolution * nrow(x@land@PatchFile[[1]])
+                                                    )
+                                patch_r <- raster::addLayer(patch_r , patch_curr)
 
                                 if(class(pop_df) == "data.frame" & length(patch_r@layers)==(length(years)+1) ) res <- ColonisationStats(pop_df,patch_r,years)
                             }
                         }else{
                             # for cell-based model, read only main habitat maps to use as raster template
-                            patch_r <- try(raster::raster(paste0(dirpath, "Inputs/", x@land@LandscapeFile[1])))
-                            if ( class(patch_r) == "try-error" ) warning("ColonisationStats(): Couldn't read patch raster file nr ", current , " for this simulation.", call. = FALSE)
+                            patch_r <- raster(x@land@LandscapeFile[[1]],
+                                                 xmn = x@land@OriginCoords[1],
+                                                 xmx = x@land@OriginCoords[1] + x@land@Resolution * ncol(x@land@LandscapeFile[[1]]),
+                                                 ymn = x@land@OriginCoords[2],
+                                                 ymx = x@land@OriginCoords[2] + x@land@Resolution * nrow(x@land@LandscapeFile[[1]])
+                            )
                             if(class(pop_df) == "data.frame" & class(patch_r) == "RasterLayer" ) res <- ColonisationStats(pop_df,patch_r,years)
                         }
                     }else { # no maps requested

@@ -21,17 +21,43 @@
  
  
 //---------------------------------------------------------------------------
+#if RS_EMBARCADERO
+#pragma hdrstop
+#endif
 
 #include "Individual.h"
 //---------------------------------------------------------------------------
+#if RS_EMBARCADERO 
+#pragma package(smart_init)
+#endif
 
 int Individual::indCounter = 0;
 
 //---------------------------------------------------------------------------
 
+#if GROUPDISP
+Individual::Individual() // Default constructor
+{
+pPrevCell = 0; pCurrCell = 0; pNatalPatch = 0;
+path = 0; crw = 0; smsData = 0;
+emigtraits = 0; kerntraits = 0; setttraits = 0;
+pGenome = 0;
+}
+#endif
+
 // Individual constructor
+#if RS_CONTAIN
+Individual::Individual(Cell *pCell,Patch *pPatch,short stg,short a,short repInt,
+	short mstg,float probmale,bool movt,short moveType)
+#else
+#if PARTMIGRN
+Individual::Individual(Species *pSpecies,Cell *pCell,Patch *pPatch,short stg,short a, 
+	short repInt,float probmale,bool movt,short moveType)
+#else
 Individual::Individual(Cell *pCell,Patch *pPatch,short stg,short a,short repInt,
 	float probmale,bool movt,short moveType)
+#endif // PARTMIGRN 
+#endif // RS_CONTAIN 
 {
 indId = indCounter; indCounter++; // unique identifier for each individual
 #if RSDEBUG
@@ -39,27 +65,79 @@ indId = indCounter; indCounter++; // unique identifier for each individual
 //	<< " stg=" << stg << " a=" << a << " probmale=" << probmale
 //	<< endl;
 #endif
+#if GROUPDISP
+parentId[0] = parentId[1] = groupId = -1;
+//groupId = -1;
+#if PEDIGREE
+pParent[0] = pParent[1] = 0;
+matPosn = -1;	
+#endif // PEDIGREE
+#endif // GROUPDISP
+#if BUTTERFLYDISP
+//nJuvs = 0;
+pMate = 0;
+#endif
 
 stage = stg;
+#if RS_CONTAIN
+motherstage = mstg;	
+#endif // RS_CONTAIN 
 if (probmale <= 0.0) sex = 0;
 else sex = pRandom->Bernoulli(probmale);
 age = a;
 status = 0;
+#if SEASONAL
+npatches = 0;
+#if PARTMIGRN
+migrnstatus = 0;
+npatches = 6; // <======= TO BE SET AS A PARAMETER =============================
+// set dispersal/migration status
+double cumprop = 0.0;
+//cumprop[0] = 0.0;
+double r = pRandom->Random();
+for (int i = 1; i < 7; i++) {
+	cumprop += pSpecies->getPropDispMigrn(i);
+	if (r < cumprop) {
+		setMigrnStatus(i);
+#if RSDEBUG
+//DEBUGLOG << "Individual::Individual(): indId=" << indId
+//	<< " i=" << i << " cumprop=" << cumprop << " r=" << r
+//	<< endl;
+#endif
+		i = 7;
+	}
+}
+#endif // PARTMIGRN 
+#endif // SEASONAL
 
 if (sex == 0 && repInt > 0) { // set no. of fallow seasons for female
 	fallow = pRandom->IRandom(0,repInt);
 }
 else fallow = 9999;
 isDeveloping = false;
+#if GOBYMODEL
+asocial = false;
+#endif
+#if SOCIALMODEL
+asocial = false;
+#endif
 pPrevCell = pCurrCell = pCell;
 pNatalPatch = pPatch;
+#if SEASONAL
+pPrevPatch = pPatch;
+#endif
 if (movt) {
 	locn loc = pCell->getLocn();
 	path = new pathData;
 	path->year = 0; path->total = 0; path->out = 0;
+#if SEASONAL
+	path->season= 0;
+#endif
 	path->pSettPatch = 0; path->settleStatus = 0;
 //	path->leftNatalPatch = false;
+#if RS_RCPP
 	path->pathoutput = 1;
+#endif
 	if (moveType == 1) { // SMS
 		// set up location data for SMS
 		smsData = new smsdata;
@@ -67,6 +145,9 @@ if (movt) {
 		smsData->betaDB = 1; 
 		smsData->prev.x = loc.x; smsData->prev.y = loc.y; // previous location
 		smsData->goal.x = loc.x; smsData->goal.y = loc.y; // goal location - initialised for dispersal bias
+#if PARTMIGRN
+		smsData->goalType = 0;
+#endif  // PARTMIGRN 
 	}
 	else smsData = 0;
 	if (moveType == 2) { // CRW
@@ -105,9 +186,25 @@ if (setttraits != 0) delete setttraits;
 
 if (pGenome != 0) delete pGenome;
 
+#if SEASONAL
+patches.clear();
+#endif
 }
 
 //---------------------------------------------------------------------------
+
+#if BUTTERFLYDISP
+void Individual::setMate(Individual *pmate) {
+if (pmate >= 0) pMate = pmate;
+else pMate = 0;
+}
+//void Individual::setMated(short njuvs,Individual *pmate) {
+//if (njuvs >= 0) nJuvs = njuvs;
+//pMate = pmate;
+//}
+//int Individual::getNJuvs(void) { return (int)nJuvs; }
+Individual* Individual::getMate(void) { return pMate; }
+#endif
 
 //---------------------------------------------------------------------------
 
@@ -137,6 +234,72 @@ else {
 
 int gposn = 0;	// current position on genome
 int expr = 0;		// gene expression type - NOT CURRENTLY USED
+
+#if GOBYMODEL
+// NB for consistency, and possible future inclusion in general RS model,
+// some redundant coding here mimics that for dispersal traits
+int socialposn = 0;
+socialposn = gposn;
+socialParams socparams;
+ntraits = 1;
+double socval;
+for (int g = 0; g < ntraits; g++) { // ONLY trait for females/all
+	socparams = pSpecies->getSocialParams();
+	socval = pRandom->Normal(0.0,socparams.socSD) / socparams.socScale;
+	if (gen.trait1Chromosome) {
+		pGenome->setGene(gposn++,expr,socval,gen.alleleSD);
+	}
+	else {
+		pGenome->setTrait(pSpecies,gposn++,socval,gen.alleleSD);
+	}
+}
+// record phenotypic trait
+double genval = 0.0;
+if (pGenome != 0) {
+	if (pSpecies->has1ChromPerTrait()) {
+		genval = pGenome->express(0,0,0);
+	}
+	else {
+		genval = pGenome->express(pSpecies,0);
+	}
+}
+socparams = pSpecies->getSocialParams();
+double phenval = genval*socparams.socScale + socparams.socMean;
+if (phenval < 0.0) asocial = true; else asocial = false;
+#endif // GOBYMODEL
+
+#if SOCIALMODEL
+// NB for consistency, and possible future inclusion in general RS model,
+// some redundant coding here mimics that for dispersal traits
+int socialposn = 0;
+socialposn = gposn;
+socialParams socparams;
+ntraits = 1;
+double socval;
+for (int g = 0; g < ntraits; g++) { // ONLY trait for females/all
+	socparams = pSpecies->getSocialParams();
+	socval = pRandom->Normal(0.0,socparams.socSD) / socparams.socScale;
+	if (gen.trait1Chromosome) {
+		pGenome->setGene(gposn++,expr,socval,gen.alleleSD);
+	}
+	else {
+		pGenome->setTrait(pSpecies,gposn++,socval,gen.alleleSD);
+	}
+}
+// record phenotypic trait
+double genval = 0.0;
+if (pGenome != 0) {
+	if (pSpecies->has1ChromPerTrait()) {
+		genval = pGenome->express(0,0,0);
+	}
+	else {
+		genval = pGenome->express(pSpecies,0);
+	}
+}
+socparams = pSpecies->getSocialParams();
+double phenval = genval*socparams.socScale + socparams.socMean;
+if (phenval < 0.0) asocial = true; else asocial = false;
+#endif // SOCIALMODEL
 
 //int emigposn = 0;
 #if RSDEBUG
@@ -275,14 +438,22 @@ if (trfr.indVar) { // set transfer genes
 		for (int g = 0; g < ntraits; g++) { // first traits for females/all, second for males
 			k = pSpecies->getKernParams(0,g);
 			dist1 = pRandom->Normal(0.0,k.dist1SD) / k.dist1Scale;
+#if RS_CONTAIN
+			if (trfr.kernType == 1) 
+#else
 			if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 			{
 				dist2 = pRandom->Normal(0.0,k.dist2SD) / k.dist2Scale;
 				prob1 = pRandom->Normal(0.0,k.PKern1SD) / k.PKern1Scale;
 			}
 			if (gen.trait1Chromosome) {
 				pGenome->setGene(gposn++,expr,dist1,gen.alleleSD);
+#if RS_CONTAIN
+				if (trfr.kernType == 1) 
+#else
 				if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 				{
 					pGenome->setGene(gposn++,expr,dist2,gen.alleleSD);
 					pGenome->setGene(gposn++,expr,prob1,gen.alleleSD);
@@ -290,7 +461,11 @@ if (trfr.indVar) { // set transfer genes
 			}
 			else {
 				pGenome->setTrait(pSpecies,gposn++,dist1,gen.alleleSD);
+#if RS_CONTAIN
+				if (trfr.kernType == 1) 
+#else
 				if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 				{
 					pGenome->setTrait(pSpecies,gposn++,dist2,gen.alleleSD);
 					pGenome->setTrait(pSpecies,gposn++,prob1,gen.alleleSD);
@@ -298,7 +473,11 @@ if (trfr.indVar) { // set transfer genes
       }
 		}
 		// record phenotypic traits
+#if RS_CONTAIN
+		if (trfr.kernType == 1) 
+#else
 		if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 		{
 			setKernTraits(pSpecies,trfrposn,3,resol,trfr.sexDep);
 		}
@@ -403,10 +582,59 @@ emigRules emig = pSpecies->getEmig();
 trfrRules trfr = pSpecies->getTrfr();
 settleType sett = pSpecies->getSettle();
 
+#if GROUPDISP
+parentId[0] = mother->getId();
+#if PEDIGREE
+pParent[0] = mother;
+#endif // PEDIGREE
+#endif // GROUPDISP 
+
 Genome *pFatherGenome;
+#if GROUPDISP
+if (father == 0) pFatherGenome = 0;
+else {
+	pFatherGenome = father->pGenome;
+	parentId[1] = father->getId();
+#if PEDIGREE
+	pParent[1] = father;
+#endif // PEDIGREE
+}
+#else
 if (father == 0) pFatherGenome = 0; else pFatherGenome = father->pGenome;
+#endif // GROUPDISP 
 
 pGenome = new Genome(pSpecies,mother->pGenome,pFatherGenome);
+
+#if GOBYMODEL
+// record phenotypic trait
+double genval = 0.0;
+if (pGenome != 0) {
+	if (pSpecies->has1ChromPerTrait()) {
+		genval = pGenome->express(0,0,0);
+	}
+	else {
+		genval = pGenome->express(pSpecies,0);
+	}
+}
+socialParams socparams = pSpecies->getSocialParams();
+double phenval = genval*socparams.socScale + socparams.socMean;
+if (phenval < 0.0) asocial = true; else asocial = false;
+#endif
+#if SOCIALMODEL
+// record phenotypic trait
+double genval = 0.0;
+if (pGenome != 0) {
+	if (pSpecies->has1ChromPerTrait()) {
+		genval = pGenome->express(0,0,0);
+	}
+	else {
+		genval = pGenome->express(pSpecies,0);
+	}
+}
+socialParams socparams = pSpecies->getSocialParams();
+double phenval = genval*socparams.socScale + socparams.socMean;
+if (phenval < 0.0) asocial = true; else asocial = false;
+#endif
 
 if (emig.indVar) {
 	// record emigration traits
@@ -444,7 +672,11 @@ if (trfr.indVar) {
 	}
 	else { // kernel
 		if (father == 0) { // haploid
+#if RS_CONTAIN
+			if (trfr.kernType == 1) 
+#else
 			if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 			{
 				setKernTraits(pSpecies,trfr.movtTrait[0],3,resol,0);
 			}
@@ -453,7 +685,11 @@ if (trfr.indVar) {
 			}
 		}
 		else { // diploid
+#if RS_CONTAIN
+			if (trfr.kernType == 1) 
+#else
 			if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 			{
 				setKernTraits(pSpecies,trfr.movtTrait[0],3,resol,trfr.sexDep);
 			}
@@ -484,6 +720,10 @@ if (sett.indVar) {
 #endif
 }
 
+#if VIRTUALECOLOGIST
+Genome* Individual::getGenome(void) { return pGenome; }
+#endif
+
 //---------------------------------------------------------------------------
 
 // Identify whether an individual is a potentially breeding female -
@@ -498,18 +738,63 @@ else return 0;
 
 int Individual::getId(void) { return indId; }
 
+#if GROUPDISP
+int Individual::getParentId(short i) {
+if (i >= 0 && i <= 1) return parentId[i];
+else return -1;
+}
+#if PEDIGREE
+Individual* Individual::getParent(short i) { 
+if (i >= 0 && i <= 1) return pParent[i];
+else return 0;
+}
+#endif // PEDIGREE
+void Individual::setGroupId(int g) { if (g >= 0) groupId = g; }
+int Individual::getGroupId(void) { return groupId; }
+#endif // GROUPDISP
+
 int Individual::getSex(void) { return sex; }
 
 int Individual::getStatus(void) { return status; }
+#if SEASONAL
+#if PARTMIGRN
+int Individual::getMigrnStatus(void) { return migrnstatus; }
+#endif // PARTMIGRN 
+#endif // SEASONAL
 
 indStats Individual::getStats(void) {
 indStats s;
 s.stage = stage; s.sex = sex; s.age = age; s.status = status; s.fallow = fallow;
 s.isDeveloping = isDeveloping;
+#if SEASONAL
+#if PARTMIGRN
+s.migrnstatus = migrnstatus;
+#endif // PARTMIGRN 
+#endif // SEASONAL
+#if GOBYMODEL
+s.asocial = asocial;
+#endif
+#if SOCIALMODEL
+s.asocial = asocial;
+#endif
 return s;
 }
+#if GOBYMODEL
+bool Individual::isAsocial(void) { return asocial; }
+#endif
+#if SOCIALMODEL
+bool Individual::isAsocial(void) { return asocial; }
+#endif
 
 Cell* Individual::getLocn(const short option) {
+#if SEASONAL
+if (option == 2) { // return a random location in the previous patch
+//	Cell *pCell;
+//	pCell = pPrevPatch->getRandomCell();
+	return pPrevPatch->getRandomCell();
+
+}
+#endif
 if (option == 0) { // return previous location
 	return pPrevCell;
 }
@@ -536,9 +821,15 @@ pathSteps Individual::getSteps(void) {
 pathSteps s;
 if (path == 0) {
 	s.year = 0; s.total = 0; s.out = 0;
+#if SEASONAL
+	s.season = 0;
+#endif
 }
 else {
 	s.year = path->year; s.total = path->total; s.out = path->out;
+#if SEASONAL
+	s.season = path->season;
+#endif
 }
 return s;
 }
@@ -558,11 +849,22 @@ void Individual::setSettPatch(const settlePatch s) {
 if (path == 0) {
 	path = new pathData;
 	path->year = 0; path->total = 0; path->out = 0; path->settleStatus = 0;
+#if SEASONAL
+	path->season = 0;
+#endif
+#if RS_RCPP
 	path->pathoutput = 1;
+#endif
 }
 if (s.settleStatus >= 0 && s.settleStatus <= 2) path->settleStatus = s.settleStatus;
 path->pSettPatch = s.pSettPatch;             
 }
+
+#if SEASONAL
+void Individual::resetPathSeason(void) {
+if (path != 0) path->season = 0;
+}
+#endif
 
 // Set phenotypic emigration traits
 void Individual::setEmigTraits(Species *pSpecies,short emiggenelocn,short nemigtraits,
@@ -1092,6 +1394,125 @@ void Individual::setStatus(short s) {
 if (s >= 0 && s <= 9) status = s;
 status = s;
 }
+#if SEASONAL
+#if PARTMIGRN
+void Individual::setMigrnStatus(short m) {
+if (m >= 0 && m <= 6) migrnstatus = m;
+}
+void Individual::setPrevPatch(Patch *pPatch) {
+pPrevPatch = pPatch;
+}
+#endif // PARTMIGRN
+#endif // SEASONAL
+
+#if SEASONAL
+#if PARTMIGRN
+
+//void Individual::setNpatches(const short n) {
+//if (n > 0) npatches = n;
+//}
+
+void Individual::addPatch(patchlist p) {
+int size = (int)patches.size();
+#if RSDEBUG
+//DEBUGLOG << "Individual::addPatch(): indId=" << indId
+//	<< " size=" << size << " Patch=" << p.pPatch->getPatchNum()
+//	<< " p.season=" << p.season << " p.breeding=" << p.breeding
+//	<< endl;
+#endif
+if (migrnstatus >= 4 && p.pPatch == pNatalPatch ) {
+	// a disperser may not remember its natal patch
+	return;
+}
+bool present = false;
+//bool fixed;
+if (p.breeding) {
+	p.fixed = true;
+}
+else {
+	if (migrnstatus == 3 || migrnstatus == 6) p.fixed = false;
+	else p.fixed = true;
+}
+for (int i = 0; i < size; i++) {                
+	if (patches[i].pPatch == p.pPatch && patches[i].breeding == p.breeding) {
+		present = true;
+//		patches[i].fixed = p.fixed;
+		patches[i].fixed = p.fixed;
+	}
+	if (patches[i].pPatch != p.pPatch && patches[i].breeding == p.breeding) {
+		// un-fix another patch previous fixed for the same breeding status
+		patches[i].fixed = false;     
+	}
+//	if (present) break;
+}
+if (!present) patches.push_back(p);
+size = (int)patches.size();
+#if RSDEBUG
+//DEBUGLOG << "Individual::addPatch(): indId=" << indId
+//	<< " size=" << size 
+//	<< endl;
+#endif
+}
+
+patchlist Individual::getPatch(const int n) {
+patchlist p;      
+int size = (int)patches.size();
+if (n >= 0 && n < size) {
+	p = patches[n];
+}
+else {
+	p.pPatch = 0; p.season = 0; p.breeding = p.fixed = false;
+}
+return p;
+}
+
+void Individual::setGoal(const locn loc,const short	gtype,const bool breeding) {
+#if RSDEBUG
+//DEBUGLOG << "Individual::setGoal(): indId=" << indId
+//	<< " gtype=" << gtype 
+//	<< " breeding=" << breeding 
+//	<< " smsData=" << smsData 
+//	<< endl;
+#endif
+if (smsData != 0) {
+	if (gtype >= 0 && gtype <= 2) {
+		if (gtype == 1) {
+			// set goal to fixed patch (if any) appropriate to season
+			smsData->goalType = 0;
+			int size = (int)patches.size();
+//			patchlist p; p.pPatch = 0; p.fixed = false;
+			for (int i = 0; i < size; i++) { 
+#if RSDEBUG
+//DEBUGLOG << "Individual::setGoal(): indId=" << indId
+//	<< " size=" << size 
+//	<< " i=" << i 
+//	<< " patches[i].Patch=" << patches[i].pPatch->getPatchNum() 
+//	<< " patches[i].fixed=" << patches[i].fixed 
+//	<< " patches[i].breeding=" << patches[i].breeding 
+//	<< endl;
+#endif
+				if (patches[i].fixed && patches[i].breeding == breeding) {   
+					smsData->goalType = 1; 
+					smsData->goal = patches[i].pPatch->getRandomCell()->getLocn();
+#if RSDEBUG
+//DEBUGLOG << "Individual::setGoal(): indId=" << indId
+//	<< " goal.x=" << smsData->goal.x 
+//	<< " goal.y=" << smsData->goal.y 
+//	<< endl;
+#endif
+					i = size;
+				}
+			}
+		}
+		else {
+			smsData->goalType = gtype; smsData->goal = loc;
+		}
+	}
+}
+}
+
+#endif // PARTMIGRN 
+#endif // SEASONAL
 
 void Individual::developing(void) {
 isDeveloping = true;
@@ -1130,12 +1551,30 @@ if (d >= 1.0 && d < 1.5) { // ok
 }
 }
 
+#if GROUPDISP
+//---------------------------------------------------------------------------
+// Move to any specified cell
+void Individual::moveTo(Cell *newCell) {
+if (newCell != 0) {
+	pCurrCell = newCell;
+}
+}
+#endif
+
 //---------------------------------------------------------------------------
 // Move to a new cell by sampling a dispersal distance from a single or double
 // negative exponential kernel
+#if RS_CONTAIN
+// or the 2Dt kernel or the WALD kernel
+#endif // RS_CONTAIN 
 // Returns 1 if still dispersing (including having found a potential patch), otherwise 0
+#if SEASONAL
+int Individual::moveKernel(Landscape *pLandscape,Species *pSpecies,
+	const short repType,const short nextseason,const bool absorbing)
+#else
 int Individual::moveKernel(Landscape *pLandscape,Species *pSpecies,
 	const short repType,const bool absorbing)
+#endif // SEASONAL 
 {
 
 intptr patch;
@@ -1162,7 +1601,11 @@ if (trfr.indVar) { // get individual's kernel parameters
 	kern.meanDist1 = kern.meanDist2 = kern.probKern1 = 0.0;
 	if (pGenome != 0) {
 		kern.meanDist1 = kerntraits->meanDist1;
+#if RS_CONTAIN
+		if (trfr.kernType == 1) 
+#else
 		if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 		{
 			kern.meanDist2 = kerntraits->meanDist2;
 			kern.probKern1 = kerntraits->probKern1;
@@ -1200,7 +1643,11 @@ else { // get kernel parameters for the species
 #endif
 
 // scale the appropriate kernel mean to the cell size
+#if RS_CONTAIN
+if (trfr.kernType == 1) 
+#else
 if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 {
 	if (pRandom->Bernoulli(kern.probKern1))
 		meandist = kern.meanDist1 / (float)land.resol;
@@ -1231,6 +1678,65 @@ if (!usefullkernel && meandist < 1.0) meandist = 1.0;
 //DEBUGLOG << " meandist = " << meandist << endl;
 #endif
 
+#if RS_CONTAIN
+
+// simple 2Dt model (no environmental effects) 
+trfr2Dt t2 = pSpecies->getTrfr2Dt();
+double propkern1 = t2.propKernel1;
+double p,u,f,f0;
+bool reject;
+
+// WALD model
+trfrWald w = pSpecies->getTrfrWald(); 
+double hr = pSpecies->getTrfrHr(motherstage);
+double mu = w.meanU * hr / w.vt;
+double gamma = (w.meanU * hr * hr) / (2.0 * w.kappa * w.hc * w.sigma_w);   
+
+// select kernel to sample for this individual (if 2Dt) and
+// find a suitable maximum x-value for the range of distances to sample
+int maxdim = max(land.dimX,land.dimY) * land.resol;  
+double maxx = (double)maxdim;
+bool ok = false;
+double fdim;
+if (trfr.kernType == 2) {
+	if (pRandom->Bernoulli(propkern1)) { // sample from kernel 1
+		u = exp(t2.u0Kernel1); p = exp(t2.p0Kernel1); f0 = p / (PI * u);
+		while (!ok) {
+			fdim = p / (PI * u * pow((1.0 + (maxx*maxx/u)),(p + 1.0)));
+			if (fdim >= f0/1000.0) ok = true; else maxx /= 1.25;
+		}
+	}
+	else { // sample from kernel 2
+		u = exp(t2.u0Kernel2); p = exp(t2.p0Kernel2); f0 = p / (PI * u);
+		while (!ok) {
+			fdim = p / (PI * u * pow((1.0 + (maxx*maxx/u)),(p + 1.0)));
+			if (fdim >= f0/1000.0) ok = true; else maxx /= 1.25;
+		}
+	}
+}
+#if RSDEBUG
+//DEBUGLOG << "Individual::moveKernel(): indId=" << indId << " x=" << loc.x << " y=" << loc.y
+//	<< " maxx=" << maxx 
+//	<< " u=" << u << " p=" << p << " f0=" << f0 
+//	<< endl;
+#endif
+if (trfr.kernType == 3) {
+	f0 = 1.0;
+	while (!ok) {
+		fdim = sqrt(gamma / (2.0 * PI * maxx * maxx * maxx)) 
+						* exp(-1.0 * gamma * (maxx-mu) * (maxx-mu) / (2.0 * maxx * mu * mu) );
+		if (fdim >= f0/10000.0) ok = true; else maxx /= 1.25;
+	}	
+}
+#if RSDEBUG
+DEBUGLOG << "Individual::moveKernel(): indId=" << indId << " x=" << loc.x << " y=" << loc.y
+	<< " stage=" << stage << " hr=" << hr << " mu=" << mu << " gamma=" << gamma 
+	<< " maxx=" << maxx 
+	<< endl;
+#endif
+
+#endif // RS_CONTAIN 
+
 int loopsteps = 0; // new counter to prevent infinite loop added 14/8/15
 do {
 	do {
@@ -1251,11 +1757,106 @@ do {
 			xrand = (double)loc.x + pRandom->Random()*0.999;
 			yrand = (double)loc.y + pRandom->Random()*0.999;
 
+#if RS_CONTAIN
+
+			switch (trfr.kernType) {
+				
+			case 0: // single negative exponential
+			case 1: // single negative exponential
+				r1 = 0.0000001 + pRandom->Random()*(1.0-0.0000001);
+				dist = (-1.0*meandist)*log(r1);  // for LINUX_CLUSTER
+				break;
+				
+			case 2: // 2Dt
+				
+			// sample distance from 2Dt kernel by method of REJECTION SAMPLING 
+
+			// NOTE: sampling must be in real-world co-ordinates (not cell co-ordinates)
+			// as kernel units are metres
+
+			reject = true;
+			while (reject) {
+				// sample a random distance along the x-axis
+				dist = pRandom->Random() * maxx;
+				// sample a random y-axis variate between zero and max. possible 
+				r1 = pRandom->Random() * f0;
+				// calculate value of kernel at dist;
+				f = p / (PI * u * pow((1.0 + (dist*dist/u)),(p+1.0)));
+				if (r1 <= f) reject = false;
+#if RSDEBUG
+//DEBUGLOG << "Individual::moveKernel(): indId=" << indId << " dist=" << dist << " r1=" << r1
+//	<< " f=" << f << " reject=" << reject << endl;
+#endif
+				}
+#if RSDEBUG
+//DEBUGLOG << "Individual::moveKernel(): indId=" << indId << " SAMPLED dist=" << dist 
+//	<< endl;
+#endif
+			// convert sampled distance to cell co-ordinates 
+			dist /= (double)land.resol;      
+//			rndangle = pRandom->Random() * 2.0 * PI;
+//			nx = (xrand + dist * cos(rndangle)) / land.resol;
+//			ny = (yrand + dist * sin(rndangle)) / land.resol;
+
+				break;
+				
+			case 3: // Wald
+
+//			dist = 2 * land.resol;
+				
+			// sample distance from 2Dt kernel by method of REJECTION SAMPLING 
+
+			// NOTE: sampling must be in real-world co-ordinates (not cell co-ordinates)
+			// as kernel units are metres
+
+			reject = true;
+			while (reject) {
+				// sample a random distance along the x-axis
+				dist = pRandom->Random() * maxx;
+				// sample a random y-axis variate between zero and max. possible 
+				r1 = pRandom->Random() * f0;
+				// calculate value of kernel at dist;
+				f = sqrt(gamma / (2.0 * PI * dist * dist * dist)) 
+						* exp(-1.0 * gamma * (dist-mu) * (dist-mu) / (2.0 * dist * mu * mu) );
+				if (r1 <= f) reject = false;
+#if RSDEBUG
+//DEBUGLOG << "Individual::moveKernel(): indId=" << indId << " dist=" << dist << " r1=" << r1
+//	<< " f=" << f << " reject=" << reject << endl;
+#endif
+				}
+#if RSDEBUG
+//DEBUGLOG << "Individual::moveKernel(): indId=" << indId << " SAMPLED dist=" << dist 
+//	<< endl;
+#endif
+			// convert sampled distance to cell co-ordinates 
+			dist /= (double)land.resol;      
+
+				break;
+				
+			}
+
+#else
+			
 			r1 = 0.0000001 + pRandom->Random()*(1.0-0.0000001);
 //			dist = (-1.0*meandist)*std::log(r1);
 			dist = (-1.0*meandist)*log(r1);  // for LINUX_CLUSTER
 			
+#endif // RS_CONTAIN 
+
+#if RS_CONTAIN
+			rndangle = pRandom->Normal(w.meanDirn,w.sdDirn);
+			if (rndangle < 0.0) rndangle += 360.0;
+			if (rndangle >= 360.0) rndangle -= 360.0;
+			rndangle *= 2.0 * PI / 360.00;
+#if RSDEBUG
+DEBUGLOG << "Individual::moveKernel(): indId=" << indId << " status=" << status
+	<< " meanDirn=" << w.meanDirn << " sdDirn=" << w.sdDirn << " rndangle=" << rndangle
+	<< " loopsteps=" << loopsteps 
+	<< endl;
+#endif
+#else
 			rndangle = pRandom->Random() * 2.0 * PI;
+#endif // RS_CONTAIN 
 			nx = xrand + dist * sin(rndangle);
 			ny = yrand + dist * cos(rndangle);
 			if (nx < 0.0) newX = -1; else newX = (int)nx;
@@ -1324,7 +1925,11 @@ if (loopsteps < 1000) {
 	else {
 		pCurrCell = pCell;
 		if (pPatch == 0) localK = 0.0; // matrix
+#if SEASONAL
+		else localK = pPatch->getK(nextseason);
+#else
 		else localK = pPatch->getK();
+#endif // SEASONAL 
 		if (patchNum > 0 && localK > 0.0) { // found a new patch
 			status = 2; // record as potential settler
 		}
@@ -1379,14 +1984,22 @@ return dispersing;
 //---------------------------------------------------------------------------
 // Make a single movement step according to a mechanistic movement model
 // Returns 1 if still dispersing (including having found a potential patch), otherwise 0
+#if SEASONAL
+int Individual::moveStep(Landscape *pLandscape,Species *pSpecies,
+	const short landIx,const short nextseason,const bool absorbing)
+#else
 int Individual::moveStep(Landscape *pLandscape,Species *pSpecies,
 	const short landIx,const bool absorbing)
+#endif // SEASONAL 
 {
 
 if (status != 1) return 0; // not currently dispersing
 
 intptr patch;
 int patchNum;
+#if VCL
+int oldX, oldY;
+#endif
 int newX,newY;
 locn loc;
 int dispersing = 1;
@@ -1399,6 +2012,9 @@ bool absorbed = false;
 //int popsize;
 
 landData land = pLandscape->getLandData();
+#if VCL
+simView v = paramsSim->getViews();
+#endif
 simParams sim = paramsSim->getSim();
 
 trfrRules trfr = pSpecies->getTrfr();
@@ -1421,6 +2037,24 @@ else {
 	patchNum = pPatch->getPatchNum();
 }
 // apply step-dependent mortality risk ...
+#if TEMPMORT
+int h;
+switch (trfr.smType) {
+case 0: // constant
+	mortprob = movt.stepMort;
+	break;
+case 1: // habitat-dependent
+	h = pCurrCell->getHabIndex(landIx);
+	if (h < 0) { // no-data cell - should not occur, but if it does, individual dies
+		mortprob = 1.0;
+	}
+	else mortprob = pSpecies->getHabMort(h);
+	break;
+case 2: // temporally variable
+	mortprob = pSpecies->getMortality();
+	break;
+} 
+#else
 if (trfr.habMort) 
 { // habitat-dependent
 	int h = pCurrCell->getHabIndex(landIx);
@@ -1436,6 +2070,7 @@ if (trfr.habMort)
 #endif
 }
 else mortprob = movt.stepMort;
+#endif // TEMPMORT 
 // ... unless individual has not yet left natal patch in emigration year
 if (pPatch == pNatalPatch && path->out == 0 && path->year == path->total) {
 	mortprob = 0.0;
@@ -1463,6 +2098,9 @@ if (pRandom->Bernoulli(mortprob)) { // individual dies
 }
 else { // take a step
 	(path->year)++;
+#if SEASONAL
+	(path->season)++;
+#endif
 	(path->total)++;
 //	if (pPatch != pNatalPatch || path->out > 0) (path->out)++;
 	if (patch == 0 || pPatch == 0 || patchNum == 0) { // not in a patch
@@ -1471,6 +2109,9 @@ else { // take a step
 	}
 	loc = pCurrCell->getLocn();
 	newX = loc.x; newY = loc.y;
+#if VCL
+	oldX = loc.x; oldY = loc.y;
+#endif
 
 
 	switch (trfr.moveType) {
@@ -1487,7 +2128,11 @@ else { // take a step
 //	<< " goal.y=" << smsData->goal.y
 //	<< endl;
 #endif
+#if PARTMIGRN
+		move = smsMove(pLandscape,pSpecies,landIx,pPatch==pPrevPatch,trfr.indVar,absorbing);
+#else
 		move = smsMove(pLandscape,pSpecies,landIx,pPatch==pNatalPatch,trfr.indVar,absorbing);
+#endif  // PARTMIGRN 
 #if RSDEBUG
 //DEBUGLOG << "Individual::moveStep() GGGG: indId=" << indId << " status=" << status
 //	<< " move.dist=" << move.dist
@@ -1525,6 +2170,20 @@ else { // take a step
 			if (sim.saveVisits && pPatch != pNatalPatch) {
 				pCurrCell->incrVisits();
 			}
+#if VCL
+			if (v.viewPaths) {
+				if ((Patch*)patch != pNatalPatch) {
+					loc = pCurrCell->getLocn();
+					drawMove((float)oldX+0.5,(float)oldY+0.5,(float)loc.x+0.5,(float)loc.y+0.5);
+				}
+			}
+#endif
+#if RS_CONTAIN
+			if (status < 6) {
+				DamageLocn *pDamageLocn = pCurrCell->getDamage();
+				if (pDamageLocn != 0) pDamageLocn->updateTraversalDamage();
+			}
+#endif // RS_CONTAIN 
 		}
 		break;
 
@@ -1591,6 +2250,18 @@ else { // take a step
 //	<< " pCurrCell=" << pCurrCell << " patch=" << patch << endl;
 #endif
 		} while (!absorbing && pCurrCell == 0 && loopsteps < 1000);
+#if VCL
+		if (v.viewPaths) {
+			if (newX >= land.minX && newX <= land.maxX && newY >= land.minY && newY <= land.maxY) {
+				if (patch > 0) {
+					if ((Patch*)patch != pNatalPatch) drawMove(crw->xc,crw->yc,xcnew,ycnew);
+				}
+				else {
+					drawMove(crw->xc,crw->yc,xcnew,ycnew);
+				}
+			}
+		}
+#endif
 		crw->prevdrn = (float)angle;
 		crw->xc = (float)xcnew; crw->yc = (float)ycnew;
 		if (absorbed) { // beyond absorbing boundary or in no-data square
@@ -1642,16 +2313,49 @@ else { // take a step
 	if (patch > 0  // not no-data area or matrix
 	&&  path->total >= settsteps.minSteps) {
 		pPatch = (Patch*)patch;
+#if PARTMIGRN
+		bool ok = false;
+		if (pPatch != pPrevPatch
+		&& (migrnstatus < 4 || pPatch != pNatalPatch)) {
+			if (smsData->goalType == 1) {
+				// aiming for a goal - check if goal patch has been reached
+				Cell *pCell = pLandscape->findCell(smsData->goal.x,smsData->goal.y);
+				if (pCell != 0) {
+					Patch *pGoalPatch = (Patch*)pCell->getPatch();
+					if (pPatch == pGoalPatch) ok = true;
+				}
+			}
+			else {
+				if (migrnstatus == 4) { // disperser resident
+					// may settle in a patch only if it has non-zero K in ALL seasons
+					// otherwise it is unsuitable
+					ok = pPatch->suitableInAllSeasons();
+				}
+				else ok = true;
+			}
+		}
+		if (ok)
+#else
 		if (pPatch != pNatalPatch) 
+#endif  // PARTMIGRN 
 		{
 			// determine whether the new patch is potentially suitable
+#if SEASONAL
+			if (pPatch->getK(nextseason) > 0.0) 
+#else
 			if (pPatch->getK() > 0.0) 
+#endif // SEASONAL 
 			{ // patch is suitable
 					status = 2;
 			}
 		}
 	}
 	if (status != 2 && status != 6) { // suitable patch not found, not already dead
+#if PARTMIGRN
+		if (path->season >= settsteps.maxStepsYr || path->season >= settsteps.maxSteps) {
+			status = 6; 
+		}
+#else
 		if (path->year >= settsteps.maxStepsYr) {
 			status = 3; // waits until next year
 		}
@@ -1659,6 +2363,7 @@ else { // take a step
 			status = 6; // dies
 			dispersing = 0;
 		}
+#endif
 	}
 } // end of single movement step
 
@@ -1714,9 +2419,18 @@ current = pCurrCell->getLocn();
 if ((path->out > 0 && path->out <= (movt.pr+1))
 || 	natalPatch
 || (movt.straigtenPath && path->settleStatus > 0)) {
+#if PARTMIGRN
+	if (smsData->goalType == 1) 
+		// do not inflate DP so as not to swamp GB 
+		nbr = getSimDir(current.x,current.y,movt.dp);		
+	else {
+#endif  // PARTMIGRN 
 	// inflate directional persistence to promote leaving the patch
 	if (indvar) nbr = getSimDir(current.x,current.y,10.0f*smsData->dp);
 	else nbr = getSimDir(current.x,current.y,10.0f*movt.dp);
+#if PARTMIGRN
+	}
+#endif  // PARTMIGRN 
 }
 else {
 	if (indvar) nbr = getSimDir(current.x,current.y,smsData->dp);
@@ -1769,7 +2483,23 @@ if (movt.goalType == 2) { // dispersal bias
 	}
 }
 else gb = movt.gb;
+#if PARTMIGRN
+if (smsData->goalType == 1) {
+	if ((path->out > 0 && path->out <= (movt.pr+1))
+	|| 	natalPatch
+	|| (movt.straigtenPath && path->settleStatus > 0)) {
+		// inflate goal bias to promote leaving the patch in the bias direction
+		goal = getGoalBias(current.x,current.y,smsData->goalType,10.0*gb);  
+	}
+	else {
+		goal = getGoalBias(current.x,current.y,smsData->goalType,gb);  
+	}
+}
+else
+	goal = getGoalBias(current.x,current.y,smsData->goalType,gb);  
+#else
 goal = getGoalBias(current.x,current.y,movt.goalType,(float)gb);
+#endif  // PARTMIGRN 
 //if (write_out) {
 //	out<<"goal bias weights:"<<endl;
 //	for (y2 = 2; y2 > -1; y2--) {
@@ -2105,6 +2835,9 @@ else {
 		return d;
 	}
 	if (goaltype == 1) {
+#if PARTMIGRN
+		theta = atan2((double)(smsData->goal.x - x),(double)(smsData->goal.y - y));
+#else
 		// TEMPORARY CODE - GOAL TYPE 1 NOT YET IMPLEMENTED, AS WE HAVE NO MEANS OF
 		// CAPTURING THE GOAL LOCATION OF EACH INDIVIDUAL
 		for (xx = 0; xx < 3; xx++) {
@@ -2113,6 +2846,7 @@ else {
 			}
 		}
 		return d;
+#endif  // PARTMIGRN 
 	}
 	else // goaltype == 2
 		theta = atan2(((double)x -(double)smsData->goal.x),((double)y-(double)smsData->goal.y));
@@ -2345,6 +3079,38 @@ return w;
 
 //---------------------------------------------------------------------------
 // Write records to individuals file
+#if GROUPDISP  || ROBFITT
+void Individual::outGenetics(const int rep,const int year,const int spnum,
+	const int landNr,const bool patchmodel,const bool xtab)
+{
+#if RSDEBUG
+//DEBUGLOG << "Individual::outGenetics(): indId=" << indId
+//	<< " rep=" << rep << " landNr=" << landNr
+//	<< endl;
+#endif
+if (landNr == -1) {
+	if (pGenome != 0) {
+		int X = -1; int Y = -1;
+		if (patchmodel) {
+			intptr ppatch = pCurrCell->getPatch();
+			if (ppatch != 0) {
+				Patch *pPatch = (Patch*) ppatch;
+				X = pPatch->getPatchNum();
+			}
+		}
+		else {
+			locn loc = pCurrCell->getLocn();
+      X = loc.x; Y = loc.y;
+		}
+		pGenome->outGenetics(rep,year,spnum,indId,X,Y,patchmodel,xtab);
+	}
+}
+else { // open/close file
+	pGenome->outGenHeaders(rep,landNr,patchmodel,xtab);
+}
+
+}
+#else
 void Individual::outGenetics(const int rep,const int year,const int spnum,
 	const int landNr,const bool xtab)
 {
@@ -2363,7 +3129,9 @@ else { // open/close file
 }
 
 }
+#endif
 
+#if RS_RCPP
 //---------------------------------------------------------------------------
 // Write records to movement paths file
 void Individual::outMovePath(const int year)
@@ -2410,8 +3178,16 @@ void Individual::outMovePath(const int year)
 		}
 	}
 }
+#endif
 
 //---------------------------------------------------------------------------
+
+#if PEDIGREE
+// Set position in relatedness matrix
+void Individual::setMatPosn(unsigned int pos) { matPosn = pos; }
+	// Get position in relatedness matrix
+unsigned int Individual::getMatPosn(void)	{ return matPosn; }
+#endif
 
 //---------------------------------------------------------------------------
 

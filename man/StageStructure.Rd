@@ -9,6 +9,7 @@ StageStructure(Stages, TransMatrix, MaxAge = 100, MinAge = 0,
                RepSeasons = 1, PRep = 1.0, RepInterval = 0, SurvSched = 0,
                FecDensDep = FALSE, DevDensDep = FALSE, SurvDensDep = FALSE,
                FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix,
+               FecLayer, DevLayer, SurvLayer,
                PostDestructn = FALSE)
 }
 \arguments{
@@ -33,6 +34,11 @@ StageStructure(Stages, TransMatrix, MaxAge = 100, MinAge = 0,
 \item{DevDensCoeff, SurvDensCoeff}{Relative density dependence coefficient for development / survival. Defaults to \eqn{1.0}.}
 
 \item{FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix}{Stage-dependent weights in density dependence of fecundity / development / survival. Takes a quadratic matrix with (#sexes * #stages) rows/columns indicating the weight of the abundance of each stage/sex on the fecundity/development/survival of each other stage/sex. If not set, all stages are weighted equally.}
+
+\item{FecLayer, DevLayer, SurvLayer}{A matrix of layer indices for the three demographic rates (fecundity/development/survival) if they are spatially varying. The indices match the
+scaling layers given in the \code{\link[RangeShiftR]{ImportedLandscape}} module to each demographic rate. The value NA denotes a spatially constant rate. The row number corresponds
+to the stage; the first/second column contains the layer index for females/males. In case of a female-only or simple sexual model (\code{ReproductionType={0,1}}) only the first
+column is needed and a vector is accepted to represent it. In any case, values will be coerced to integer.}
 
 \item{PostDestructn}{In a dynamic landscape, determine if all individuals of a population should die (\code{FALSE}, default) or disperse (\code{TRUE}) if its patch gets destroyed.}
 }
@@ -61,13 +67,13 @@ while Bernoulli trials \eqn{Bern}(\ifelse{html}{\out{&sigma;<sub>i</sub>}}{\eqn{
 and - if it survives - if it develops to the next stage or not.
 
 An example transition matrix for a 3-staged only-female or simple sexual (\code{ReproductionType={0,1}}) population model:
-\tabular{ccccc}{0 \tab | \tab 0 \tab | \tab \ifelse{html}{\out{&phi;<sub>2</sub>}}{\eqn{φ_2}} \cr
+\tabular{ccccc}{0 \tab | \tab \ifelse{html}{\out{&phi;<sub>1</sub>}}{\eqn{φ_1}} \tab | \tab \ifelse{html}{\out{&phi;<sub>2</sub>}}{\eqn{φ_2}} \cr
 \eqn{1.0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> (1-&gamma;<sub>1-2</sub>)}}{\eqn{σ_1 (1 − γ_(1-2))}} \tab | \tab \eqn{0} \cr
 \eqn{0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> &gamma;<sub>1-2</sub>}}{\eqn{σ_1 γ_(1-2)}} \tab | \tab \ifelse{html}{\out{&sigma;<sub>2</sub>}}{\eqn{σ_2}} \cr}
 
-In a female-only model (\code{ReproductionType=0}), \ifelse{html}{\out{&phi;}}{\eqn{φ}} represents the number of female offspring per female and reproductive event. \cr
+In a female-only model (\code{ReproductionType=0}), φ represents the number of female offspring per female and reproductive event. \cr
 Note that for an implicit (simple) sexual model (\code{ReproductionType=1}), the demographic parameters are not sex-specific. However, individuals are defined by their sex, which is acknowledged for example in the dispersal
-process and transmission of alleles. The fecundities \ifelse{html}{\out{&phi;}}{\eqn{φ}}  refer to the number of all offspring (males and females) per female and reproductive event.
+process and transmission of alleles. The fecundities φ refer to the number of all offspring (males and females) per female and reproductive event.
 
 In case of an explicit (complex) sexual model (\code{ReproductionType=2}), in contrast, each stage must be represented by two columns and rows to distinguish male and female demographic parameters.
 Note, however, that in any case the juvenile stage has only one row; it contains the fecundities. Male fecundities should have one of two possible values: set \ifelse{html}{\out{&phi;<sub>m</sub>}}{\eqn{φ_m}} \eqn{=1.0} for reproductive males or \ifelse{html}{\out{&phi;<sub>m</sub>}}{\eqn{φ_m}} \eqn{=0.0} for non-reproductive males.\cr
@@ -81,7 +87,7 @@ The mating system is explicitly modelled and a female’s probability of reprodu
 
 A common mistake in building a transition matrix is made when offspring produced at year \eqn{t} develop to the next stage in the same year \insertCite{@ @caswell2001 pg. 60-62}{RangeShiftR}. To avoid this problem without losing the offspring stage, and hence the chance for simulating post-natal dispersal,
 we require an additional explicit juvenile stage (stage 0). Juveniles have to develop to stage 1 in the same year they are born. Hence the minimum number of stages of a stage-structured model is always \eqn{2}. It is important to note that juvenile mortality can be accounted for in
-two ways. Either, as in the examples above, it is included in adult fecundity \ifelse{html}{\out{&phi;}}{\eqn{φ}} (by appropriately reducing its value), and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is equal to \eqn{1.0}. This is how it is typically accounted for in matrix models. Or, alternatively,
+two ways. Either, as in the examples above, it is included in adult fecundity φ (by appropriately reducing its value), and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is equal to \eqn{1.0}. This is how it is typically accounted for in matrix models. Or, alternatively,
 φ is equal to the true maximum fecundity and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is less than \eqn{1.0}.
 Only the first approach allows straightforward direct comparison with standard analytical matrix models.
 
@@ -137,6 +143,12 @@ different stages contributing differently to density-dependence \insertCite{casw
 where \ifelse{html}{\out{&omega;<sub>&phi;</sub>}}{\eqn{ω_φ}}, \ifelse{html}{\out{&omega;<sub>&sigma;</sub>}}{\eqn{ω_σ}}, \ifelse{html}{\out{&omega;<sub>&gamma;</sub>}}{\eqn{ω_γ}} are weight matrices given by \code{FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix}. Their elements \ifelse{html}{\out{&omega;<sub>ij</sub>}}{\eqn{ω_ij}}
 represent the contributions of the abundance of stage \eqn{j} to the density dependence in the fecundity / survival / development of stage \eqn{i}, thus they are quadratic matrices of size \code{Stages}\eqn{^2}. Note that the row sums are not required to be normalized, therefore they can be used
 to scale the density-dependence for the different stages. In fact, any real value will be accepted for the single weights, so care should be taken when setting them.
+
+The demographic rates (fecundity, development probability and survival probability) can be allowed to vary spatially, if the landscape is an imported habitat quality map. In this case, additional maps with the same resolution and extent as the habitat quality map(s) need to be given
+in \code{\link[RangeShiftR]{ImportedLandscape}()}. These additional layers contain percentage values between 0 and 100 and the matrices \code{FecLayer}, \code{DevLayer}, and \code{SurvLayer} indicate the mapping of each demographic rate to these layers. The local value
+of a given demographic rate for a certain stage and sex in a cell or patch is then determined as the maximum value (the value given in the transition matrix \code{TransMatrix}) scaled with the percentage in the respective mapped layer.
+For a patch-based landscape, the scaling percentage of a patch is given by the average percentage of its constituent cells.
+Potential density-dependence mediated by the strength 1/b still takes effect also for spatially-varying demographic rates. The respective base values φ_0, σ_0 or γ_0 are then replaced by their locally scaled values.
 }
 \examples{
  # Stage-structure for simple sexual model

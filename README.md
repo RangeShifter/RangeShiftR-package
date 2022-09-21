@@ -1,4 +1,16 @@
-# RangeShiftR <img src="man/figures/RSRlogo.png" align="right" height = 150/>
+# RangeShiftR // Spatial demography <img src="man/figures/RSRlogo.png" align="right" height = 150/>
+
+## !! This is a developement version of RangeShiftR !!
+
+It contains a new feature that allows all demographic rates to vary spatially and temporally.
+
+It is published here as supplementary material to the publication
+
+*"Demography-environment relationships improve mechanistic understanding of range dynamics under climate change"*
+
+by Anne-Kathleen Malchow, Florian Hartig, Jette Reeg, Marc Kéry, and Damaris Zurell.
+
+---
 
 The RangeShiftR package implements the RangeShifter simulation platform for R.
 

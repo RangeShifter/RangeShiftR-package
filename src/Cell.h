@@ -45,10 +45,17 @@ Last updated: 14 January 2021 by Steve Palmer
 #ifndef CellH
 #define CellH
 
+#if SPATIALDEMOG
+#include <algorithm>
+#endif
 #include <vector>
+
 using namespace std;
 
 #include "Parameters.h"
+#if RS_CONTAIN
+#include "Control.h"
+#endif // RS_CONTAIN 
 
 //---------------------------------------------------------------------------
 
@@ -107,6 +114,15 @@ public:
 		float		// random adjustment
 	);
 	float getEps(void);
+#if SPATIALMORT
+	void setMort(
+		float,	// mortality time period 0
+		float		// mortality time period 1
+	);
+	float getMort(
+		short		// time period (0 or 1)
+	);
+#endif
 	void setCost(
 		int		// cost value for SMS
 	);
@@ -120,6 +136,17 @@ public:
 	void resetVisits(void);
 	void incrVisits(void);
 	unsigned long int getVisits(void);
+#if RS_CONTAIN
+//	void setDamage(unsigned int);
+//	unsigned int getDamage(void);
+	void setDamage(DamageLocn*);
+	DamageLocn* getDamage(void);
+#endif // RS_CONTAIN
+#if SPATIALDEMOG
+	void addchgDemoScaling(std::vector<float>);
+	void setDemoScaling(std::vector<float>, short);
+	std::vector<float> getDemoScaling(short);
+#endif // SPATIALDEMOG 
 
 private:
 	int x,y;			// cell co-ordinates
@@ -131,12 +158,21 @@ private:
 	float envDev;	// local environmental deviation (static, in range -1.0 to +1.0)
 	float eps;		// local environmental stochasticity (epsilon) (dynamic, from N(0,std))
 	unsigned long int visits; // no. of times square is visited by dispersers
+#if RS_CONTAIN
+	DamageLocn *pDamage;	// pointer to damage location (if any)
+#endif // RS_CONTAIN 
+#if SPATIALMORT
+	float mort[2];	// additional mortality in two periods
+#endif // SPATIALMORT 
 	smscosts *smsData;
 
 	vector <short> habIxx; 		// habitat indices (rasterType=0)
 		// NB initially, habitat codes are loaded, then converted to index nos.
 		//    once landscape is fully loaded
 	vector <float> habitats;	// habitat proportions (rasterType=1) or quality (rasterType=2)
+#if SPATIALDEMOG
+	std::vector<std::vector<float>> demoScalings;	// demographic scaling layers (only if rasterType==2)
+#endif
 };
 
 //---------------------------------------------------------------------------
@@ -168,6 +204,10 @@ private:
 #if RSDEBUG
 extern void DebugGUI(string);
 #endif
+
+#if SPATIALDEMOG
+extern short nDSlayer;
+#endif // SPATIALDEMOG
 
 //---------------------------------------------------------------------------
 

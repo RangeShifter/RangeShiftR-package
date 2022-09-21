@@ -55,7 +55,14 @@ RunRS <- function(RSparams, dirpath = getwd()){
     if (class(out)=="list" && is.null(out$Errors)) {
         if ( length(out)>0 ) {
             resol = RSparams@control@resolution
-            return(raster::stack(lapply(X = out, FUN = raster::raster, xmn=0, xmx=ncol(out[[1]])*resol, ymn=0, ymx=nrow(out[[1]])*resol)))
+            if(class(RSparams@land)=="ImportedLandscape") llcorner = RSparams@land@OriginCoords
+            else  llcorner = c(0,0)
+            return(raster::stack(lapply(X = out,
+                                        FUN = raster::raster,
+                                        xmn=llcorner[1],
+                                        ymn=llcorner[2],
+                                        xmx=ncol(out[[1]])*resol+llcorner[1],
+                                        ymx=nrow(out[[1]])*resol+llcorner[2])))
         }
         else return(NULL)
     }

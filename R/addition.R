@@ -39,7 +39,7 @@ setMethod("+", signature(e1 = "RSparams", e2 = "SimulationParams"), function(e1,
 setMethod("+", signature(e1 = "RSparams", e2 = "LandParams"), function(e1, e2) {
     validObject(e2)
     if (class(e2)[1] == "ImportedLandscape") {
-        if (any(e2@PatchFile=="NULL")) {
+        if (length(e2@PatchFile)==0) {
             e1@control@patchmodel = FALSE
         }
         else {
@@ -54,7 +54,7 @@ setMethod("+", signature(e1 = "RSparams", e2 = "LandParams"), function(e1, e2) {
             e1@control@landtype = 0L
             e1@control@maxNhab = e2@Nhabitats
         }
-        if (e2@SpDistFile=="NULL") {
+        if (length(e2@SpDistFile)==0) {
             e1@control@speciesdist = FALSE
             e1@control@distresolution = -9L
         }

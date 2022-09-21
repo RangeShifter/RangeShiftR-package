@@ -87,7 +87,7 @@ setValidity("RSparams", function(object) {
         if (any(object@land@DynamicLandYears>object@simul@Years)) {
             warning("ImportedLandscape(): Dynamic landscape contains years that exceed the simulated years, so that some land changes will not apply.", call. = FALSE)
         }
-        if (object@land@CostsFile[1] !="NULL") {
+        if (length(object@land@CostsFile)>0) {
             if (class(object@dispersal@Transfer)[1] == "StochMove") {
                 if (object@dispersal@Transfer@Costs[1] != "file") {
                     warning("ImportedLandscape(): Landscape module contains SMS cost layers, but SMS module does not use them.", call. = FALSE)
@@ -98,8 +98,29 @@ setValidity("RSparams", function(object) {
             }
         }
     }
+
     #DEMOGRAPHY
     validObject(object@demog)
+    if (object@control@landtype == 2L){ # habitat quality
+        varydemogixs <- (length(object@demog@StageStruct@FecLayer)+length(object@demog@StageStruct@DevLayer)+length(object@demog@StageStruct@SurvLayer)>0)
+        varydemoglyr <- (length(object@land@demogScaleLayers)>0)
+        if(varydemogixs & !varydemoglyr){
+            msg <- c(msg, "RSsim(): If FecLayer, DevLayer and/or SurvLayer are used, the deographic scaling layers must be given in ImportedLandscape.")
+        }
+        if(varydemoglyr & !varydemogixs){
+            msg <- c(msg, "RSsim(): If deographic scaling layers are given, the demographic rates they correspond to must be defined with FecLayer, DevLayer and/or SurvLayer in StageStructure().")
+        }
+        if(varydemoglyr & varydemogixs){
+            if ((length(object@demog@StageStruct@FecLayer) + length(object@demog@StageStruct@DevLayer) + length(object@demog@StageStruct@SurvLayer)) > 0 ){ # spatially varying demographic rates
+                ixs <- c(object@demog@StageStruct@FecLayer,object@demog@StageStruct@DevLayer,object@demog@StageStruct@SurvLayer)
+                ixs[is.na(ixs)] <- -9
+                if ( any( ixs > object@land@nrDemogScaleLayers )){
+                    msg <- c(msg, "StageStructure(): Entries of FecLayer, DevLayer and SurvLayer must not exceed the number of layers in demogScaleLayers (of ImportedLandscape) !")
+                }
+            }
+        }
+    }
+
     #DISPERSAL
     validObject(object@dispersal)
     ## Emigration: check dimensions and values of EmigProb and EmigStage:
@@ -110,7 +131,7 @@ setValidity("RSparams", function(object) {
             rows = object@control@stages
             offset = 1
             if (object@dispersal@Emigration@IndVar) {
-                if (anyNA(object@dispersal@Emigration@EmigStage) || length(object@dispersal@Emigration@EmigStage)!=1) {
+                if (is.na(object@dispersal@Emigration@EmigStage) || length(object@dispersal@Emigration@EmigStage)!=1) {
                     msg <- c(msg, "Emigration(): EmigStage (exactly 1) must be set!")
                 }
                 else {
@@ -178,7 +199,7 @@ setValidity("RSparams", function(object) {
         }
         # check sex column of EmigProb
         if (object@dispersal@Emigration@SexDep) {
-            if(any( !object@dispersal@Emigration@EmigProb[,offset] %in% c(0,1) )){
+            if(any(object@dispersal@Emigration@EmigProb[,offset]!=0 && object@dispersal@Emigration@EmigProb[,offset]!=1)){
                 msg <- c(msg, paste0(offset,". column of emigration probability traits matrix (EmigProb) must contain the sex numbers (0 for female, 1 for male)!"))
             }
             else {
@@ -312,7 +333,7 @@ setValidity("RSparams", function(object) {
                 }
                 if (object@dispersal@Transfer@SexDep) {
                     # check sex column of Distances matrix
-                    if(any( !object@dispersal@Transfer@Distances[,offset] %in% c(0,1) )){
+                    if(any(object@dispersal@Transfer@Distances[,offset]!=0 && object@dispersal@Transfer@Distances[,offset]!=1)){
                         msg <- c(msg, paste0(offset,". column of dispersal kernel traits (Distances) matrix must contain the sex numbers (0 for female, 1 for male)!"))
                     }
                     else {
@@ -431,8 +452,8 @@ setValidity("RSparams", function(object) {
                 }
                 if (class(object@dispersal@Transfer@Costs)=="character") {
                     if (object@dispersal@Transfer@Costs == "file") {
-                        if (object@land@CostsFile[1] == "NULL") {
-                            msg <- c(msg, "SMS(): No cost map filenames found in the landscape module!")
+                        if (length(object@land@CostsFile)==0) {
+                            msg <- c(msg, "SMS(): Empty cost map list found in the landscape module!")
                         }
                     }
                     else{
@@ -447,8 +468,8 @@ setValidity("RSparams", function(object) {
                     }
                     if (class(object@dispersal@Transfer@Costs)=="character") {
                         if (object@dispersal@Transfer@Costs == "file") {
-                            if (object@land@CostsFile[1] == "NULL") {
-                                msg <- c(msg, "SMS(): No cost map filenames found in the landscape module!")
+                            if (length(object@land@CostsFile)==0) {
+                                msg <- c(msg, "SMS(): Empty cost map list found in the landscape module!")
                             }
                         }
                         else{
@@ -643,7 +664,7 @@ setValidity("RSparams", function(object) {
                     }
                     #// NB alpha and beta may take any value
                 }
-                #else {}  // no more columns required other than stage and sex if applicable
+                #else {}  // no more colums required other than stage and sex if applicable
             }
         }
         else {      # DispersalKernel
@@ -673,13 +694,8 @@ setValidity("RSparams", function(object) {
             }
         }
     }
-
     #GENETICS
     validObject(object@gene)
-    if(any(object@dispersal@Emigration@IndVar,object@dispersal@Transfer@IndVar,object@dispersal@Settlement@IndVar)) anyIndVar <- TRUE
-    else anyIndVar <- FALSE
-    # if( ...(object@gene) & !anyIndVar) # TODO: check if genetics module is set but no variable traits -> give warning in this case
-
     #INITIALISATION
     validObject(object@init)
     if (object@control@landtype == 9) { # artificial land
@@ -708,6 +724,11 @@ setValidity("RSparams", function(object) {
     else {  # imported land
         if (object@init@InitType == 1 && !object@control@speciesdist) {
             msg <- c(msg, 'Initialise(): A species distribution map has to be loaded via the \'land\' module if InitType = 1 (initialisation from loaded species distribution map) !')
+        }
+        if (object@init@InitType == 2 && object@init@InitIndsFile == "NULL") { # from initial individuals list from list of data.frames in 'InitIndsList'
+            if(length(object@init@InitIndsList)!=object@simul@Replicates) {
+                msg <- c(msg, 'Initialise(): Number of elements in InitIndsList must equal the number of Replicates!')
+            }
         }
     }
     if (object@control@stagestruct) {
@@ -763,8 +784,7 @@ setMethod("show", "RSparams", function(object){
     cat("\n")
     print(object@dispersal)
     cat("\n")
-    if(any(object@dispersal@Emigration@IndVar,object@dispersal@Transfer@IndVar,object@dispersal@Settlement@IndVar)
-       || object@gene@Architecture == 1 ){
+    if(any(object@dispersal@Emigration@IndVar,object@dispersal@Transfer@IndVar,object@dispersal@Settlement@IndVar)){
         print(object@gene)
         cat("\n")
     }

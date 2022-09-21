@@ -19,13 +19,43 @@
  *	
  --------------------------------------------------------------------------*/
  
+//Last updated: 26 November 2020 by Greta Bocedi
+
 //---------------------------------------------------------------------------
 
 #ifndef VersionH
 #define VersionH
 
 #define RSDEBUG 0
+
+#define LINUX_CLUSTER 0
 //#define RSWIN64 0
 
+#define RANDOMCHECK 0
+
+#define BATCH 1
+#define VCL 0
+
+#define RS_RCPP 1
+//#define R_CMD 0
+
+#define RS_EMBARCADERO 0
+
 //---------------------------------------------------------------------------
+
+#define RS_THREADSAFE 1
+
+#define SPATIALDEMOG 1
+
+	#if SPATIALDEMOG
+		#define RS_THREADSAFE 1
+	#endif // SPATIALDEMOG
+	#if RS_THREADSAFE
+		#define RS_RCPP 1
+		#define RSDEBUG 0
+	#endif // RS_THREADSAFE
+
+//---------------------------------------------------------------------------
+
+
 #endif

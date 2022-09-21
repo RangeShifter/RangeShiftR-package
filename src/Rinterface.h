@@ -50,16 +50,19 @@ Author: Anne-Kathleen Malchow, Humboldt University Berlin
 #if !RSWIN64
 #include <codecvt>
 #endif
+#include <Rcpp.h>
 
 using namespace std;
 
-#include <Rcpp.h>
 #include "Version.h"
 #include "Parameters.h"
 #include "Landscape.h"
 #include "Species.h"
 #include "SubCommunity.h"
 #include "RSrandom.h"
+#if RANDOMCHECK
+#include "RandomCheck.h"
+#endif
 #include "Model.h"
 
 
@@ -81,7 +84,11 @@ int ReadInitialisationR(Landscape*, Rcpp::S4);
 int ReadGeneticsR(Rcpp::S4);
 
 int ParseInitIndsFileR(wifstream&);
+#if RS_THREADSAFE
+int ReadInitIndsFileR(int,Landscape*,Rcpp::DataFrame);
+#endif
 int ReadInitIndsFileR(int,Landscape*);
+
 int ReadArchFileR(wifstream&);
 
 Rcpp::List RunBatchR(int, int, Rcpp::S4);
@@ -100,6 +107,9 @@ void BatchErrorR(string,int,int,string,string);
 
 //void CtrlFormatError(void);
 //void ArchFormatError(void);
+#if VIRTUALECOLOGIST
+//void SampleFormatError(void);
+#endif // VIRTUALECOLOGIST
 void FormatErrorR(string,int);
 void OpenErrorR(string,string);
 void EOFerrorR(string);
@@ -147,7 +157,16 @@ extern paramSim *paramsSim;
 extern Species *pSpecies;
 extern string costmapname;	// see FormMove.cpp (VCL) OR Main.cpp (batch)
 extern string genfilename;	// see FormGenetics.cpp (VCL) OR Main.cpp (batch)
+#if VIRTUALECOLOGIST
+extern string locfilename;		// see FormVirtEcol.cpp (VCL) OR Main.cpp (batch)
+extern string patchfilename;	// see [NOT YET CODED FOR GUI] (VCL) OR Main.cpp (batch)
+#endif // VIRTUALECOLOGIST 
+#if TEMPMORT
+extern string mortfilename;	// see [NOT YET CODED FOR GUI] (VCL) OR Main.cpp (batch)
+#endif // TEMPMORT
+#if !CLUSTER || RS_RCPP
 extern std::uint32_t RS_random_seed;			// see RSrandom.cpp
+#endif // !CLUSTER || RS_RCPP
 
 //---------------------------------------------------------------------------
 #endif

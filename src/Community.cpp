@@ -21,9 +21,15 @@
  
  
 //---------------------------------------------------------------------------
+#if RS_EMBARCADERO 
+#pragma hdrstop
+#endif
 
 #include "Community.h"
 
+#if RS_EMBARCADERO 
+#pragma package(smart_init)
+#endif
 //---------------------------------------------------------------------------
 
 
@@ -52,7 +58,23 @@ subComms.push_back(new SubCommunity(pPch,num));
 return subComms[nsubcomms];
 }
 
+#if RS_CONTAIN
+void Community::setHabIndex(Species *pSpecies,short landIx) {
+landParams ppLand = pLandscape->getLandParams();   
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	if (subComms[i]->getNum() > 0) { // except in matrix
+		subComms[i]->setHabIndex(pSpecies,ppLand.rasterType,landIx);
+	}
+}
+}
+#endif // RS_CONTAIN 
+
+#if PEDIGREE
+void Community::initialise(Species *pSpecies,Pedigree *pPed,int year) 
+#else
 void Community::initialise(Species *pSpecies,int year) 
+#endif
 {
 
 int nsubcomms,npatches,ndistcells,spratio,patchnum,rr = 0;
@@ -105,7 +127,11 @@ case 0:	// free initialisation
 					}
 				}
 				else { // cell-based model - is cell(patch) suitable
+#if SEASONAL
+					if (pch.pPatch->getK(0) > 0.0)
+#else
 					if (pch.pPatch->getK() > 0.0)
+#endif // SEASONAL 
 					{
 						subcomms.push_back(pch.pPatch->getSubComm());
 						selected.push_back(false);
@@ -153,7 +179,11 @@ case 0:	// free initialisation
 			if (pch.pPatch->withinLimits(limits)) {
 				patchnum = pch.pPatch->getPatchNum();
 				if (patchnum != 0) {
+#if SEASONAL
+					if (pch.pPatch->getK(0) > 0.0) 
+#else
 					if (pch.pPatch->getK() > 0.0) 
+#endif // SEASONAL 
 					{ // patch is suitable
 						subcomm = pch.pPatch->getSubComm();
 						if (subcomm == 0) {
@@ -172,12 +202,19 @@ case 0:	// free initialisation
 		break;
 
 	case 2:	// manually selected patches/cells
+#if VCL
+		addManuallySelected();
+#endif
 		break;
 
 	} // end of switch (init.freeType)
 	nsubcomms = (int)subComms.size();
 	for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+#if PEDIGREE
+		subComms[i]->initialise(pLandscape,pSpecies,pPed);
+#else
 		subComms[i]->initialise(pLandscape,pSpecies);
+#endif
 	}                                   
 	break;
 
@@ -228,9 +265,19 @@ case 1:	// from species distribution
 			}
 		}
 		
+#if VCL
+		// add any additional manually selected patches/cells (except for random option)
+		if (init.spDistType%2 == 0) {
+			addManuallySelected();
+		}
+#endif
 		nsubcomms = (int)subComms.size();
 		for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+#if PEDIGREE
+			subComms[i]->initialise(pLandscape,pSpecies,pPed);
+#else
 			subComms[i]->initialise(pLandscape,pSpecies);
+#endif
 		}
 	}
 	else {
@@ -242,7 +289,11 @@ case 1:	// from species distribution
 case 2:	// initial individuals in specified patches/cells
 	if (year < 0) {
 		// initialise matrix sub-community only
+#if PEDIGREE
+		subComms[0]->initialise(pLandscape,pSpecies,pPed);
+#else
 		subComms[0]->initialise(pLandscape,pSpecies);
+#endif
 		indIx = 0; // reset index for initial individuals
 	}
 	else { // add any initial individuals for the current year
@@ -261,7 +312,11 @@ case 2:	// initial individuals in specified patches/cells
 				if (ppLand.patchModel) {
 					if (pLandscape->existsPatch(iind.patchID)) {
 						pPatch = pLandscape->findPatch(iind.patchID);
+#if SEASONAL
+						if (pPatch->getK(0) > 0.0) 
+#else
 						if (pPatch->getK() > 0.0) 
+#endif // SEASONAL 
 						{ // patch is suitable
 							subcomm = pPatch->getSubComm();
 							if (subcomm == 0) {
@@ -271,7 +326,11 @@ case 2:	// initial individuals in specified patches/cells
 							else {
 								pSubComm = (SubCommunity*)subcomm;
 							}
+#if PEDIGREE
+							pSubComm->initialInd(pLandscape,pSpecies,pPed,pPatch,pPatch->getRandomCell(),indIx);
+#else
 							pSubComm->initialInd(pLandscape,pSpecies,pPatch,pPatch->getRandomCell(),indIx);
+#endif
 						}
 					}
 				}
@@ -281,7 +340,11 @@ case 2:	// initial individuals in specified patches/cells
 						intptr ppatch = pCell->getPatch();
 						if (ppatch != 0) {
 							pPatch = (Patch*)ppatch;
+#if SEASONAL
+							if (pPatch->getK(0) > 0.0) 
+#else
 							if (pPatch->getK() > 0.0) 
+#endif // SEASONAL 
 							{ // patch is suitable
 								subcomm = pPatch->getSubComm();
 								if (subcomm == 0) {
@@ -291,7 +354,11 @@ case 2:	// initial individuals in specified patches/cells
 								else {
 									pSubComm = (SubCommunity*)subcomm;
 								}
+#if PEDIGREE
+								pSubComm->initialInd(pLandscape,pSpecies,pPed,pPatch,pCell,indIx);
+#else
 								pSubComm->initialInd(pLandscape,pSpecies,pPatch,pCell,indIx);
+#endif
 							}
 						}
 					}
@@ -418,16 +485,96 @@ for (int i = 0; i < nsubcomms; i++) { // all sub-communities
 }
 }
 
+#if SEASONAL
+void Community::reproduction(int yr,short season)
+#else
+#if GROUPDISP
+void Community::reproduction(Species* pSpecies,int yr)
+#else
+#if BUTTERFLYDISP
+void Community::reproduction(Species* pSpecies,int yr,short option)
+#else
 void Community::reproduction(int yr)
+#endif // BUTTERFLYDISP
+#endif // GROUPDISP
+#endif // SEASONAL
 {
 float eps = 0.0; // epsilon for environmental stochasticity
 landParams land = pLandscape->getLandParams();
+#if BUTTERFLYDISP
+demogrParams dem = pSpecies->getDemogr();
+#endif
+#if GROUPDISP
+demogrParams dem = pSpecies->getDemogr();
+stageParams sstruct = pSpecies->getStage();
+// set up list of global 'fathers'
+std::vector <Individual*> fglobal;
+std::vector <Individual*> *pfglobal;
+pfglobal = &fglobal;
+// range of breeding population
+commStats s = getStats();
+locn min,max;
+min.x = s.minX; min.y = s.minY; max.x = s.maxX; max.y = s.maxY;
+#endif // GROUPDISP
 envStochParams env = paramsStoch->getStoch();
 int nsubcomms = (int)subComms.size();
 #if RSDEBUG
 DEBUGLOG << "Community::reproduction(): this=" << this
 	<< " nsubcomms=" << nsubcomms << endl;
 #endif
+#if GROUPDISP
+// determine minimum breeding stage
+// only need consider sex 0, as pollen kernel is
+// CURRENTLY IMPLEMENTED FOR HERMAPHRODITE SPECIES ONLY <=======================
+int minbrdstage = 1;
+if (dem.stageStruct) {
+	minbrdstage = 999;
+	for (int stg = 0; stg < sstruct.nStages; stg++) {
+		for (int sex = 0; sex < 1; sex++) {
+			if (pSpecies->getFec(stg,0) > 0.0 && stg < minbrdstage) minbrdstage = stg;
+		}
+#if RSDEBUG
+//if (ninds > 0) {
+//DEBUGLOG << "Community::reproduction(): fec[" << stg << "][" << sex << "] = " << fec[stg][sex]
+//	<< endl;
+//}
+#endif
+	}
+}
+#if RSDEBUG
+DEBUGLOG << "Community::reproduction(): this=" << this
+	<< " minbrdstage=" << minbrdstage << endl;
+#endif
+
+Individual* pInd;
+if (dem.repType == 3) { // hermaphrodite species
+	if (dem.paternity == 2) { // pollen kernel
+		// populate the global fathers vector
+		for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+			if (subComms[i]->getNum() > 0) { // except in matrix
+				popStats p = subComms[i]->getPopStats();
+				if (p.breeding) {
+					for (int j = 0; j < p.nInds; j++) {
+						pInd = subComms[i]->getFather(minbrdstage,j);
+						if (pInd != 0) fglobal.push_back(pInd);
+					}
+				}
+			}
+		}
+	}
+}
+int nfglobal = (int)fglobal.size();
+#if RSDEBUG
+DEBUGLOG << "Community::reproduction(): this=" << this
+	<< " pfglobal=" << pfglobal
+	<< " fglobal.size=" << fglobal.size() << " nfglobal=" << nfglobal;
+if (nfglobal > 0) {
+	DEBUGLOG << " fglobal[0]=" << fglobal[0] << " fglobal[1]=" << fglobal[1]
+		<< " fglobal[last]=" << fglobal[fglobal.size()-1];
+}
+DEBUGLOG << endl;
+#endif
+#endif // GROUPDISP 
 
 for (int i = 0; i < nsubcomms; i++) { // all sub-communities
 	if (env.stoch) {
@@ -435,14 +582,46 @@ for (int i = 0; i < nsubcomms; i++) { // all sub-communities
 			eps = pLandscape->getGlobalStoch(yr);
 		}
 	}
+#if SEASONAL
+	subComms[i]->reproduction(land.resol,eps,season,land.rasterType,land.patchModel);
+#else
+#if GROUPDISP
+	subComms[i]->reproduction(pLandscape,pSpecies,minbrdstage,pfglobal,nfglobal,land.resol,min,max,
+		eps,land.rasterType,land.patchModel);
+	fglobal.clear();
+#else
+#if BUTTERFLYDISP
+	subComms[i]->reproduction(land.resol,eps,dem.dispersal,option,land.rasterType,land.patchModel);
+#else
 	subComms[i]->reproduction(land.resol,eps,land.rasterType,land.patchModel);
+#endif // BUTTERFLYDISP
+#endif // GROUPDISP
+#endif // SEASONAL
 }
 #if RSDEBUG
 DEBUGLOG << "Community::reproduction(): finished" << endl;
 #endif
 }
 
+#if BUTTERFLYDISP
+// Complete reproduction when dispersal has occurred during reproduction
+void Community::fledge(void) {
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	subComms[i]->fledge();
+}
+}
+#endif
+
+#if RS_DISEASE
+void Community::emigration(Species *pSpecies,short season) 
+#else
+#if SEASONAL
+void Community::emigration(short season) 
+#else
 void Community::emigration(void) 
+#endif // SEASONAL 
+#endif // RS_DISEASE  
 {
 int nsubcomms = (int)subComms.size();
 #if RSDEBUG
@@ -450,14 +629,34 @@ DEBUGLOG << "Community::emigration(): this=" << this
 	<< " nsubcomms=" << nsubcomms << endl;
 #endif
 for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+#if RS_DISEASE
+	subComms[i]->emigration(pSpecies,season);
+#else
+#if SEASONAL
+	subComms[i]->emigration(season);
+#else
 	subComms[i]->emigration();
+#endif // SEASONAL 
+#endif // RS_DISEASE  
 }
 #if RSDEBUG
 DEBUGLOG << "Community::emigration(): finished" << endl;
 #endif
 }
 
+#if RS_ABC
+void Community::dispersal(short landIx,bool obsconn)
+#else
+#if PEDIGREE
+void Community::dispersal(Pedigree *pPed,int rep,int yr,int gen,short landIx)
+#else
+#if SEASONAL || RS_RCPP
 void Community::dispersal(short landIx,short nextseason)
+#else
+void Community::dispersal(short landIx)
+#endif // SEASONAL || RS_RCPP
+#endif // PEDIGREE
+#endif // RS_ABC
 {
 #if RSDEBUG
 int t0,t1,t2;
@@ -465,6 +664,9 @@ t0 = time(0);
 #endif
 
 simParams sim = paramsSim->getSim();
+#if VCL
+simView v = paramsSim->getViews();
+#endif
 
 int nsubcomms = (int)subComms.size();
 // initiate dispersal - all emigrants leave their natal community and join matrix community
@@ -478,6 +680,14 @@ DEBUGLOG << "Community::dispersal(): this=" << this
 	<< " nsubcomms=" << nsubcomms << " initiation time=" << t1-t0  << endl;
 #endif
 
+#if PEDIGREE
+landParams land = pLandscape->getLandParams();
+int outintGroup = OUTINTGROUP;
+if (yr%outintGroup == 0) {
+	matrix->outGroups(pPed,rep,yr,gen,land.patchModel);
+}
+#endif 
+
 // dispersal is undertaken by all individuals now in the matrix patch
 // (even if not physically in the matrix)
 int ndispersers = 0;
@@ -488,15 +698,45 @@ do {
 #if RSDEBUG
 //DEBUGLOG << "Community::dispersal() 1111: ndispersers=" << ndispersers << endl;
 #endif
+#if VCL
+	if (stopRun) break;
+	if (v.viewPaths) {
+		if (v.slowFactor > 1) { // slow the display of paths on the screen
+			Sleep(v.slowFactor);
+		}
+	}
+#endif
+#if SEASONAL || RS_RCPP
 	ndispersers = matrix->transfer(pLandscape,landIx,nextseason);
+#else
+	ndispersers = matrix->transfer(pLandscape,landIx);
+#endif // SEASONAL || RS_RCPP
 #if RSDEBUG
 //DEBUGLOG << "Community::dispersal() 2222: ndispersers=" << ndispersers << endl;
 #endif
+#if VCL
+	if (stopRun) break;
+#endif
+#if RS_ABC
+	matrix->completeDispersal(pLandscape,(sim.outConnect || obsconn));
+#else
+#if PEDIGREE
+	matrix->completeDispersal(pLandscape,pPed,sim.outConnect);
+#else
 	matrix->completeDispersal(pLandscape,sim.outConnect);
+#endif // PEDIGREE
+#endif // RS_ABC
 #if RSDEBUG
 //DEBUGLOG << "Community::dispersal() 3333: ndispersers=" << ndispersers << endl;
 #endif
+#if VCL
+	if (stopRun) break;
+#endif
 } while (ndispersers > 0);
+#if GROUPDISP
+// Delete dispersal groups once dispersal has finished
+matrix->deleteGroups();
+#endif // GROUPDISP
 
 #if RSDEBUG
 DEBUGLOG << "Community::dispersal(): matrix=" << matrix << endl;
@@ -511,13 +751,315 @@ DEBUGLOG << "Community::dispersal(): transfer time=" << t2-t1 << endl;
 
 }
 
+#if SPATIALMORT
+void Community::survival(short part,short period,short option) {
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all communities (including in matrix)
+	subComms[i]->survival(part,period,option);
+}
+}
+#else
+#if SEASONAL
+void Community::survival(short season,short part,short option0,short option1) 
+#else
+#if PEDIGREE
+void Community::survival(Pedigree *pPed,short part,short option0,short option1) 
+#else
 void Community::survival(short part,short option0,short option1) 
+#endif // PEDIGREE
+#endif // SEASONAL 
 {
 int nsubcomms = (int)subComms.size();
 for (int i = 0; i < nsubcomms; i++) { // all communities (including in matrix)
+#if SEASONAL
+	subComms[i]->survival(season,part,option0,option1);
+#else
+#if PEDIGREE
+	subComms[i]->survival(pPed,part,option0,option1);
+#else
 	subComms[i]->survival(part,option0,option1);
+#endif // PEDIGREE
+#endif // SEASONAL 
 }
 }
+#endif // SPATIALMORT
+
+#if RS_CONTAIN
+
+int Community::findCullTargets(Cull *pCull,int year,int nstages)
+{
+int ntargets = 0;
+landParams ppLand = pLandscape->getLandParams();
+//culldata c = pCull->getCullData();
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	if (subComms[i]->getNum() > 0) { // except in matrix
+		ntargets += subComms[i]->findCullTarget(pCull,year,nstages,ppLand.resol);
+	}
+}
+#if RSDEBUG
+DEBUGLOG << "Community::findCullTargets(): ntargets=" << ntargets << endl;
+#endif
+return ntargets;
+}
+
+void Community::cullAllTargets(Cull *pCull) {
+landParams ppLand = pLandscape->getLandParams();
+#if RSDEBUG
+culldata c = pCull->getCullData();
+DEBUGLOG << "Community::cullAllTargets(): maxNpatches=" << c.maxNpatches << endl;
+#endif
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	if (subComms[i]->getNum() > 0) { // except in matrix
+		if (subComms[i]->isCullTarget()) {
+//			subComms[i]->cullPatch(pCull,0,c.cullMaxRate); // ASSUMING Species 0
+			subComms[i]->cullPatch(pCull,0,ppLand.resol); // ASSUMING Species 0
+		}
+	}
+}
+}
+
+// cull target patches at random until max. no. of patches is reached;
+void Community::cullRandomTargets(Cull *pCull,int year) {
+landParams ppLand = pLandscape->getLandParams();
+culldata c = pCull->getCullData();
+if (c.method == 4 || c.method == 5 || c.method == 7) return;
+#if RSDEBUG
+//DEBUGLOG << "Community::cullRandomTargets(): maxNpatches=" << c.maxNpatches << endl;
+#endif
+int nsubcomms = (int)subComms.size();
+bool *selected;
+selected = new bool [nsubcomms];
+double *initProb;
+initProb = new double [nsubcomms];
+for (int i = 0; i < nsubcomms; i++) { selected[i] = false; initProb[i] = 0.0; }
+
+//if (c.edgeBias) 
+if (c.method > 0) 
+{
+	// set up weighted lottery dependent on cull method
+	double tot = 0.0;
+	int inityear;
+	double damage;
+	for (int i = 0; i < nsubcomms; i++) {
+		if (subComms[i]->getNum() > 0    // except in matrix
+		&&  subComms[i]->isCullTarget()) 
+		{ 
+			switch (c.method) {			
+			case 1: // bias towards recently colonised patches
+				inityear = subComms[i]->initialYear();
+#if RSDEBUG
+//DEBUGLOG << "Community::cullRandomTargets(): i=" << i 
+//	<< " inityear=" << inityear
+//	<< endl;
+#endif
+				if (inityear >= 0) {
+					initProb[i] = 1.0 / (double)(year - inityear + 1);
+					tot += initProb[i];
+				}
+				break;
+			case 2: // bias towards closest to damage
+			case 3: // bias towards closest to damage X popn size
+				damage = subComms[i]->damageIndex();
+#if RSDEBUG
+//DEBUGLOG << "Community::cullRandomTargets(): i=" << i 
+//	<< " getNum()=" << subComms[i]->getNum()
+//	<< " damage=" << damage << " tot=" << tot
+//	<< endl;
+#endif
+				if (c.method == 3) {
+//					popStats pop = subComms[i]->getPopStats();
+//					damage *= (double)pop.nInds;
+					damage *= subComms[i]->getCullCount();
+				}
+				initProb[i] = damage;
+				tot += initProb[i];				
+				break;
+			case 6: // bias towards recently incurred damage
+				initProb[i] = subComms[i]->prevDamage();
+				tot += initProb[i];				
+				break;
+			}
+#if RSDEBUG
+//DEBUGLOG << "Community::cullRandomTargets(): i=" << i 
+//	<< " inityear=" << inityear << " initProb=" << initProb[i] << " tot=" << tot
+//	<< endl;
+#endif
+		}
+	}
+	if (tot <= 0.0) tot = 1.0;
+	for (int i = 0; i < nsubcomms; i++) initProb[i] /= tot;
+	for (int i = 0; i < nsubcomms; i++) {
+		if (i > 1) initProb[i] += initProb[i-1];
+#if RSDEBUG
+//DEBUGLOG << "Community::cullRandomTargets(): i=" << i 
+//	<< " initProb=" << initProb[i] 
+//	<< endl;
+#endif
+	}
+}
+
+int r;
+int nculled = 0;
+int loopcount = 0;
+double rnd;
+do {
+	/*
+//	if (c.edgeBias)
+	if (c.method == 1) // bias towards recently colonised patches
+	{
+		double rnd = pRandom->Random();
+		for (int i = 0; i < nsubcomms; i++) {
+			if (rnd <= initProb[i]) {
+				r = i; i = nsubcomms+1;
+			}
+#if RSDEBUG
+//DEBUGLOG << "Community::cullRandomTargets(): i=" << i 
+//	<< " rnd=" << rnd << " initProb=" << initProb[i] << " r=" << r 
+//	<< endl;
+#endif
+		}
+	}
+	else r = pRandom->IRandom(0,(nsubcomms-1));
+	*/
+	switch (c.method) { 
+	case 0: // random
+		r = pRandom->IRandom(0,(nsubcomms-1));
+		break;
+	case 1: // bias towards recently colonised patches
+	case 2: // bias towards closest to damage
+	case 3: // bias towards closest to damage X popn size
+	case 6: // bias towards recently incurred damage
+		rnd = pRandom->Random();
+		for (int i = 0; i < nsubcomms; i++) {
+			if (rnd <= initProb[i]) { r = i; i = nsubcomms+1; }
+		}	
+		break;
+	}
+	if (!selected[r]) {
+		if (subComms[r]->getNum() > 0) { // except in matrix
+			if (subComms[r]->isCullTarget()) {
+//				subComms[r]->cullPatch(pCull,0,c.cullMaxRate); // ASSUMING Species 0	
+				subComms[r]->cullPatch(pCull,0,ppLand.resol); // ASSUMING Species 0
+				nculled++;			
+			}
+		}
+		selected[r] = true;		
+	}
+	loopcount++;
+} while (nculled < c.maxNpatches && loopcount < 10000);
+#if RSDEBUG
+//DEBUGLOG << "Community::cullRandomTargets(): nculled=" << nculled 
+//	<< " loopcount=" << loopcount << endl;
+#endif  
+		 
+delete[] selected;
+delete[] initProb;
+}
+
+// cull target patches in sequence until max. no. of patches is reached;
+void Community::cullTargets(Cull *pCull) {
+landParams ppLand = pLandscape->getLandParams();
+culldata c = pCull->getCullData();
+if (c.method < 4) return;
+if (c.method == 6) return;
+#if RSDEBUG
+//DEBUGLOG << "Community::cullTargets(): maxNpatches=" << c.maxNpatches << endl;
+#endif
+int nsubcomms = (int)subComms.size();
+bool *selected;
+selected = new bool [nsubcomms];
+double *weight;
+weight = new double [nsubcomms];
+
+for (int i = 0; i < nsubcomms; i++) {
+	selected[i] = false; weight[i] = 0.0;
+	if (subComms[i]->getNum() > 0    // except in matrix
+	&&  subComms[i]->isCullTarget()) { 
+		if (c.method <= 5) {
+			weight[i] = subComms[i]->damageIndex();
+		}
+#if RSDEBUG
+//DEBUGLOG << "Community::cullTargets(): i=" << i 
+//	<< " getNum()=" << subComms[i]->getNum() << " weight=" << weight[i] 
+//	<< endl;
+#endif
+		if (c.method == 5) {
+			weight[i] *= subComms[i]->getCullCount();
+		}
+		if (c.method == 7) {
+			weight[i] = subComms[i]->prevDamage();
+#if RSDEBUG
+//DEBUGLOG << "Community::cullTargets(): method=7 i=" << i 
+//	<< " getNum()=" << subComms[i]->getNum() << " weight=" << weight[i] 
+//	<< endl;
+#endif
+		}
+	}
+}
+
+int max;
+int nculled = 0;
+int loopcount = 0;
+double maxweight;
+do {
+	// find highest weighted patch
+	maxweight = 0.0;
+	max = -1;
+	for (int i = 0; i < nsubcomms; i++) {
+		if (weight[i] > maxweight) {
+			maxweight = weight[i]; max = i;
+		}
+	}
+	// cull the patch
+	if (max < 0) { // should not occur, but if so abort cull
+		nculled = c.maxNpatches + 1; loopcount = 10001;
+	}
+	else {
+		if (!selected[max]) {
+			if (subComms[max]->getNum() > 0) { // except in matrix
+				if (subComms[max]->isCullTarget()) {
+					subComms[max]->cullPatch(pCull,0,ppLand.resol); // ASSUMING Species 0
+					nculled++;			
+				}
+			}
+			selected[max] = true; weight[max] = 0.0;		
+		}
+		loopcount++;
+	}
+} while (nculled < c.maxNpatches && loopcount < 10000);
+
+delete[] selected;
+delete[] weight;
+}
+
+void Community::resetCullTargets(void) {
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	if (subComms[i]->getNum() > 0) { // except in matrix
+		subComms[i]->resetCullTarget();
+	}
+}
+}
+
+void Community::resetCull(void) {
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	subComms[i]->resetCull();
+}
+} 
+
+void Community::updateDamage(Species *pSpecies,Cull *pCull) {
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	if (subComms[i]->getNum() > 0) { // except in matrix
+		subComms[i]->updateDamage(pLandscape,pSpecies,pCull);
+	}
+}
+}
+
+#endif // RS_CONTAIN 
 
 void Community::ageIncrement(void) {
 int nsubcomms = (int)subComms.size();
@@ -564,7 +1106,11 @@ for (int i = 0; i < nrows; i++)
 }
 }
 
+#if SEASONAL
+void Community::updateOccupancy(int row,int rep,short season) 
+#else
 void Community::updateOccupancy(int row,int rep) 
+#endif // SEASONAL 
 {
 #if RSDEBUG
 DEBUGLOG << "Community::updateOccupancy(): row=" << row << endl;
@@ -574,7 +1120,11 @@ for (int i = 0; i < nsubcomms; i++) {
 	subComms[i]->updateOccupancy(row);
 }
 
+#if SEASONAL
+commStats s = getStats(season);
+#else
 commStats s = getStats();
+#endif // SEASONAL 
 occSuit[row][rep] = (float)s.occupied / (float)s.suitable;
 
 }
@@ -594,11 +1144,18 @@ delete[] occSuit;
 //---------------------------------------------------------------------------
 // Count no. of sub-communities (suitable patches) and those occupied (non-zero populations)
 // Determine range margins
+#if SEASONAL
+commStats Community::getStats(short season)
+#else
 commStats Community::getStats(void)
+#endif // SEASONAL 
 {
 commStats s;
 landParams ppLand = pLandscape->getLandParams();
 s.ninds = s.nnonjuvs = s.suitable = s.occupied = 0;
+#if GOBYMODEL
+s.nsocial = s.nasocial = 0;
+#endif
 s.minX = ppLand.maxX; s.minY = ppLand.maxY; s.maxX = s.maxY = 0;
 float localK;
 popStats patchPop;
@@ -607,6 +1164,10 @@ for (int i = 0; i < nsubcomms; i++) { // all sub-communities
 	patchPop = subComms[i]->getPopStats();
 	s.ninds += patchPop.nInds;
 	s.nnonjuvs += patchPop.nNonJuvs;
+#if GOBYMODEL
+	s.nsocial += patchPop.nSocial;
+	s.nasocial += patchPop.nAsocial;
+#endif
 #if RSDEBUG
 //DEBUGLOG << "Community::getStats(): i = " << i
 //	<< " pSpecies = " << patchPop.pSpecies << " pPatch = " << patchPop.pPatch
@@ -618,7 +1179,18 @@ for (int i = 0; i < nsubcomms; i++) { // all sub-communities
 //	<< " patchNum = " << patchPop.pPatch->getPatchNum() << endl;
 #endif
 		if (patchPop.pPatch->getPatchNum() != 0) { // not matrix patch
+#if SEASONAL
+			localK = patchPop.pPatch->getK(season);          
+#if RSDEBUG
+//DEBUGLOG << "Community::getStats(): season=" << season << " i= " << i  
+//	<< " patchNum= " << patchPop.pPatch->getPatchNum() << " localK= " << localK
+//	<< " nInds= " << patchPop.nInds << " nNonJuvs= " << patchPop.nNonJuvs 
+//	<< " nAdults= " << patchPop.nAdults << " breeding= " << (int)patchPop.breeding
+//	<< endl;
+#endif
+#else
 			localK = patchPop.pPatch->getK();
+#endif // SEASONAL 
 #if RSDEBUG
 //DEBUGLOG << "Community::getStats(): i= " << i
 //	<< " pSpecies= " << patchPop.pSpecies << " pPatch= " << patchPop.pPatch
@@ -651,15 +1223,134 @@ return subComms[0]->outPopHeaders(pLandscape,pSpecies,option);
 }
 
 // Write records to population file
+#if RS_ABC
+void Community::outPop(Species *pSpecies,int rep,int yr,int gen,
+	ABCmaster *pABCmaster,bool abcYear,bool popOutputYear)
+#else
 void Community::outPop(int rep,int yr,int gen)
+#endif // RS_ABC
 {
 // generate output for each sub-community (patch) in the community
 int nsubcomms = (int)subComms.size();
 for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+#if RS_ABC
+	subComms[i]->outPop(pLandscape,rep,yr,gen,pABCmaster,abcYear,popOutputYear);
+#else
 	subComms[i]->outPop(pLandscape,rep,yr,gen);
+#endif // RS_ABC
 }
 
+#if RS_ABC
+// Process any patch-level observations, which must be handled explicitly in case
+// patch has never been occupied and population has not been created
+obsdata obs;
+landParams land = pLandscape->getLandParams();
+demogrParams dem = pSpecies->getDemogr();
+simParams sim = paramsSim->getSim();
+if (abcYear) {
+	int nobs = (int)pABCmaster->NObs();
+	for (int i = 0; i < nobs; i++) {
+		obs = pABCmaster->getObsData(i);
+#if RSDEBUG
+//DEBUGLOG << "Community::outPop(): this=" << this << " i=" << i << " yr=" << yr
+//	<< " obs.year=" << obs.year << " obs.type=" << obs.type << " obs.name=" << obs.name
+//	<< " obs.x=" << obs.x << " obs.y=" << obs.y
+//	<< endl;
+#endif
+		if (obs.year == yr && obs.type == 2) {
+			if (obs.name == "NInds" || obs.name == "Occupied") {
+				bool match = false;
+				popStats pop;
+				pop.breeding = false; pop.nInds = pop.nAdults = pop.nNonJuvs = 0;
+				Patch *pPatch = 0;
+				Population *pPopn = 0;
+				if (land.patchModel) {
+					pPatch = pLandscape->findPatch(obs.x);
+				}
+				else { // cell-based model
+					Cell *pCell = pLandscape->findCell(obs.x,obs.y);
+					if (pCell != 0) {
+						intptr ppatch = pCell->getPatch();
+						if (ppatch != 0) {
+							pPatch = (Patch*) ppatch;
+						}
+					}
+				}
+				if (pPatch != 0) {
+					intptr ppopn = pPatch->getPopn((intptr)pSpecies);
+					if (ppopn != 0) {
+						match = true;
+						pPopn = (Population*)ppopn;
+						pop = pPopn->getStats();
+					}
+				}
+#if RSDEBUG
+//DEBUGLOG << "Community::outPop(): i=" << i << " PROCESS Population NInds OR Occupied"
+//	<< " obs.id=" << obs.id << " obs.value=" << obs.value
+//	<< " obs.x=" << obs.x << " obs.y=" << obs.y 
+//	<< " obs.stage=" << obs.stage << " obs.sex=" << obs.sex 
+//	<< " match=" << match << " pPopn=" << pPopn << " pop.breeding=" << pop.breeding
+//	<< " pop.nInds=" << pop.nInds << " pop.nAdults=" << pop.nAdults << " pop.nNonJuvs=" << pop.nNonJuvs
+//	<< endl;
+#endif
+				if (obs.name == "NInds") {        
+					if (match) {
+						if (dem.stageStruct) {
+							if (obs.stage == 0) { // all non-juvenile stages
+								if (obs.sex == 2) // both sexes
+									pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,pop.nNonJuvs,obs.weight);																	
+								else
+									pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,pPopn->sexPop(obs.sex),obs.weight);																	
+							}
+							else { // specified stage
+								if (obs.sex == 2) // both sexes
+									pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,pPopn->stagePop(obs.stage),obs.weight);																	
+								else
+									pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,pPopn->stageSexPop(obs.stage,obs.sex),obs.weight);																	
+							}
+						}
+						else { // non-structured
+							if (obs.sex == 2) // both sexes
+								pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,pop.nInds,obs.weight);
+							else  
+								pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,pPopn->sexPop(obs.sex),obs.weight);								
+						}
+					}
+					else
+						pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,0,obs.weight);
+				}
+				else { // obs.name == "Occupied"
+					if (match)
+						pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,pop.breeding,obs.weight);
+					else
+						pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,0,obs.weight);
+				}
+			}
+		}
+	}
 }
+#endif // RS_ABC
+
+}
+
+#if RS_CONTAIN
+
+// Open population file and write header record
+bool Community::outCullHeaders(Species *pSpecies,int option) {
+return subComms[0]->outCullHeaders(pLandscape,pSpecies,option);
+}
+
+// Write records to population file
+void Community::outCull(int rep,int yr,int gen)
+{
+// generate output for each sub-community (patch) in the community
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	subComms[i]->outCull(pLandscape,rep,yr,gen);
+}
+}
+
+#endif // RS_CONTAIN 
 
 
 // Write records to individuals file
@@ -683,6 +1374,22 @@ for (int i = 0; i < nsubcomms; i++) { // all sub-communities
 // Write records to genetics file
 void Community::outGenetics(int rep, int yr, int gen,int landNr) {
 //landParams ppLand = pLandscape->getLandParams();
+#if GROUPDISP || ROBFITT
+landParams land = pLandscape->getLandParams();
+if (landNr >= 0) { // open the file
+	subComms[0]->outGenetics(rep,yr,gen,landNr,land.patchModel);
+	return;
+}
+if (landNr == -999) { // close the file
+	subComms[0]->outGenetics(rep,yr,gen,landNr,land.patchModel);
+	return;
+}
+// generate output for each sub-community (patch) in the community
+int nsubcomms = (int)subComms.size();
+for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+	subComms[i]->outGenetics(rep,yr,gen,landNr,land.patchModel);
+}
+#else
 if (landNr >= 0) { // open the file
 	subComms[0]->outGenetics(rep,yr,gen,landNr);
 	return;
@@ -696,6 +1403,7 @@ int nsubcomms = (int)subComms.size();
 for (int i = 0; i < nsubcomms; i++) { // all sub-communities
 	subComms[i]->outGenetics(rep,yr,gen,landNr);
 }
+#endif
 }
 
 // Open range file and write header record
@@ -729,23 +1437,43 @@ DEBUGLOG << "Community::outRangeHeaders(): simulation=" << sim.simulation
 
 if (sim.batchMode) {
 	name = paramsSim->getDir(2)
+#if RS_RCPP
 		+ "Batch" + Int2Str(sim.batchNum) + "_"
 		+ "Sim" + Int2Str(sim.simulation) + "_Land"
 		+ Int2Str(landNr)
+#else
+		+ "Batch" + Int2Str(sim.batchNum) + "_"
+		+ "Sim" + Int2Str(sim.simulation) + "_Land"
+		+ Int2Str(landNr)
+#endif
 		+ "_Range.txt";
 }
 else {
 	name = paramsSim->getDir(2) + "Sim" + Int2Str(sim.simulation) + "_Range.txt";
 }
 outrange.open(name.c_str());
+#if SEASONAL
+outrange << "Rep\tYear\tSeason";
+#else
 outrange << "Rep\tYear\tRepSeason";
+#endif
 if (env.stoch && !env.local) outrange << "\tEpsilon";
+#if TEMPMORT
+if (trfr.moveModel)
+	if (trfr.moveType == 1 && trfr.smType == 2) { 
+		// SMS with temporally variable per-step mortality
+		outrange << "\tMortality";
+	}
+#endif // TEMPMORT 
 
 outrange << "\tNInds";
 if (dem.stageStruct) {
 	for (int i = 1; i < sstruct.nStages; i++) outrange << "\tNInd_stage" << i;
 	outrange << "\tNJuvs";
 }
+#if GOBYMODEL
+outrange << "\tNasocial\tNsocial";
+#endif
 if (ppLand.patchModel) outrange << "\tNOccupPatches";
 else outrange << "\tNOccupCells";
 outrange << "\tOccup/Suit\tmin_X\tmax_X\tmin_Y\tmax_Y";
@@ -784,14 +1512,22 @@ if (trfr.indVar) {
 	else {
 		if (trfr.sexDep) {
 			outrange << "\tF_mean_distI\tF_std_distI\tM_mean_distI\tM_std_distI";
+#if RS_CONTAIN
+			if (trfr.kernType == 1)
+#else
 			if (trfr.twinKern)
+#endif // RS_CONTAIN 
 				outrange << "\tF_mean_distII\tF_std_distII\tM_mean_distII\tM_std_distII"
 					<< "\tF_meanPfirstKernel\tF_stdPfirstKernel"
 					<< "\tM_meanPfirstKernel\tM_stdPfirstKernel";
 		}
 		else {
 			outrange << "\tmean_distI\tstd_distI";
+#if RS_CONTAIN
+			if (trfr.kernType == 1)
+#else
 			if (trfr.twinKern)
+#endif // RS_CONTAIN 
 				outrange << "\tmean_distII\tstd_distII\tmeanPfirstKernel\tstdPfirstKernel";
 		}
 	}
@@ -819,7 +1555,12 @@ return outrange.is_open();
 }
 
 // Write record to range file
+#if RS_ABC
+void Community::outRange(Species *pSpecies,int rep,int yr,int gen,
+	ABCmaster *pABCmaster,bool abcYear)
+#else
 void Community::outRange(Species *pSpecies,int rep,int yr,int gen)
+#endif
 {
 #if RSDEBUG
 DEBUGLOG << "Community::outRange(): rep=" << rep
@@ -837,11 +1578,26 @@ emigRules emig = pSpecies->getEmig();
 trfrRules trfr = pSpecies->getTrfr();
 settleType sett = pSpecies->getSettle();
 
+#if RS_ABC
+simParams sim = paramsSim->getSim();
+#endif
+
 outrange << rep << "\t" << yr << "\t" << gen;
 if (env.stoch && !env.local) // write global environmental stochasticity
 	outrange << "\t" << pLandscape->getGlobalStoch(yr);
+#if TEMPMORT
+if (trfr.moveModel)
+	if (trfr.moveType == 1 && trfr.smType == 2) { 
+		// SMS with temporally variable per-step mortality
+		outrange << "\t" << pSpecies->getMortality();
+	}
+#endif // TEMPMORT 
 
+#if SEASONAL
+commStats s = getStats(gen);
+#else
 commStats s = getStats();
+#endif // SEASONAL 
 
 if (dem.stageStruct) {
 	outrange << "\t" << s.nnonjuvs;
@@ -865,6 +1621,9 @@ if (dem.stageStruct) {
 else { // non-structured species
 	outrange << "\t" << s.ninds;
 }
+#if GOBYMODEL
+outrange << "\t" << s.nasocial << "\t" << s.nsocial ;
+#endif
 
 float occsuit = 0.0;
 if (s.suitable > 0) occsuit = (float)s.occupied / (float)s.suitable;
@@ -879,6 +1638,55 @@ if (s.ninds > 0) {
 }
 else
 	outrange <<"\t0\t0\t0\t0";
+
+#if RS_ABC
+obsdata obs;
+if (abcYear) {
+	int nobs = (int)pABCmaster->NObs();
+	for (int i = 0; i < nobs; i++) {
+		obs = pABCmaster->getObsData(i);
+#if RSDEBUG
+//DEBUGLOG << "Community::outRange(): i=" << i << " yr=" << yr
+//	<< " obs.year=" << obs.year << " obs.type=" << obs.type << " obs.name=" << obs.name
+//	<< endl;
+#endif
+		if (obs.year == yr && obs.type == 1) {
+			if (obs.name == "NInds") {          
+#if RSDEBUG
+DEBUGLOG << "Community::outRange(): i=" << i << " PROCESS Range NInds"
+	<< " obs.id=" << obs.id << " obs.value=" << obs.value
+	<< " obs.stage=" << obs.stage << " obs.sex=" << obs.sex
+	<< " s.ninds=" << s.ninds << " s.nnonjuvs=" << s.nnonjuvs
+	<< endl;
+#endif
+				if (dem.stageStruct) {  
+					if (obs.stage == 0) { // all non-juvenile stages
+						pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,s.nnonjuvs,obs.weight);
+					} 
+					else { // observation is for a specified stage
+						int stagepop = 0;
+						int nsubcomms = (int)subComms.size();
+						for (int i = 0; i < nsubcomms; i++) { // all sub-communities
+							stagepop += subComms[i]->stagePop(obs.stage);
+						}
+						pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,stagepop,obs.weight);						
+					}         
+				}
+				else
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,s.ninds,obs.weight);
+			}
+			if (obs.name == "NOccupPatches") {
+				pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,s.occupied,obs.weight);
+#if RSDEBUG
+DEBUGLOG << "Community::outRange(): i=" << i << " PROCESS Range NOccupPatches"
+	<< " obs.id=" << obs.id << " obs.value=" << obs.value << " s.occupied=" << s.occupied
+	<< endl;
+#endif
+			}
+		}
+	}
+}
+#endif // RS_ABC
 
 if (emig.indVar || trfr.indVar || sett.indVar) { // output trait means
 	traitsums ts;   
@@ -1087,7 +1895,11 @@ if (emig.indVar || trfr.indVar || sett.indVar) { // output trait means
 			if (trfr.sexDep) {
 				outrange << "\t" << mnDist1[0] << "\t" << sdDist1[0];
 				outrange << "\t" << mnDist1[1] << "\t" << sdDist1[1];
+#if RS_CONTAIN
+				if (trfr.kernType == 1) 
+#else
 				if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 				{
 					outrange << "\t" << mnDist2[0] << "\t" << sdDist2[0];
 					outrange << "\t" << mnDist2[1] << "\t" << sdDist2[1];
@@ -1097,7 +1909,11 @@ if (emig.indVar || trfr.indVar || sett.indVar) { // output trait means
 			}
 			else { // sex-independent
 				outrange << "\t" << mnDist1[0] << "\t" << sdDist1[0];
+#if RS_CONTAIN
+				if (trfr.kernType == 1) 
+#else
 				if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 				{
 					outrange << "\t" << mnDist2[0] << "\t" << sdDist2[0];
 					outrange << "\t" << mnProp1[0] << "\t" << sdProp1[0];
@@ -1326,6 +2142,24 @@ if (sim.outTraitsRows && yr >= sim.outStartTraitRow && yr%sim.outIntTraitRow == 
 		}
 	}
 }
+#if VCL
+#if RSDEBUG
+//DEBUGLOG << "Community::outTraits(): canvasComm = " <<  canvasComm << endl;
+#endif
+landPix p = pLandscape->getLandPix();
+//for (int i = 0; i < 6; i++)
+for (int i = 0; i < NTRAITS; i++)
+{ // fill canvas with black background
+//	if (ecanv.pcanvas[i] != 0) {
+//		ecanv.pcanvas[i]->Brush->Color=(TColor)RGB(0,0,0);
+//		ecanv.pcanvas[i]->FillRect(Rect(0,0,(land.maxX+1)*p.gpix,(land.maxY+1)*p.gpix));
+//	}
+	if (tcanv.pcanvas[i] != NULL) {
+		tcanv.pcanvas[i]->Brush->Color=(TColor)RGB(0,0,0);
+		tcanv.pcanvas[i]->FillRect(Rect(0,0,(land.dimX)*p.gpix,(land.dimY)*p.gpix));
+	}
+}
+#endif
 if (v.viewTraits
 || ((sim.outTraitsCells && yr >= sim.outStartTraitCell && yr%sim.outIntTraitCell == 0) ||
 		(sim.outTraitsRows && yr >= sim.outStartTraitRow && yr%sim.outIntTraitRow == 0)))
@@ -1475,7 +2309,11 @@ if (trfr.indVar) {
 			if (ts.ninds[1] > 1) sd = ts.ssqDist1[1]/(double)ts.ninds[1] - mn*mn; else sd = 0.0;
 			if (sd > 0.0) sd = sqrt(sd); else sd = 0.0;
 			outtraitsrows << "\t" << mn << "\t" << sd;
+#if RS_CONTAIN
+			if (trfr.kernType == 1) 
+#else
 			if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 			{
 				if (ts.ninds[0] > 0) mn = ts.sumDist2[0]/(double)ts.ninds[0]; else mn = 0.0;
 				if (ts.ninds[0] > 1) sd = ts.ssqDist2[0]/(double)ts.ninds[0] - mn*mn; else sd = 0.0;
@@ -1500,7 +2338,11 @@ if (trfr.indVar) {
 			if (popsize > 1) sd = ts.ssqDist1[0]/(double)popsize - mn*mn; else sd = 0.0;
 			if (sd > 0.0) sd = sqrt(sd); else sd = 0.0;
 			outtraitsrows << "\t" << mn << "\t" << sd;
+#if RS_CONTAIN
+			if (trfr.kernType == 1) 
+#else
 			if (trfr.twinKern) 
+#endif // RS_CONTAIN 
 			{
 				if (popsize > 0) mn = ts.sumDist2[0]/(double)popsize; else mn = 0.0;
 				if (popsize > 1) sd = ts.ssqDist2[0]/(double)popsize - mn*mn; else sd = 0.0;
@@ -1624,14 +2466,22 @@ if (trfr.indVar) {
 	else { // dispersal kernel
 		if (trfr.sexDep) {
 			outtraitsrows << "\tF_mean_distI\tF_std_distI\tM_mean_distI\tM_std_distI";
+#if RS_CONTAIN
+			if (trfr.kernType == 1)
+#else
 			if (trfr.twinKern)
+#endif // RS_CONTAIN 
 				outtraitsrows << "\tF_mean_distII\tF_std_distII\tM_mean_distII\tM_std_distII"
 					<< "\tF_meanPfirstKernel\tF_stdPfirstKernel"
 					<< "\tM_meanPfirstKernel\tM_stdPfirstKernel";
 		}
 		else {
 			outtraitsrows << "\tmean_distI\tstd_distI";
+#if RS_CONTAIN
+			if (trfr.kernType == 1)
+#else
 			if (trfr.twinKern)
+#endif // RS_CONTAIN 
 				outtraitsrows << "\tmean_distII\tstd_distII\tmeanPfirstKernel\tstdPfirstKernel";
 		}
 	}
@@ -1655,7 +2505,146 @@ return outtraitsrows.is_open();
 
 }
 
-Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: define new simparams to control start and interval of output
+#if RS_ABC
+// Write predictions for ABC
+void Community::outABCpreds(int rep,int yr,ABCmaster *pABCmaster,
+		float resol) {
+
+simParams sim = paramsSim->getSim();
+
+obsdata obs;
+
+int nobs = (int)pABCmaster->NObs();
+for (int i = 0; i < nobs; i++) {
+	obs = pABCmaster->getObsData(i);
+#if RSDEBUG
+//DEBUGLOG << "Community::outABCpreds(): i=" << i << " yr=" << yr
+//	<< " obs.year=" << obs.year << " obs.type=" << obs.type << " obs.name=" << obs.name
+//	<< endl;
+#endif
+	if (obs.year == yr && obs.type == 3) {
+#if RSDEBUG
+DEBUGLOG << "Community::outABCpreds(): i=" << i << " PROCESS Type 3 Individual"
+	<< " yr=" << yr
+	<< " obs.year=" << obs.year << " obs.type=" << obs.type << " obs.name=" << obs.name
+//	<< " obs.id=" << obs.id << " obs.value=" << obs.value
+//	<< " s.ninds=" << s.ninds << " s.nnonjuvs=" << s.nnonjuvs
+	<< endl;
+#endif
+		dispstats d,subcommd;
+		d.nPhilo = d.nDisp = d.nSuccess = 0; d.sumDist = d.sumDist2 = 0.0;
+		int nsubcomms = (int)subComms.size();
+		for (int i = 0; i < nsubcomms; i++) {
+			subcommd = subComms[i]->getDispStats(resol);
+			d.nPhilo += subcommd.nPhilo;
+			d.nDisp += subcommd.nDisp;
+			d.nSuccess += subcommd.nSuccess;
+			d.sumDist += subcommd.sumDist;
+			d.sumDist2 += subcommd.sumDist2;
+		}
+#if RSDEBUG
+DEBUGLOG << "Community::outABCpreds(): nPhilo=" << d.nPhilo << " nDisp=" << d.nDisp
+	<< " nSuccess=" << d.nSuccess
+	<< " sumDist=" << d.sumDist << " sumDist2=" << d.sumDist2
+	<< endl;
+#endif
+		if (obs.name == "EmigRate") {
+			if ((d.nPhilo+d.nDisp) > 0)
+				pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+					(double)d.nDisp/(double)(d.nPhilo+d.nDisp),obs.weight);
+			else {
+				// cannot be calculated - set 'bad' prediction
+				if (obs.value < 0.5)
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						1.0,obs.weight);
+				else
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						0.0,obs.weight);
+			}
+		}
+		if (obs.name == "DispSuccess") {
+			if (d.nDisp > 0)
+				pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+					(double)d.nSuccess/(double)d.nDisp,obs.weight);
+			else {
+				// cannot be calculated - set 'bad' prediction
+				if (obs.value < 0.5)
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						1.0,obs.weight);
+				else
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						0.0,obs.weight);
+			}
+		}
+		if (obs.name == "DistMean") {
+			if (d.nSuccess > 0)
+				pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+					d.sumDist/(double)d.nSuccess,obs.weight);
+			else {
+				// cannot be calculated - set 'bad' prediction
+				if (obs.value > 0.0)
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						(1.0/obs.value),obs.weight);
+				else
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						10.0*resol,obs.weight);
+			}
+		}
+		if (obs.name == "DistSD") {
+			if (d.nSuccess > 1) {
+				double distmean,distsd;
+				distmean = d.sumDist/(double)d.nSuccess;
+				distsd = d.sumDist2/(double)d.nSuccess - distmean*distmean;
+				if (distsd > 0.0) {
+					distsd =sqrt(distsd);
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,distsd,obs.weight);
+				}
+				else
+					// cannot be calculated - set 'bad' prediction
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,distmean,obs.weight);
+			}
+			else {
+				// cannot be calculated - set 'bad' prediction
+				if (obs.value > 0.0)
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						(1.0/obs.value),obs.weight);
+				else
+					pABCmaster->AddNewPred(sim.simulation,obs.id,rep,obs.value,
+						10.0*resol,obs.weight);
+			}
+		}
+	}
+}
+
+}
+#endif // RS_ABC
+
+#if PEDIGREE
+// Open groups file and write header record
+bool Community::outGroupHeaders(int option) {
+bool fileOK;
+Group *pGroup;
+landParams land = pLandscape->getLandParams();
+
+if (option == -999) { // close the file
+	// set up a dummy group
+	pGroup = new Group(); 
+	fileOK = pGroup->outGroupHeaders(-999,land.patchModel);
+	delete pGroup;
+}
+else { // open the file
+	// as no group has yet been created, set up a dummy one
+	pGroup = new Group(); 
+	fileOK = pGroup->outGroupHeaders(land.landNum,land.patchModel);
+	delete pGroup;
+}
+return fileOK;
+
+}
+#endif
+
+#if RS_RCPP && !R_CMD
+Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: define new simparams to control type as well as start and interval of output
 
 	landParams ppLand = pLandscape->getLandParams();
 	Rcpp::IntegerMatrix pop_map_year(ppLand.dimY,ppLand.dimX);
@@ -1674,19 +2663,22 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 				pop_map_year(ppLand.dimY-1-y,x) = NA_INTEGER;
 			} else {
 				patch = pCell->getPatch();
-				if (patch == 0) { // matrix cell
-					pop_map_year(ppLand.dimY-1-y,x) = 0;
-				}
-				else{
+				if (patch != 0) {
 					pPatch = (Patch*)patch;
-					subcomm = pPatch->getSubComm();
-					if (subcomm == 0) { // check if sub-community exists
+					if (pPatch->getSeqNum() == 0) { // cell in matrix patch
 						pop_map_year(ppLand.dimY-1-y,x) = 0;
-					} else {
-						pSubComm = (SubCommunity*)subcomm;
-						pop = pSubComm->getPopStats();
-						pop_map_year(ppLand.dimY-1-y,x) = pop.nInds; // use indices like this because matrix gets transposed upon casting it into a raster on R-level
-						//pop_map_year(ppLand.dimY-1-y,x) = pop.nAdults;
+					}
+					else{
+						pPatch = (Patch*)patch;
+						subcomm = pPatch->getSubComm();
+						if (subcomm == 0) { // check if sub-community exists
+							pop_map_year(ppLand.dimY-1-y,x) = 0;
+						} else {
+							pSubComm = (SubCommunity*)subcomm;
+							pop = pSubComm->getPopStats();
+							pop_map_year(ppLand.dimY-1-y,x) = pop.nInds; // use indices like this because matrix gets transposed upon casting it into a raster on R-level
+							//pop_map_year(ppLand.dimY-1-y,x) = pop.nAdults;
+						}
 					}
 				}
 			}
@@ -1695,6 +2687,7 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 	//list_outPop.push_back(pop_map_year, "rep" + std::to_string(rep) + "_year" + std::to_string(yr));
     return pop_map_year;
 }
+#endif
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

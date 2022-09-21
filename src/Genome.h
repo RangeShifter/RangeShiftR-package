@@ -164,6 +164,27 @@ public:
 //	void setStaticData(genomeData);
 //	genomeData getStaticData(void);
 	short getNChromosomes(void);
+#if VIRTUALECOLOGIST
+	int getChromosomeNloci(short);
+#endif
+#if GROUPDISP || ROBFITT
+	void outGenHeaders(
+		const int, 	 // replicate
+		const int,	 // landscape number
+		const bool,  // patch-based landscape
+		const bool	 // output as cross table?
+	);
+	void outGenetics(
+		const int,		// replicate
+		const int,		// year
+		const int,		// species number
+		const int,		// individual ID
+		const int,		// X co-ordinate OR patch ID
+		const int,		// Y co-ordinate
+		const bool,  	// patch-based landscape
+		const bool		// output as cross table?
+	);
+#else
 	void outGenHeaders(
 		const int,	// replicate
 		const int,	// landscape number
@@ -176,6 +197,7 @@ public:
 		const int, 	// individual ID
 		const bool 	// output as cross table?
 	);
+#endif
 
 
 private:

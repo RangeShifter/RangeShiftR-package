@@ -57,6 +57,10 @@ using namespace std;
 #include "Cell.h"
 #include "Genome.h"
 
+#if RS_CONTAIN
+#include "Control.h"
+#endif // RS_CONTAIN 
+
 #define NODATACOST 100000 // cost to use in place of nodata value for SMS
 #define ABSNODATACOST 100 // cost to use in place of nodata value for SMS
 													// when boundaries are absorbing
@@ -65,19 +69,38 @@ using namespace std;
 
 struct indStats {
 	short stage; short sex; short age; short status; short fallow;
+#if SEASONAL
+#if PARTMIGRN
+	short migrnstatus;
+#endif // PARTMIGRN 
+#endif
 	bool isDeveloping;
+#if GOBYMODEL
+	bool asocial;
+#endif
+#if SOCIALMODEL
+	bool asocial;
+#endif
 };
 struct pathData { // to hold path data common to SMS and CRW models
 	int year, total, out; // nos. of steps
+#if SEASONAL
+	int season;
+#endif
 	Patch* pSettPatch;		// pointer to most recent patch tested for settlement
 	short settleStatus; 	// whether ind may settle in current patch
 												// 0 = not set, 1 = debarred through density dependence rule
 												// 2 = OK to settle subject to finding a mate
 //	bool leftNatalPatch;	// individual has moved out of its natal patch
+#if RS_RCPP
 	short pathoutput;
+#endif
 };
 struct pathSteps { // nos. of steps for movement model
 	int year, total, out;
+#if SEASONAL
+	int season;
+#endif
 };
 struct settlePatch {
 	Patch* pSettPatch; short settleStatus;
@@ -97,12 +120,48 @@ struct smsdata {
 	float gb;				// goal bias
 	float alphaDB;	// dispersal bias decay rate
 	int betaDB;			// dispersal bias decay inflection point (no. of steps)
+#if PARTMIGRN
+	short goalType;
+#endif  // PARTMIGRN 
 };
+
+#if SEASONAL
+struct patchlist { Patch *pPatch; short season; bool breeding; bool fixed; };
+#endif
 
 class Individual {
 
 public:
 	static int indCounter; // used to create ID, held by class, not members of class
+#if GROUPDISP
+	Individual(); // Default constructor
+#endif
+#if RS_CONTAIN
+	Individual( // Individual constructor
+		Cell*,	// pointer to Cell
+		Patch*,	// pointer to patch
+		short,	// stage
+		short,	// age
+		short,	// reproduction interval (no. of years/seasons between breeding attempts)
+		short,	// mother's stage
+		float,	// probability that sex is male
+		bool,		// TRUE for a movement model, FALSE for kernel-based transfer
+		short		// movement type: 1 = SMS, 2 = CRW
+	);
+#else
+#if PARTMIGRN
+	Individual( // Individual constructor
+		Species*,	// pointer to Species
+		Cell*,		// pointer to Cell
+		Patch*,		// pointer to patch
+		short,		// stage
+		short,		// age
+		short,		// reproduction interval (no. of years/seasons between breeding attempts)
+		float,		// probability that sex is male
+		bool,			// TRUE for a movement model, FALSE for kernel-based transfer
+		short			// movement type: 1 = SMS, 2 = CRW
+	);
+#else
 	Individual( // Individual constructor
 		Cell*,	// pointer to Cell
 		Patch*,	// pointer to patch
@@ -113,7 +172,15 @@ public:
 		bool,		// TRUE for a movement model, FALSE for kernel-based transfer
 		short		// movement type: 1 = SMS, 2 = CRW
 	);
+#endif // PARTMIGRN 
+#endif // RS_CONTAIN 
 	~Individual(void);
+#if BUTTERFLYDISP
+void setMate(Individual*);
+//void setMated(short,Individual*);
+//int getNJuvs(void);
+Individual* getMate(void);
+#endif
 	void setGenes( // Set genes for individual variation from species initialisation parameters
 		Species*,			// pointer to Species
 		int						// Landscape resolution
@@ -124,6 +191,9 @@ public:
 		Individual*,	// pointer to father (must be 0 for an asexual Species)
 		int						// Landscape resolution
 	);
+#if VIRTUALECOLOGIST
+	Genome* getGenome(void);
+#endif
 	void setEmigTraits( // Set phenotypic emigration traits
 		Species*,	// pointer to Species
 		short,		// location of emigration genes on genome
@@ -168,9 +238,32 @@ public:
 	// if so, return her stage, otherwise return 0
 	int breedingFem(void);
 	int getId(void);
+#if GROUPDISP
+	int getParentId(short);
+#if PEDIGREE
+	Individual* getParent(short);
+#endif // PEDIGREE
+	void setGroupId(int);
+	int getGroupId(void);
+#endif // GROUPDISP 
+#if PEDIGREE
+	void setMatPosn(unsigned int);	// Set position in relatedness matrix
+	unsigned int getMatPosn(void);	// Get position in relatedness matrix
+#endif
 	int getSex(void);
 	int getStatus(void);
+#if SEASONAL
+#if PARTMIGRN
+	int getMigrnStatus(void);
+#endif // PARTMIGRN 
+#endif
 	indStats getStats(void);
+#if GOBYMODEL
+	bool isAsocial(void);
+#endif
+#if SOCIALMODEL
+	bool isAsocial(void);
+#endif
 	Cell* getLocn( // Return location (as pointer to Cell)
 		const short	// option: 0 = get natal locn, 1 = get current locn
 	); //
@@ -179,7 +272,32 @@ public:
 	pathSteps getSteps(void);
 	settlePatch getSettPatch(void);
 	void setSettPatch(const settlePatch);
+#if SEASONAL
+	void resetPathSeason(void);
+#endif
 	void setStatus(short);
+#if SEASONAL
+#if PARTMIGRN
+	void setMigrnStatus(short);
+#endif // PARTMIGRN 
+	void setPrevPatch(Patch*);
+#if PARTMIGRN
+//	void setNpatches( // set max. no. of patches to be held in memory
+//		const short		// no. of patches
+//	);
+	void addPatch( // add patch to memory
+		patchlist				// patch data
+	);
+	patchlist getPatch( // get specified patch from memory
+		const int		// patch list no.
+	);
+	void setGoal( // set goal type and location
+		const locn,			// goal location
+		const short,		// goal type
+		const bool			// breeding season
+	);
+#endif // PARTMIGRN 
+#endif // SEASONAL
 	void developing(void);
 	void develop(void);
 	void ageIncrement( // Age by one year
@@ -190,23 +308,48 @@ public:
 	void moveto( // Move to a specified neighbouring cell
 		Cell*	// pointer to the new cell
 	);
+#if GROUPDISP
+	void moveTo( // Move to any specified cell
+		Cell*	// pointer to the new cell
+	);
+#endif
 	// Move to a new cell by sampling a dispersal distance from a single or double
 	// negative exponential kernel
 	// Returns 1 if still dispersing (including having found a potential patch), otherwise 0
+#if SEASONAL
+	int moveKernel(
+		Landscape*,		// pointer to Landscape
+		Species*,			// pointer to Species
+		const short,	// reproduction type (see Species)
+		const short,	// season
+		const bool    // absorbing boundaries?
+	);
+#else
 	int moveKernel(
 		Landscape*,		// pointer to Landscape
 		Species*,			// pointer to Species
 		const short,	// reproduction type (see Species)
 		const bool    // absorbing boundaries?
 	);
+#endif // SEASONAL 
 	// Make a single movement step according to a mechanistic movement model
 	// Returns 1 if still dispersing (including having found a potential patch), otherwise 0
+#if SEASONAL
+	int moveStep(
+		Landscape*,		// pointer to Landscape
+		Species*,			// pointer to Species
+		const short,	// landscape change index
+		const short,	// season
+		const bool    // absorbing boundaries?
+	);
+#else
 	int moveStep(
 		Landscape*,		// pointer to Landscape
 		Species*,			// pointer to Species
 		const short,	// landscape change index
 		const bool    // absorbing boundaries?
 	);
+#endif // SEASONAL 
 	void drawMove(	// Visualise paths resulting from movement simulation model
 									// NULL for the batch version
 		const float,	// initial x co-ordinate
@@ -247,6 +390,16 @@ public:
 		const short,	// landscape change index
 		const bool    // absorbing boundaries?
 	);
+#if GROUPDISP || ROBFITT
+	void outGenetics( // Write records to genetics file
+		const int,		 	// replicate
+		const int,		 	// year
+		const int,		 	// species number
+		const int,	 	 	// landscape number
+		const bool,  		// patch-based landscape
+		const bool	 		// output as cross table?
+	);
+#else
 	void outGenetics( // Write records to genetics file
 		const int,		 	// replicate
 		const int,		 	// year
@@ -254,9 +407,64 @@ public:
 		const int,		 	// landscape number
 		const bool	 		// output as cross table?
 	);
+#endif
+#if RS_RCPP
 	void outMovePath( // Write records to movement paths file
 		const int		 	// year
 	);
+#endif
+
+#if GROUPDISP
+
+protected:
+	short stage;
+	short sex;
+	Cell *pPrevCell;						// pointer to previous Cell
+	Cell *pCurrCell;						// pointer to current Cell
+	Patch *pNatalPatch;					// pointer to natal Patch
+	short status;	// 0 = initial status in natal patch / philopatric recruit
+								// 1 = disperser
+								// 2 = disperser awaiting settlement in possible suitable patch
+								// 3 = waiting between dispersal events
+								// 4 = completed settlement
+								// 5 = completed settlement in a suitable neighbouring cell
+								// 6 = died during transfer by failing to find a suitable patch
+								//     (includes exceeding maximum number of steps or crossing
+								//			absorbing boundary)
+								// 7 = died during transfer by constant, step-dependent,
+								//     habitat-dependent or distance-dependent mortality
+								// 8 = failed to survive annual (demographic) mortality
+								// 9 = exceeded maximum age
+	pathData *path; 						// pointer to path data for movement model
+	crwParams *crw;     				// pointer to CRW traits and data
+	smsdata *smsData;						// pointer to variables required for SMS
+	emigTraits *emigtraits;			// pointer to emigration traits
+	trfrKernTraits *kerntraits;	// pointers to transfer by kernel traits
+	settleTraits *setttraits;		// pointer to settlement traits
+	Genome *pGenome;
+
+private:
+	int indId;
+#if PEDIGREE
+	Individual *pParent[2];
+#endif
+	int parentId[2];
+	int groupId;
+#if PEDIGREE
+	unsigned int matPosn;	// position in relatedness matrix
+#endif
+	short age;
+	short fallow; // reproductive seasons since last reproduction
+	bool isDeveloping;
+#if GOBYMODEL
+	bool asocial;
+#endif
+#if SOCIALMODEL
+	bool asocial;
+#endif
+	std::queue <locn> memory;		// memory of last N squares visited for SMS
+
+#else
 
 private:
 	int indId;
@@ -276,11 +484,39 @@ private:
 								//     habitat-dependent or distance-dependent mortality
 								// 8 = failed to survive annual (demographic) mortality
 								// 9 = exceeded maximum age
+#if RS_CONTAIN
+	short motherstage;	// mother's stage for purpose of implementing WALD kernel
+#endif // RS_CONTAIN 
+#if SEASONAL
+#if PARTMIGRN
+	short migrnstatus;	// 0 = not yet determined
+											// 1 = philopatric resident, breeding and non-breeding fixed
+											// 2 = philopatric migrant, non-breeding site fixed
+											// 3 = philopatric migrant, non-breeding site not fixed
+											// 4 = dispersed resident, breeding and non-breeding fixed
+											// 5 = dispersed migrant, breeding fixed, non-breeding fixed
+											// 6 = dispersed migrant, breeding fixed, non-breeding not fixed
+#endif // PARTMIGRN 
+	short npatches; 		// no. of patches held in memory
+#endif // SEASONAL 
 	short fallow; // reproductive seasons since last reproduction
+#if BUTTERFLYDISP
+//	short nJuvs;
+	Individual *pMate;
+#endif
 	bool isDeveloping;
+#if GOBYMODEL
+	bool asocial;
+#endif
+#if SOCIALMODEL
+	bool asocial;
+#endif
 	Cell *pPrevCell;						// pointer to previous Cell
 	Cell *pCurrCell;						// pointer to current Cell
 	Patch *pNatalPatch;					// pointer to natal Patch
+#if SEASONAL
+	Patch *pPrevPatch;						// pointer to previous Patch
+#endif
 	emigTraits *emigtraits;			// pointer to emigration traits
 	trfrKernTraits *kerntraits;	// pointers to transfer by kernel traits
 	pathData *path; 						// pointer to path data for movement model
@@ -288,8 +524,13 @@ private:
 	smsdata *smsData;						// pointer to variables required for SMS
 	settleTraits *setttraits;		// pointer to settlement traits
 	std::queue <locn> memory;		// memory of last N squares visited for SMS
+#if SEASONAL
+	std::vector <patchlist> patches;		// memory of patches used
+#endif
 
 	Genome *pGenome;
+
+#endif // GROUPDISP
 
 };
 
@@ -305,7 +546,9 @@ extern RSrandom *pRandom;
 extern ofstream DEBUGLOG;
 #endif
 
+#if RS_RCPP
 extern ofstream outMovePaths;
+#endif
 
 //---------------------------------------------------------------------------
 #endif

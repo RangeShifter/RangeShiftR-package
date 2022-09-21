@@ -38,6 +38,7 @@
 #'                RepSeasons = 1, PRep = 1.0, RepInterval = 0, SurvSched = 0,
 #'                FecDensDep = FALSE, DevDensDep = FALSE, SurvDensDep = FALSE,
 #'                FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix,
+#'                FecLayer, DevLayer, SurvLayer,
 #'                PostDestructn = FALSE)
 #' @param Stages Number of life-stages (integer). Requires a minimum of \eqn{2}, for "juvenile" (stage 0) and "adult". Maximum is 10.
 #' @param TransMatrix Transition matrix. Defines the development probabilities from each stage into the next, as well as the respective survival probabilities and fecundities. See Details for matrix structure and notation.
@@ -52,6 +53,10 @@
 # @param FecStageWts,DevStageWts,SurvStageWts Stage-dependent density dependence in fecundity / development / survival? Defaults to \code{FALSE}.
 # @param FecStageWtsMatrix,DevStageWtsMatrix,SurvStageWtsMatrix Required if stage-dependent density dependence, i.e. if respective \code{FecStageWts}/\code{DevStageWts}/\code{SurfStageWts=TRUE}. Takes a quadratic matrix with (#stages * #sexes) rows/columns indicating the weight of the abundance of each sex/stage on the fecundity/development/survival of each other sex/stage.
 #' @param FecStageWtsMatrix,DevStageWtsMatrix,SurvStageWtsMatrix Stage-dependent weights in density dependence of fecundity / development / survival. Takes a quadratic matrix with (#sexes * #stages) rows/columns indicating the weight of the abundance of each stage/sex on the fecundity/development/survival of each other stage/sex. If not set, all stages are weighted equally.
+#' @param FecLayer,DevLayer,SurvLayer A matrix of layer indices for the three demographic rates (fecundity/development/survival) if they are spatially varying. The indices match the
+#' scaling layers given in the \code{\link[RangeShiftR]{ImportedLandscape}} module to each demographic rate. The value NA denotes a spatially constant rate. The row number corresponds
+#' to the stage; the first/second column contains the layer index for females/males. In case of a female-only or simple sexual model (\code{ReproductionType={0,1}}) only the first
+#' column is needed and a vector is accepted to represent it. In any case, values will be coerced to integer.
 #' @param PostDestructn In a dynamic landscape, determine if all individuals of a population should die (\code{FALSE}, default) or disperse (\code{TRUE}) if its patch gets destroyed.
 #' @details In stage-structured populations, generations can overlap and individuals can be classified in different stages (e.g. immature vs. breeding individuals) differing in their
 #' demographic parameters. Individuals are characterized by their age and stage. Each stage has a certain fecundity, survival probability and probability of developing to the next stage.
@@ -69,13 +74,13 @@
 #' and - if it survives - if it develops to the next stage or not.
 #'
 #' An example transition matrix for a 3-staged only-female or simple sexual (\code{ReproductionType={0,1}}) population model:
-#' \tabular{ccccc}{0 \tab | \tab 0 \tab | \tab \ifelse{html}{\out{&phi;<sub>2</sub>}}{\eqn{φ_2}} \cr
+#' \tabular{ccccc}{0 \tab | \tab \ifelse{html}{\out{&phi;<sub>1</sub>}}{\eqn{φ_1}} \tab | \tab \ifelse{html}{\out{&phi;<sub>2</sub>}}{\eqn{φ_2}} \cr
 #' \eqn{1.0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> (1-&gamma;<sub>1-2</sub>)}}{\eqn{σ_1 (1 − γ_(1-2))}} \tab | \tab \eqn{0} \cr
 #' \eqn{0} \tab | \tab \ifelse{html}{\out{&sigma;<sub>1</sub> &gamma;<sub>1-2</sub>}}{\eqn{σ_1 γ_(1-2)}} \tab | \tab \ifelse{html}{\out{&sigma;<sub>2</sub>}}{\eqn{σ_2}} \cr}
 #'
-#' In a female-only model (\code{ReproductionType=0}), \ifelse{html}{\out{&phi;}}{\eqn{φ}} represents the number of female offspring per female and reproductive event. \cr
+#' In a female-only model (\code{ReproductionType=0}), φ represents the number of female offspring per female and reproductive event. \cr
 #' Note that for an implicit (simple) sexual model (\code{ReproductionType=1}), the demographic parameters are not sex-specific. However, individuals are defined by their sex, which is acknowledged for example in the dispersal
-#' process and transmission of alleles. The fecundities \ifelse{html}{\out{&phi;}}{\eqn{φ}}  refer to the number of all offspring (males and females) per female and reproductive event.
+#' process and transmission of alleles. The fecundities φ refer to the number of all offspring (males and females) per female and reproductive event.
 #'
 #' In case of an explicit (complex) sexual model (\code{ReproductionType=2}), in contrast, each stage must be represented by two columns and rows to distinguish male and female demographic parameters.
 #' Note, however, that in any case the juvenile stage has only one row; it contains the fecundities. Male fecundities should have one of two possible values: set \ifelse{html}{\out{&phi;<sub>m</sub>}}{\eqn{φ_m}} \eqn{=1.0} for reproductive males or \ifelse{html}{\out{&phi;<sub>m</sub>}}{\eqn{φ_m}} \eqn{=0.0} for non-reproductive males.\cr
@@ -89,7 +94,7 @@
 #'
 #' A common mistake in building a transition matrix is made when offspring produced at year \eqn{t} develop to the next stage in the same year \insertCite{@ @caswell2001 pg. 60-62}{RangeShiftR}. To avoid this problem without losing the offspring stage, and hence the chance for simulating post-natal dispersal,
 #' we require an additional explicit juvenile stage (stage 0). Juveniles have to develop to stage 1 in the same year they are born. Hence the minimum number of stages of a stage-structured model is always \eqn{2}. It is important to note that juvenile mortality can be accounted for in
-#' two ways. Either, as in the examples above, it is included in adult fecundity \ifelse{html}{\out{&phi;}}{\eqn{φ}} (by appropriately reducing its value), and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is equal to \eqn{1.0}. This is how it is typically accounted for in matrix models. Or, alternatively,
+#' two ways. Either, as in the examples above, it is included in adult fecundity φ (by appropriately reducing its value), and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is equal to \eqn{1.0}. This is how it is typically accounted for in matrix models. Or, alternatively,
 #' φ is equal to the true maximum fecundity and \ifelse{html}{\out{&sigma;<sub>0</sub> &gamma;<sub>(0-1)</sub>}}{\eqn{σ_0 γ_(0-1)}} is less than \eqn{1.0}.
 #' Only the first approach allows straightforward direct comparison with standard analytical matrix models.
 #'
@@ -145,6 +150,12 @@
 #' where \ifelse{html}{\out{&omega;<sub>&phi;</sub>}}{\eqn{ω_φ}}, \ifelse{html}{\out{&omega;<sub>&sigma;</sub>}}{\eqn{ω_σ}}, \ifelse{html}{\out{&omega;<sub>&gamma;</sub>}}{\eqn{ω_γ}} are weight matrices given by \code{FecStageWtsMatrix, DevStageWtsMatrix, SurvStageWtsMatrix}. Their elements \ifelse{html}{\out{&omega;<sub>ij</sub>}}{\eqn{ω_ij}}
 #' represent the contributions of the abundance of stage \eqn{j} to the density dependence in the fecundity / survival / development of stage \eqn{i}, thus they are quadratic matrices of size \code{Stages}\eqn{^2}. Note that the row sums are not required to be normalized, therefore they can be used
 #' to scale the density-dependence for the different stages. In fact, any real value will be accepted for the single weights, so care should be taken when setting them.
+#'
+#' The demographic rates (fecundity, development probability and survival probability) can be allowed to vary spatially, if the landscape is an imported habitat quality map. In this case, additional maps with the same resolution and extent as the habitat quality map(s) need to be given
+#' in \code{\link[RangeShiftR]{ImportedLandscape}()}. These additional layers contain percentage values between 0 and 100 and the matrices \code{FecLayer}, \code{DevLayer}, and \code{SurvLayer} indicate the mapping of each demographic rate to these layers. The local value
+#' of a given demographic rate for a certain stage and sex in a cell or patch is then determined as the maximum value (the value given in the transition matrix \code{TransMatrix}) scaled with the percentage in the respective mapped layer.
+#' For a patch-based landscape, the scaling percentage of a patch is given by the average percentage of its constituent cells.
+#' Potential density-dependence mediated by the strength 1/b still takes effect also for spatially-varying demographic rates. The respective base values φ_0, σ_0 or γ_0 are then replaced by their locally scaled values.
 #' @examples  # Stage-structure for simple sexual model
 #' transmat <- matrix(c(0,1,0,0,0,0.3,0.4,0,1.5,0,0.6,0.3,2.5,0,0,0.8), ncol = 4)
 #' stg <- StageStructure(Stages = 4, TransMatrix = transmat, FecDensDep = TRUE, SurvDensDep = TRUE, SurvDensCoeff = 1.5)
@@ -179,6 +190,9 @@ StageStructure <- setClass("StagesParams", slots = c(Stages = "integer_OR_numeri
                                                      SurvDensCoeff = "integer_OR_numeric",
                                                      SurvStageWts = "logical",
                                                      SurvStageWtsMatrix = "matrix",
+                                                     FecLayer = "matrix_OR_numeric",
+                                                     DevLayer = "matrix_OR_numeric",
+                                                     SurvLayer = "matrix_OR_numeric",
                                                      PostDestructn = "logical")
                            , prototype = list(#Stages = 2L,
                                               #TransMatrix = matrix(data = NA, nrow = 1, ncol = 1),
@@ -199,6 +213,7 @@ StageStructure <- setClass("StagesParams", slots = c(Stages = "integer_OR_numeri
                                               SurvDensCoeff = 1.0,
                                               SurvStageWts = FALSE,
                                               #SurvStageWtsMatrix = matrix(data = NA, nrow = 1, ncol = 1),
+                                              #FecLayer,DevLayer,SurvLayer,
                                               PostDestructn = FALSE)
 )
     # check forbidden transitions in TransMatrix (e.g. between non-successive stages or between sexes)
@@ -356,7 +371,31 @@ setValidity("StagesParams", function(object) {
             }
         }
     }
-    if (anyNA(object@PostDestructn) || length(object@PostDestructn)!=1) {
+    if (length(object@FecLayer)>0) {
+        if( any( !is.na( object@FecLayer[object@FecLayer<=0] ))) {
+            msg <- c(msg, "Elements of FecLayer must be strictly postive integers or NA for no spatial variation!")
+        }
+        if( min(nrow(object@FecLayer),length(object@FecLayer)) != object@Stages) {
+            msg <- c(msg, "FecLayer must have as many rows as Stages!")
+        }
+    }
+    if (length(object@DevLayer)>0) {
+        if( any( !is.na( object@DevLayer[object@DevLayer<=0] ))) {
+            msg <- c(msg, "Elements of DevLayer must be strictly postive integers or NA for no spatial variation!")
+        }
+        if( min(nrow(object@DevLayer),length(object@DevLayer)) != object@Stages) {
+            msg <- c(msg, "DevLayer must have as many rows as Stages!")
+        }
+    }
+    if (length(object@SurvLayer)>0) {
+        if( any( !is.na( object@SurvLayer[object@SurvLayer<=0] ))) {
+            msg <- c(msg, "Elements of SurvLayer must be strictly postive integers or NA for no spatial variation!")
+        }
+        if( min(nrow(object@SurvLayer),length(object@SurvLayer)) != object@Stages) {
+            msg <- c(msg, "SurvLayer must have as many rows as Stages!")
+        }
+    }
+    if (is.na(object@PostDestructn) || length(object@PostDestructn)!=1) {
         msg <- c(msg, "PostDestructn must be set and of length 1!")
     }
     if (is.null(msg)) TRUE else msg}
@@ -399,6 +438,23 @@ setMethod("initialize", "StagesParams", function(.Object,...) {
             warning(this_func, "SurvStageWts stage weigths", warn_msg_ignored, "since SurvDensDep = FALSE.", call. = FALSE)
         }
     }
+    # replace NAs & convert to matrix
+    if (!is.null(args$FecLayer)) {
+        #.Object@FecLayer[is.na(.Object@FecLayer)] <- -9
+        if(class(.Object@FecLayer)[1]!="matrix") .Object@FecLayer <- matrix(.Object@FecLayer)
+    }
+    if (!is.null(args$DevLayer)) {
+        #.Object@DevLayer[is.na(.Object@DevLayer)] <- -9
+        if(class(.Object@DevLayer)[1]!="matrix") .Object@DevLayer <- matrix(.Object@DevLayer)
+    }
+    if (!is.null(args$SurvLayer)) {
+        #.Object@SurvLayer[is.na(.Object@SurvLayer)] <- -9
+        if(class(.Object@SurvLayer)[1]!="matrix") .Object@SurvLayer <- matrix(.Object@SurvLayer)
+    }
+    # convert to integer
+    if(length(.Object@FecLayer)>0) mode(.Object@FecLayer) <- "integer"
+    if(length(.Object@DevLayer)>0) mode(.Object@DevLayer) <- "integer"
+    if(length(.Object@SurvLayer)>0) mode(.Object@SurvLayer) <- "integer"
     .Object}
 )
 setMethod("show", "StagesParams", function(object){
@@ -434,6 +490,18 @@ setMethod("show", "StagesParams", function(object){
             cat("                 and stage-dependence with weights: \n")
             print(object@SurvStageWtsMatrix)
         }
+    }
+    if(length(object@FecLayer)>0) {
+        cat("   Spatially varying fecundity layer indices:\n")
+        print(object@FecLayer)
+    }
+    if(length(object@DevLayer)>0) {
+        cat("   Spatially varying development layer indices:\n")
+        print(object@DevLayer)
+    }
+    if(length(object@SurvLayer)>0) {
+        cat("   Spatially varying survival layer indices:\n")
+        print(object@SurvLayer)
     }
     cat("   PostDestructn    :", paste(object@PostDestructn) )
     if (object@PostDestructn) {
@@ -728,6 +796,21 @@ setValidity("DemogParams", function(object) {
                         }
                     }
                 }
+                if (length(object@StageStruct@FecLayer)>0) {
+                    if ( any(dim(object@StageStruct@FecLayer)!=c(stgs,2) )) {
+                        msg <- c(msg, "FecLayer must have dimensions \'Stages\' x 2 !")
+                    }
+                }
+                if (length(object@StageStruct@DevLayer)>0) {
+                    if ( any(dim(object@StageStruct@DevLayer)!=c(stgs,2) )) {
+                        msg <- c(msg, "DevLayer must have dimensions \'Stages\' x 2 !")
+                    }
+                }
+                if (length(object@StageStruct@SurvLayer)>0) {
+                    if ( any(dim(object@StageStruct@SurvLayer)!=c(stgs,2) )) {
+                        msg <- c(msg, "SurvLayer must have dimensions \'Stages\' x 2 !")
+                    }
+                }
             }
             else{ # asexual model or simple sexual model
                 if ( any(dim(object@StageStruct@TransMatrix)!=c(stgs,stgs) )) {
@@ -792,6 +875,21 @@ setValidity("DemogParams", function(object) {
                         if ( any(dim(object@StageStruct@SurvStageWtsMatrix)!=c(stgs,stgs) )) {
                             msg <- c(msg, "SurvStageWtsMatrix must have dimensions \'Stages\' x \'Stages\' !")
                         }
+                    }
+                }
+                if (length(object@StageStruct@FecLayer)>0) {
+                    if ( any(dim(object@StageStruct@FecLayer)!=c(stgs,1) )) {
+                        msg <- c(msg, "FecLayer must have dimensions \'Stages\' x 1 !")
+                    }
+                }
+                if (length(object@StageStruct@DevLayer)>0) {
+                    if ( any(dim(object@StageStruct@DevLayer)!=c(stgs,1) )) {
+                        msg <- c(msg, "DevLayer must have dimensions \'Stages\' x 1 !")
+                    }
+                }
+                if (length(object@StageStruct@SurvLayer)>0) {
+                    if ( any(dim(object@StageStruct@SurvLayer)!=c(stgs,1) )) {
+                        msg <- c(msg, "SurvLayer must have dimensions \'Stages\' x 1 !")
                     }
                 }
             }

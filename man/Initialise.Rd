@@ -5,15 +5,17 @@
 \alias{Initialise}
 \title{Set Initialisation Parameters}
 \usage{
-Initialise(InitType = 0, FreeType = 1, SpType = 0, NrCells, InitIndsFile = "NULL",
-           InitDens = 1, IndsHaCell, PropStages = 0, InitAge = 2, minX, minY, maxX, maxY,
-           InitFreezeYear = 0, RestrictRows = 0, RestrictFreq = 0, FinalFreezeYear = 0)
+Initialise(InitType = 0, FreeType = 1, SpType = 0, NrCells,
+           InitIndsFile = "NULL", InitIndsList = list(),
+           InitDens = 1, IndsHaCell, PropStages = 0, InitAge = 2,
+           minX, minY, maxX, maxY, InitFreezeYear = 0,
+           RestrictRows = 0, RestrictFreq = 0, FinalFreezeYear = 0)
 }
 \arguments{
 \item{InitType}{Type of initialisation:\cr
 \code{InitType} = \eqn{0}: Free initialisation according to habitat map (default) (set \code{FreeType}), \cr
 \code{InitType} = \eqn{1}: From loaded species distribution map (set \code{SpType}),\cr
-\code{InitType} = \eqn{2}: From initial individuals list file (set \code{InitIndsFile}).
+\code{InitType} = \eqn{2}: From initial individuals list file (set \code{InitIndsFile} or \code{InitIndsList}, respectively).
 \cr Must to be \eqn{0} for an \code{\link[RangeShiftR]{ArtificialLandscape}}.}
 
 \item{FreeType, NrCells}{Option for \emph{free initialisation}, i.e. required only if \code{InitType}\eqn{ = 0}:\cr
@@ -26,6 +28,8 @@ Initialise(InitType = 0, FreeType = 1, SpType = 0, NrCells, InitIndsFile = "NULL
 
 \item{InitIndsFile}{Name of \emph{initial individuals list file}, required only if \code{InitType}\eqn{ = 2}.\cr
 For informaton on the required file format see the Details below.}
+
+\item{InitIndsList}{The list of initial individuals given as a list of data.frames - one for each replicate simulation (instead of as file name in \code{InitIndsFile}), using the same format (see Details).}
 
 \item{InitDens, IndsHaCell}{Number of individuals to be seeded in each cell/patch:\cr
 \code{InitDens} = \eqn{0}: At \code{K_or_DensDep},\cr
@@ -79,7 +83,8 @@ All habitat cells/patches within either all (\code{SpType}\eqn{=0}), or a specif
 (\code{SpType}\eqn{=1}) presence cells (which can have a lower resolution) specified by this distribution map will seeded.
     \item \emph{From initial individuals list file.} (\code{InitType}\eqn{ = 2})\cr The population is initialised according to a list of specific
 individuals (of given sex, age and stage, if appropriate) in specified cells/patches. This option allows simulation of a reintroduction
-scenario.\cr The list has to be loaded from a file in the path given by \code{InitIndsFile}. It must be a tab-separated list with
+scenario.\cr The list has to be loaded from a file in the path given by \code{InitIndsFile} or given as a list of dataframes in \code{InitIndsList}.
+It must be a tab-separated list with
 explicit column headers and one row for each individual to be initialized. The expected column headers depend on the model settings and
 must match the following order exactly: 'Year', 'Species' (must \eqn{= 0}), for cell-/patch-based: 'X', 'Y' / 'PatchID', 'Ninds', for sexual model: 'Sex',
 for stage-structured population: 'Age', 'Stage'. The sex is specified with \eqn{0} for \emph{female} and \eqn{1} for \emph{male}.
@@ -97,7 +102,7 @@ in each patch (in units of individuals per hectare).
 (These settings have no effect for \code{InitType}\eqn{ = 2}.)
 
 In the case of \code{\link[RangeShiftR]{StageStructure}}d models, the initial stage and age distributions must be specified.
-If \code{InitType}\eqn{ = 2}, this is done via the \code{InitIndsFile}, whereas for \code{InitType}\eqn{ = {0,1}},
+If \code{InitType}\eqn{ = 2}, this is done via the \code{InitIndsFile} or \code{InitIndsList}, whereas for \code{InitType}\eqn{ = {0,1}},
 the proportion of individuals that should be initialised at each stage class is set via the numeric vector \code{PropStages}. It needs
 to have as many entries as number of stages, starting from the juvenile stage (\eqn{0}). Note that these proportions must sum up to \eqn{1.0},
 however the proportion of juveniles must be \eqn{0.0}.

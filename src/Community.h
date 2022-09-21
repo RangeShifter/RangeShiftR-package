@@ -49,6 +49,11 @@ Last updated: 25 June 2021 by Anne-Kathleen Malchow
 #ifndef CommunityH
 #define CommunityH
 
+#if VCL
+//#include <System.Classes.hpp>
+#include <VCLTee.Chart.hpp>
+#endif
+
 #include <vector>
 #include <algorithm>
 using namespace std;
@@ -59,10 +64,23 @@ using namespace std;
 #include "Patch.h"
 #include "Cell.h"
 #include "Species.h"
+#if RS_ABC
+#include "ABC.h"
+#endif
+#if PEDIGREE
+#include "Group.h"
+#include "Pedigree.h"
+#endif
+#if RS_CONTAIN
+#include "Control.h"
+#endif // RS_CONTAIN 
 
 //---------------------------------------------------------------------------
 struct commStats {
 int ninds,nnonjuvs,suitable,occupied;
+#if GOBYMODEL
+int nsocial,nasocial;
+#endif
 int minX,maxX,minY,maxY;
 };
 
@@ -72,24 +90,133 @@ public:
 	Community(Landscape*);
 	~Community(void);
 	SubCommunity* addSubComm(Patch*,int);
+#if RS_CONTAIN
+	void setHabIndex(
+		Species*,	// pointer to Species
+		short			// landscape change index
+	);
+#endif // RS_CONTAIN 
 	// functions to manage populations occurring in the community
+#if PEDIGREE
+	void initialise(
+		Species*,		// pointer to Species
+		Pedigree*,	// pointer to Pedigree
+		int					// year (relevent only for seedType == 2)
+	);
+#else
 	void initialise(
 		Species*,	// pointer to Species
 		int				// year (relevent only for seedType == 2)
 	);
+#endif
 	void addManuallySelected(void);
 	void resetPopns(void);
 	void localExtinction(int);
 	void patchChanges(void);
+#if SEASONAL
+	void reproduction(
+		int,			// year
+		short			// season
+	);
+#else
+#if GROUPDISP
+	void reproduction(
+		Species*,	// pointer to Species
+		int				// year
+	);
+#else
+#if BUTTERFLYDISP
+	void reproduction(
+		Species*,	// pointer to Species
+		int,			// year
+		short			// option: 0 = default (all reproduction before dispersal),
+							// 1 = mating only (before dispersal),
+							// 2 = parturition only (after dispersal)
+	);
+	void fledge(void);
+#else
 	void reproduction(
 		int				// year
 	);
+#endif // BUTTERFLYDISP 
+#endif // GROUPDISP 
+#endif // SEASONAL
+#if RS_DISEASE
+	void emigration(
+		Species*,	// pointer to Species
+		short			// season
+	);
+#else
+#if SEASONAL
+	void emigration(
+		short		// season
+	);
+#else
 	void emigration(void);
+#endif // SEASONAL
+#endif // RS_DISEASE  
+#if RS_ABC
+	void dispersal(
+		short,	// landscape change index
+		bool		// TRUE if there are any connectivity observations
+	);
+#else
+#if PEDIGREE
+	void dispersal(
+		Pedigree*,	// pointer to Pedigree
+		int,        // replicate
+		int,        // year
+		int,        // generation
+		short				// landscape change index
+	);
+#else
+#if SEASONAL || RS_RCPP
 	void dispersal(
 		short,	// landscape change index
 		short		// season / year
 	);
+#else
+	void dispersal(
+		short		// landscape change index
+	);
+#endif // SEASONAL || RS_RCPP
+#endif // PEDIGREE
+#endif // RS_ABC
 
+#if SPATIALMORT
+	void survival(
+		short,	// part:		0 = determine survival & development,
+						//		 			1 = apply survival changes to the population
+		short,	// spatial mortality period (0 or 1)
+		short		// option:	0 = stage 0 (juveniles) only         )
+						//					1 = all stages                       ) used by part 0 only
+						//					2 = stage 1 and above (all non-juvs) )
+	);
+#else
+#if SEASONAL
+	void survival(
+		short,	// season
+		short,	// part:		0 = determine survival & development,
+						//		 			1 = apply survival changes to the population
+		short,	// option0:	0 = stage 0 (juveniles) only         )
+						//					1 = all stages                       ) used by part 0 only
+						//					2 = stage 1 and above (all non-juvs) )
+		short 	// option1:	0 - development only (when survival is annual)
+						//	  	 		1 - development and survival
+	);
+#else
+#if PEDIGREE
+	void survival(
+		Pedigree*,	// pointer to Pedigree
+		short,			// part:		0 = determine survival & development,
+								//		 			1 = apply survival changes to the population
+		short,			// option0:	0 = stage 0 (juveniles) only         )
+								//					1 = all stages                       ) used by part 0 only
+								//					2 = stage 1 and above (all non-juvs) )
+		short 	// option1:	0 - development only (when survival is annual)
+						//	  	 		1 - development and survival
+	);
+#else
 	void survival(
 		short,	// part:		0 = determine survival & development,
 						//		 			1 = apply survival changes to the population
@@ -99,21 +226,48 @@ public:
 		short 	// option1:	0 - development only (when survival is annual)
 						//	  	 		1 - development and survival
 	);
+#endif // PEDIGREE
+#endif // SEASONAL 
+#endif // SPATIALMORT
+#if RS_CONTAIN
+	int findCullTargets(Cull*,int,int);
+	void cullAllTargets(Cull*);
+	void cullRandomTargets(Cull*,int);
+	void cullTargets(Cull*);
+//	void cullClosestTargets(Cull*,int);
+	void resetCullTargets(void);
+	void resetCull(void); 
+	void updateDamage(Species*,Cull*);
+#endif // RS_CONTAIN 
 	void ageIncrement(void);
 	int totalInds(void);
 	Population* findPop( // Find the population of a given species in a given patch
 		Species*, // pointer to Species
 		Patch*		// pointer to Patch
 	);
+#if SEASONAL
+	commStats getStats(
+		short		// season
+	);
+#else
 	commStats getStats(void);
+#endif // SEASONAL 
 	void createOccupancy(
 		int,	// no. of rows = (no. of years / interval) + 1
 		int		// no. of replicates
 	);
+#if SEASONAL
+	void updateOccupancy(
+		int,	// row = (no. of years / interval)
+		int,	// replicate
+		short	// season
+	);
+#else
 	void updateOccupancy(
 		int,	// row = (no. of years / interval)
 		int		// replicate
 	);
+#endif // SEASONAL 
 	void deleteOccupancy(
 		int		// no. of rows (as above)
 	);
@@ -122,21 +276,56 @@ public:
 		Species*,	// pointer to Species
 		int				// Landscape number (-999 to close the file)
 	);
+#if RS_ABC
+	void outRange( // Write record to range file
+		Species*, 	// pointer to Species
+		int,				// replicate
+		int,				// year
+		int,				// generation
+		ABCmaster*,	// pointer to ABC master object
+		bool				// TRUE if ABC observations in current year
+	);
+#else
 	void outRange( // Write record to range file
 		Species*, // pointer to Species
 		int,			// replicate
 		int,			// year
 		int				// generation
 	);
+#endif
 	bool outPopHeaders( // Open population file and write header record
 		Species*, // pointer to Species
 		int       // option: -999 to close the file
 	);
+#if RS_ABC
+	void outPop( // Write records to population file
+		Species*, 	// pointer to Species
+		int,				// replicate
+		int,				// year
+		int,				// generation
+		ABCmaster*,	// pointer to ABC master object
+		bool,				// TRUE if ABC observations in current year
+		bool				// TRUE if normal population output in current year
+	);
+#else
 	void outPop( // Write records to population file
 		int,	// replicate
 		int,	// year
 		int		// generation
 	);
+#endif
+
+#if RS_CONTAIN
+	bool outCullHeaders( // Open cull file and write header record
+		Species*, // pointer to Species
+		int       // option: -999 to close the file
+	);
+	void outCull( // Write records to cull file
+		int,	// replicate
+		int,	// year
+		int		// generation
+	);
+#endif // RS_CONTAIN 
 
 	void outInds( // Write records to individuals file
 		int,	// replicate
@@ -200,7 +389,24 @@ public:
 		int,	// generation
 		int		// Landscape number
 	);
+#if RS_ABC
+	void outABCpreds( // Write predictions for ABC
+//		Species*, 	// pointer to Species
+		int,				// replicate
+		int,				// year
+//		int,				// generation
+		ABCmaster*,	// pointer to ABC master object
+		float				// landscape resolution
+	);
+#endif
+#if PEDIGREE
+	bool outGroupHeaders( // Open groups file and write header record
+		int       // option: -999 to close the file
+	);
+#endif
+#if RS_RCPP && !R_CMD
     Rcpp::IntegerMatrix addYearToPopList(int,int);
+#endif
 
 private:
 	Landscape *pLandscape;
@@ -212,6 +418,10 @@ private:
 
 extern paramSim *paramsSim;
 extern paramInit *paramsInit;
+
+#if VCL
+extern bool stopRun;
+#endif
 
 
 //---------------------------------------------------------------------------

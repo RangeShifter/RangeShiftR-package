@@ -994,7 +994,7 @@ setMethod("plotProbs", "DispersalKernel", function(x, mortality = FALSE, combine
 #' the method used to evaluate the landscape within their perceptual range (\code{PRMethod}), and their directional persistence (\code{DP}), which corresponds to
 #' their tendency to follow a correlated random walk. At each step, the individual evaluates the surrounding habitat in order to determine
 #' the effective cost of taking a particular step to each of the eight neighbouring cells. The effective cost is a mean of the cost of the
-#' neighbouring cell and the surrounding cells beyond it within the \code{PR}, and is calculated by one of three possible methods:\cr
+#' neighbouring cell and the surrounding cells beyond it within the \code{PR}, and is calculated by one of three possible methods:
 #' - \emph{Arithmetic mean}\cr
 #' - \emph{Harmonic mean} - The reciprocal of the arithmetic mean of the reciprocals of the observations (cell costs). This method increases the
 #' detectability of low cost cells but performs less well than the arithmetic mean in detecting high cost cells. Therefore, the choice between

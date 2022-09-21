@@ -37,13 +37,15 @@
 #'
 #' @include plotProbs.R
 #' @include Rfunctions.R
-#' @usage Initialise(InitType = 0, FreeType = 1, SpType = 0, NrCells, InitIndsFile = "NULL",
-#'            InitDens = 1, IndsHaCell, PropStages = 0, InitAge = 2, minX, minY, maxX, maxY,
-#'            InitFreezeYear = 0, RestrictRows = 0, RestrictFreq = 0, FinalFreezeYear = 0)
+#' @usage Initialise(InitType = 0, FreeType = 1, SpType = 0, NrCells,
+#'            InitIndsFile = "NULL", InitIndsList = list(),
+#'            InitDens = 1, IndsHaCell, PropStages = 0, InitAge = 2,
+#'            minX, minY, maxX, maxY, InitFreezeYear = 0,
+#'            RestrictRows = 0, RestrictFreq = 0, FinalFreezeYear = 0)
 #' @param InitType Type of initialisation:\cr
 #' \code{InitType} = \eqn{0}: Free initialisation according to habitat map (default) (set \code{FreeType}), \cr
 #' \code{InitType} = \eqn{1}: From loaded species distribution map (set \code{SpType}),\cr
-#' \code{InitType} = \eqn{2}: From initial individuals list file (set \code{InitIndsFile}).
+#' \code{InitType} = \eqn{2}: From initial individuals list file (set \code{InitIndsFile} or \code{InitIndsList}, respectively).
 #' \cr Must to be \eqn{0} for an \code{\link[RangeShiftR]{ArtificialLandscape}}.
 #' @param FreeType,NrCells Option for \emph{free initialisation}, i.e. required only if \code{InitType}\eqn{ = 0}:\cr
 #' \code{FreeType} = \eqn{0}: Random; provide number of cells/patches to initialise in \code{NrCells}. \cr
@@ -53,6 +55,7 @@
 #' \code{SpType} = \eqn{1}: All suitable cells within some randomly chosen presence cells; set number of cells to initialise in \code{NrCells}.
 #' @param InitIndsFile Name of \emph{initial individuals list file}, required only if \code{InitType}\eqn{ = 2}.\cr
 #' For informaton on the required file format see the Details below.
+#' @param InitIndsList The list of initial individuals given as a list of data.frames - one for each replicate simulation (instead of as file name in \code{InitIndsFile}), using the same format (see Details).
 #' @param InitDens,IndsHaCell Number of individuals to be seeded in each cell/patch:\cr
 #' \code{InitDens} = \eqn{0}: At \code{K_or_DensDep},\cr
 #' \code{InitDens} = \eqn{1}: At half \code{K_or_DensDep} (default),\cr
@@ -85,7 +88,8 @@
 #' (\code{SpType}\eqn{=1}) presence cells (which can have a lower resolution) specified by this distribution map will seeded.
 #'     \item \emph{From initial individuals list file.} (\code{InitType}\eqn{ = 2})\cr The population is initialised according to a list of specific
 #' individuals (of given sex, age and stage, if appropriate) in specified cells/patches. This option allows simulation of a reintroduction
-#' scenario.\cr The list has to be loaded from a file in the path given by \code{InitIndsFile}. It must be a tab-separated list with
+#' scenario.\cr The list has to be loaded from a file in the path given by \code{InitIndsFile} or given as a list of dataframes in \code{InitIndsList}.
+#' It must be a tab-separated list with
 #' explicit column headers and one row for each individual to be initialized. The expected column headers depend on the model settings and
 #' must match the following order exactly: 'Year', 'Species' (must \eqn{= 0}), for cell-/patch-based: 'X', 'Y' / 'PatchID', 'Ninds', for sexual model: 'Sex',
 #' for stage-structured population: 'Age', 'Stage'. The sex is specified with \eqn{0} for \emph{female} and \eqn{1} for \emph{male}.
@@ -103,7 +107,7 @@
 #' (These settings have no effect for \code{InitType}\eqn{ = 2}.)
 #'
 #' In the case of \code{\link[RangeShiftR]{StageStructure}}d models, the initial stage and age distributions must be specified.
-#' If \code{InitType}\eqn{ = 2}, this is done via the \code{InitIndsFile}, whereas for \code{InitType}\eqn{ = {0,1}},
+#' If \code{InitType}\eqn{ = 2}, this is done via the \code{InitIndsFile} or \code{InitIndsList}, whereas for \code{InitType}\eqn{ = {0,1}},
 #' the proportion of individuals that should be initialised at each stage class is set via the numeric vector \code{PropStages}. It needs
 #' to have as many entries as number of stages, starting from the juvenile stage (\eqn{0}). Note that these proportions must sum up to \eqn{1.0},
 #' however the proportion of juveniles must be \eqn{0.0}.
@@ -162,6 +166,7 @@ Initialise <- setClass("InitialisationParams", slots = c(InitType = "integer_OR_
                                                          SpType = "integer_OR_numeric",
                                                          NrCells = "integer_OR_numeric",
                                                          InitIndsFile = "character",
+                                                         InitIndsList = "list", # "data.frame",
                                                          InitDens = "integer_OR_numeric",
                                                          IndsHaCell = "integer_OR_numeric",
                                                          PropStages = "numeric",
@@ -179,6 +184,7 @@ Initialise <- setClass("InitialisationParams", slots = c(InitType = "integer_OR_
                                           SpType = 0L,   #all
                                           #NrCells,
                                           InitIndsFile = "NULL",
+                                          InitIndsList = list(), # data.frame(),
                                           InitDens = 1L, #K/2
                                           #IndsHaCell,
                                           PropStages = 0.0,
@@ -321,8 +327,13 @@ setValidity('InitialisationParams', function(object){
                 }
             }
             if (object@InitType == 2){  # Init IndsList
-                if (object@InitIndsFile == "NULL"){
-                    msg <- c(msg, 'InitIndsFile is required if InitType = 2 (from loaded initial individuals list).')
+                if (object@InitIndsFile == "NULL" & length(object@InitIndsList)==0){
+                    msg <- c(msg, 'InitIndsFile or InitIndsList is required if InitType = 2 (from loaded initial individuals list).')
+                }
+                else {
+                    if (object@InitIndsFile != "NULL" & length(object@InitIndsList)!=0){ # both are given
+                            msg <- c(msg, 'Both InitIndsFile and InitIndsList are given, but only one can be used.')
+                    }
                 }
             }
         }
@@ -441,8 +452,12 @@ setMethod('initialize', 'InitialisationParams', function(.Object, ...) {
     }
     else{
         .Object@InitIndsFile = "NULL"
+        .Object@InitIndsList = list() # data.frame()
         if (!is.null(args$InitIndsFile)) {
             warning(this_func, "InitIndsFile", warn_msg_ignored, "since InitType != 2.", call. = FALSE)
+        }
+        if (!is.null(args$InitIndsList)) {
+            warning(this_func, "InitIndsList", warn_msg_ignored, "since InitType != 2.", call. = FALSE)
         }
     }
     if (!((.Object@InitType == 0 && .Object@FreeType == 0) || (.Object@InitType == 1 && .Object@SpType == 1))) {
@@ -529,7 +544,8 @@ setMethod("show", "InitialisationParams", function(object){
         else{cat("                  all presence cells/patches.")}
     }
     if (object@InitType == 2) {
-        cat("Initialisation from initial individuals list\n                  from file:",object@InitIndsFile)
+        if (object@InitIndsFile != "NULL") cat("Initialisation from initial individuals list\n                  from file:",object@InitIndsFile)
+        if (length(object@InitIndsList) != 0) cat("Initialisation from initial individuals list given as list of data.frames")
     }
     cat("\n")
 
