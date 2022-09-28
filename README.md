@@ -2,7 +2,8 @@
 
 ## !! This is a development version of RangeShiftR !!
 
-It contains a new feature that allows all demographic rates to vary spatially and temporally.
+It can run without any file inputs or outputs and instead takes input maps as matrices from R. 
+A new feature is implemented that allows all demographic rates to vary spatially and temporally.
 
 It is published here as supplementary material to the publication
 
