@@ -46,3 +46,5 @@ https://rangeshifter.github.io/RangeshiftR-tutorials/
  - Bocedi G, Palmer SCF, Pe’er G, Heikkinen RK, Matsinos YG, Watts K, Travis JMJ (2014). 
  *RangeShifter: A Platform for Modelling Spatial Eco-Evolutionary Dynamics and 
  Species’ Responses to Environmental Changes.* Methods in Ecology and Evolution 5: 388–96. 
+ - Bocedi G, Palmer SCF, Malchow AK, Zurell D, Watts K, Travis JMJ (2021) *RangeShifter 2.0: An extended and enhanced platform for modelling spatial eco-evolutionary dynamics and species’ responses to environmental changes.* Ecography 44:1453-1462.
+ - Malchow AK, Bocedi G, Palmer SCF, Travis JMJ, Zurell D (2021) *RangeShiftR: an R package for individual-based simulation of spatial eco-evolutionary dynamics and species’ responses to environmental change.* Ecography 4: 1443-1452.
