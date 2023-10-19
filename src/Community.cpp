@@ -2676,8 +2676,8 @@ Rcpp::IntegerMatrix Community::addYearToPopList(int rep, int yr) {  // TODO: def
 						} else {
 							pSubComm = (SubCommunity*)subcomm;
 							pop = pSubComm->getPopStats();
-							pop_map_year(ppLand.dimY-1-y,x) = pop.nInds; // use indices like this because matrix gets transposed upon casting it into a raster on R-level
-							//pop_map_year(ppLand.dimY-1-y,x) = pop.nAdults;
+							//pop_map_year(ppLand.dimY-1-y,x) = pop.nInds; // use indices like this because matrix gets transposed upon casting it into a raster on R-level
+							pop_map_year(ppLand.dimY-1-y,x) = pop.nAdults; // options: pop.nInds, pop.nNonJuvs, pop.nAdults
 						}
 					}
 				}
