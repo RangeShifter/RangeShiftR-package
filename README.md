@@ -1,15 +1,19 @@
-# RangeShiftR // Spatial demography <img src="man/figures/RSRlogo.png" align="right" height = 150/>
+# RangeShiftR // Full R input <img src="man/figures/RSRlogo.png" align="right" height = 150/>
 
 ## !! This is a development version of RangeShiftR !!
 
-It can run without any file inputs or outputs and instead takes input maps as matrices from R. 
-A new feature is implemented that allows all demographic rates to vary spatially and temporally.
-
 It is published here as supplementary material to the publication
 
-*"Demography-environment relationships improve mechanistic understanding of range dynamics under climate change"*
+*"Fitting individual-based models of spatial population dynamics to long-term monitoring data"*
 
-by Anne-Kathleen Malchow, Florian Hartig, Jette Reeg, Marc Kéry, and Damaris Zurell.
+by Anne-Kathleen Malchow, Guillermo Fandos, Urs G. Kormann, Martin U. Grüebler, Marc Kéry, Florian Hartig, Damaris Zurell.  
+
+
+This version can run without any file inputs or outputs and instead takes input maps as matrices from R. 
+Inputs such as habitat maps can now be given as matrices in R and the output abundance maps are (optionally) returned as raster objects. 
+(Note: the output type that is stored in these return rasters is currently hard-coded and is here set to the number of adult individuals in each cell. Adults are all stages with strictly positive fecundity.) 
+Avoiding the file connection saves runtime and facilitates thread safety as needed for parallel code execution.
+Further, a new feature allows all demographic rates to vary spatially and temporally.
 
 ---
 
@@ -42,6 +46,8 @@ well as a functional C++ compiler toolchain.
 ```r
 # Install RangeShiftR from GitHub:
 devtools::install_github("RangeShifter/RangeShiftR-package", ref="main")
+# To install this development version, instead use:
+devtools::install_github("RangeShifter/RangeShiftR-package", ref="full_R_input")
 ```
 
 ## Usage
