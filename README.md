@@ -1,3 +1,4 @@
+⚠️ This is an archive for the RangeShiftR package. Please use the [new RangeShiftR repository](https://www.github.com/RangeShifter/RangeShiftR-pkg) ⚠️
 # RangeShiftR <img src="man/figures/RSRlogo.png" align="right" height = 150/>
 
 The RangeShiftR package implements the RangeShifter simulation platform for R.
